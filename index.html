@@ -1739,6 +1739,7 @@
       let TIER = 1
       let RATES = { ...SCEN.desalinhado }
       let PERFIL = 'a'
+      let SHOW_G = true
       try {
         const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null')
         if (saved) {
@@ -1746,11 +1747,12 @@
           if (TIERS[saved.tier]) TIER = saved.tier
           if (saved.rates) RATES = { ...RATES, ...saved.rates }
           if (PERFIS[saved.perfil]) PERFIL = saved.perfil
+          if (saved.showG === false) SHOW_G = false
         }
       } catch {}
       function save() {
         try {
-          localStorage.setItem(STORE_KEY, JSON.stringify({ diag: DIAG, tier: TIER, rates: RATES, perfil: PERFIL }))
+          localStorage.setItem(STORE_KEY, JSON.stringify({ diag: DIAG, tier: TIER, rates: RATES, perfil: PERFIL, showG: SHOW_G }))
         } catch {}
       }
 
@@ -1918,16 +1920,25 @@
         return Array.from({ length: shown }, (_, i) => `<div class="doc" style="animation-delay:${i * 0.07}s">${ICON.doc}<span>${label}</span></div>`).join('')
       }
       function valueHTML(c) {
+        const stat = (t, v, s) => `<div class="card px-8 py-7 text-center"><div class="text-xl text-zinc-400">${t}</div><div class="font-display font-black text-6xl text-white mt-2 leading-none">${v}</div>${s ? `<div class="text-lg text-zinc-500 mt-2">${s}</div>` : ''}</div>`
         return `<div class="eyebrow anim">Quanto vale</div>
           <div class="grid grid-cols-[340px_1fr] gap-16 flex-1 items-center">
             <div class="anim d1 text-center">
-              <img src="${c.foto}" alt="" class="w-[220px] h-[220px] rounded-full object-cover border-4 border-brand-500/60 mx-auto" />
+              <img src="${c.foto}" alt="" class="w-[220px] h-[220px] rounded-full object-cover border-4 border-brand-500/60 mx-auto shadow-[0_0_80px_rgba(234,179,8,0.3)]" />
               <div class="font-display font-black text-4xl text-white mt-6">${esc(c.n)}</div>
               <div class="text-xl text-zinc-400 mt-1">${c.a}</div>
             </div>
-            <div class="flex flex-col gap-10">
-              <div data-step="1"><div class="text-2xl text-zinc-400 mb-5">${c.contr} ${c.contrLabel} × ${brl(c.tk)}</div><div class="flex flex-wrap gap-4">${docsHTML(c.contr, mil(c.tk).replace('R$ ', ''))}</div></div>
-              <div data-step="2"><div class="font-display font-black text-[120px] leading-none text-brand-400" style="text-shadow:0 0 50px rgba(234,179,8,0.4)">${mil(c.fat)}</div><div class="text-3xl text-zinc-300 mt-3">${c.fatLabel}</div></div>
+            <div class="flex flex-col gap-12">
+              <div data-step="1" class="grid grid-cols-3 gap-5">
+                ${stat('Investiu em anúncios', brl(c.inv), 'no mês')}
+                ${stat('Recebeu', num(c.leads), 'leads')}
+                ${stat('Fechou', num(c.contr), `${c.contrLabel} × ${mil(c.tk)}`)}
+              </div>
+              <div data-step="2" class="card !border-brand-500/60 px-10 py-8 shadow-[0_0_60px_-10px_rgba(234,179,8,0.5)]">
+                <div class="text-2xl text-zinc-400">Quanto vale</div>
+                <div class="font-display font-black text-[110px] leading-none text-brand-400 mt-2" style="text-shadow:0 0 50px rgba(234,179,8,0.4)">${mil(c.fat)}</div>
+                <div class="text-3xl text-zinc-300 mt-3">${c.fatLabel}</div>
+              </div>
             </div>
           </div>`
       }
@@ -2280,7 +2291,7 @@
       // Slides de objeção ficam fora do roteiro: só abrem pelo mapa ou pelo modo apresentador, e V volta de onde parou
       const isExtra = i => slides[i].hasAttribute('data-extra')
       // Slides marcados com data-perfil só entram no roteiro do perfil escolhido (A ou B)
-      const inPerfil = i => !slides[i].dataset.perfil || slides[i].dataset.perfil === PERFIL
+      const inPerfil = i => (!slides[i].dataset.perfil || slides[i].dataset.perfil === PERFIL) && (SHOW_G || slides[i].dataset.id !== 'vale-guilherme')
       const route = () => slides.map((_, i) => i).filter(i => !isExtra(i) && inPerfil(i))
       let returnTo = null
 
@@ -2347,7 +2358,7 @@
         document.getElementById('notes-content').innerHTML = notes ? notes.innerHTML : ''
         const ms = maxStep(cur)
         const r = route()
-        document.getElementById('notes-meta').innerHTML = `<b class="text-white">${isExtra(cur) ? 'Objeção' : `${r.indexOf(cur) + 1}/${r.length}`} · ${s.dataset.title}</b>${ms ? ` · clique ${step}/${ms}` : ''} · ~${s.dataset.time} min · perfil ${PERFIL.toUpperCase()}`
+        document.getElementById('notes-meta').innerHTML = `<b class="text-white">${isExtra(cur) ? 'Objeção' : `${r.indexOf(cur) + 1}/${r.length}`} · ${s.dataset.title}</b>${ms ? ` · clique ${step}/${ms}` : ''} · ~${s.dataset.time} min · perfil ${PERFIL.toUpperCase()} · Guilherme ${SHOW_G ? 'on' : 'off'} (G)`
         renderMap()
         syncPresenter()
       }
@@ -2581,6 +2592,20 @@
         else if (k === 'v' || k === 'V') goBack()
         else if (k === '1' || k === '2' || k === '3') setTier(+k)
         else if (k === 'a' || k === 'A' || k === 'b' || k === 'B') setPerfil(k.toLowerCase())
+        else if (k === 'g' || k === 'G') {
+          SHOW_G = !SHOW_G
+          save()
+          if (!SHOW_G && slides[cur].dataset.id === 'vale-guilherme') {
+            const nx = neighbor(1)
+            if (nx >= 0) jumpTo(nx)
+          }
+          update()
+          const t = document.createElement('div')
+          t.textContent = SHOW_G ? 'Guilherme: aparece' : 'Guilherme: escondido'
+          t.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#18181b;color:#fff;border:1px solid #3f3f46;padding:10px 18px;border-radius:999px;font:600 15px Inter,system-ui,sans-serif;z-index:9999'
+          if (pw && !pw.closed) pw.document.body.appendChild(t)
+          setTimeout(() => t.remove(), 1600)
+        }
         else if (k === 'm' || k === 'M') toggleOverlay('map')
         else if (k === 'n' || k === 'N') toggleNotes()
         else if (k === 'p' || k === 'P') {
