@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leads</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: { 50: '#fefce8', 100: '#fef9c3', 200: '#fef08a', 300: '#fde047', 400: '#facc15', 500: '#eecc11', 600: '#ca8a04', 700: '#a16207', 800: '#854d0e', 900: '#713f12' } },
+            fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/primeicons@7.0.0/primeicons.css" rel="stylesheet" />
+    <link href="app.css" rel="stylesheet" />
+    <style>
+      .p-btn-lg {
+        font-size: 1.125rem;
+        padding: 0.625rem 1.125rem;
+      }
+      .p-select {
+        appearance: none;
+        background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+        padding-right: 2.25rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body class="h-screen overflow-hidden">
+    <div class="flex h-screen bg-slate-50">
+      <aside id="app-sidebar"></aside>
+      <div class="flex-1 flex flex-col overflow-hidden w-full min-w-0">
+        <main class="flex-1 p-8 overflow-y-auto relative w-full mx-auto max-w-7xl scroll">
+          <div class="flex flex-wrap gap-2 justify-between mt-10 mb-10">
+            <h2 class="text-3xl font-black leading-tight">Leads</h2>
+            <button class="p-btn p-btn-primary p-btn-lg"><i class="pi pi-plus !text-base"></i>Criar lead</button>
+          </div>
+
+          <div class="flex flex-col gap-4 pb-6">
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="relative">
+                <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input id="search" type="search" placeholder="Buscar nome, telefone ou e-mail" class="p-input !py-2 !pl-10 w-72" />
+              </label>
+              <select id="f-user" class="p-input p-select !py-2"></select>
+              <select id="f-tag" class="p-input p-select !py-2"></select>
+              <span class="ml-auto text-xs text-gray-400"><i class="pi pi-arrows-h text-[10px]"></i> Arraste o card para mudar de etapa · clique para abrir</span>
+            </div>
+            <div id="board" class="flex gap-4 overflow-x-auto pb-4 scroll"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div id="modal" class="p-mask" hidden></div>
+
+    <script src="app.js"></script>
+    <script>
+      appLayout('leads')
+
+      const TEAM = { jr: 'Juliana Rocha', bm: 'Bruno Matos', cf: 'Camila Ferraz', rl: 'Rafael Lima' }
+      const OFFICE = 'Ferraz & Lima Advocacia'
+
+      // Funil padrão do app (Pipeline.php)
+      const STAGES = [
+        { id: 'new', name: 'Novo lead', kind: 'new' },
+        { id: 'try', name: 'Tentando contato', kind: 'normal' },
+        { id: 'talk', name: 'Conversando', kind: 'normal' },
+        { id: 'wait', name: 'Aguardando data combinada', kind: 'normal' },
+        { id: 'meeting', name: 'Consulta agendada', kind: 'meeting' },
+        { id: 'noshow', name: 'Faltou na consulta', kind: 'no_show' },
+        { id: 'closing', name: 'Fechamento', kind: 'normal' },
+        { id: 'won', name: 'Contrato fechado', kind: 'won' },
+        { id: 'lost', name: 'Perdido', kind: 'lost' }
+      ]
+      const KIND_ICONS = { new: 'pi pi-inbox', meeting: 'pi pi-calendar', no_show: 'pi pi-calendar-times', won: 'pi pi-trophy', lost: 'pi pi-times-circle' }
+      const stageOf = id => STAGES.find(s => s.id === id)
+      const stageIndex = id => STAGES.findIndex(s => s.id === id)
+
+      const LOST_REASONS = [
+        { value: 'no_response', label: 'Sem resposta' },
+        { value: 'no_legal_merit', label: 'Sem viabilidade jurídica' },
+        { value: 'disqualified', label: 'Procurava outro serviço' },
+        { value: 'not_client', label: 'Não era cliente' },
+        { value: 'gave_up', label: 'Desistência' },
+        { value: 'competitor', label: 'Fechou com concorrente' },
+        { value: 'fees', label: 'Honorários' }
+      ]
+
+      // Cadência de cada etapa, com os textos do app
+      const CALL = 'Faça 3 ligações seguidas, uma logo após a outra. Se não atender, mande o WhatsApp abaixo logo em seguida.'
+      const GIVE_UP = 'Encerre como perdido com o motivo "Sem resposta" (não use "Procurava outro serviço" nem "Não era cliente": quem não respondeu pode ter um ótimo perfil).'
+      const HOW_WE_WORK = '{nome}, já te contei como trabalhamos aqui no escritório?\nMuita gente chega cheia de dúvidas ou insegura e escolhe a gente pela forma clara como explicamos cada passo.\nNormalmente marcamos uma conversa inicial para entender toda a situação, ouvir o que está acontecendo e explicar quais são os caminhos possíveis.\nVamos conversar?'
+      const step = (title, type, description, message) => ({ title, type, description, message })
+      const lostStep = step('Marcar o lead como perdido por falta de resposta', 'other', GIVE_UP)
+      const CADENCE = {
+        new: [step('Mover o lead para "Tentando contato"', 'other', 'Quanto mais rápido o primeiro contato, maior a chance de fechar.')],
+        try: [
+          step('1º dia: ligações + WhatsApp', 'call', CALL + ' Depois da mensagem, grave o áudio explicando como funciona o atendimento.', 'Oi, {nome}! Tudo bem?\nAqui é {meu_nome}, do {escritorio}.\nAntes de tudo, obrigado pelo seu interesse no nosso trabalho. Vou te mandar um áudio explicando como funciona o nosso atendimento, pode ser?'),
+          step('2º dia: ligações + WhatsApp', 'call', CALL, '{nome}, te mandei um áudio explicando como funciona o nosso trabalho.\nEra esse tipo de orientação jurídica que você estava buscando para a sua situação?'),
+          step('3º dia: ligações + WhatsApp', 'call', CALL, '{nome}?'),
+          step('4º dia: ligações + WhatsApp', 'call', CALL, '{nome}, tentei falar com você por ligação, mas não consegui… e eu entendo a correria do dia a dia.\nQuando for um bom momento para conversarmos sobre o seu caso?'),
+          step('5º dia: ligações + WhatsApp', 'call', CALL, HOW_WE_WORK),
+          lostStep
+        ],
+        talk: [
+          step('1º dia: ligações + WhatsApp', 'call', 'Faça 3 ligações seguidas, uma logo após a outra. Se não atender, mande uma mensagem retomando a conversa.', 'Oi, {nome}! Tudo bem?\nPassando para retomar a nossa conversa sobre o seu caso. Conseguiu separar os documentos que comentamos?'),
+          step('2º dia: ligações + WhatsApp', 'call', CALL, '{nome}, lembrei de você hoje…\nAtendemos recentemente uma situação bem parecida com a sua e deu tudo certo. Vamos marcar uma conversa?'),
+          step('3º dia: ligações + WhatsApp', 'call', CALL, '{nome}?'),
+          step('4º dia: ligações + WhatsApp', 'call', CALL, HOW_WE_WORK),
+          step('5º dia: só WhatsApp', 'other', 'Hoje não precisa ligar: mande só a mensagem abaixo.', '{nome}, te mandei uma mensagem aqui em cima sobre o seu caso. Ficou alguma dúvida?'),
+          step('6º dia: último contato', 'call', CALL, '{nome}, sei que a rotina deve estar corrida, então este é o meu último contato por aqui. Se quiser retomar, é só me chamar.'),
+          lostStep
+        ],
+        wait: [
+          step('Chamar no dia combinado com o lead', 'call', 'Ajuste a data desta tarefa para o dia e a hora que vocês combinaram. Faça 3 ligações seguidas.', 'Oi, {nome}! Tudo bem?\nComo combinamos, estou entrando em contato de novo para conversarmos sobre o seu caso.'),
+          step('1º follow-up', 'call', CALL, 'Oi, {nome}! Tudo bem?\nComo combinamos, estou entrando em contato de novo para conversarmos sobre o seu caso.'),
+          step('2º follow-up', 'call', CALL, '{nome}?'),
+          step('3º follow-up', 'call', CALL, '{nome}, te mandei uma mensagem aqui em cima sobre como posso te ajudar no seu caso.'),
+          step('4º follow-up', 'call', CALL, HOW_WE_WORK),
+          lostStep
+        ],
+        meeting: [
+          step('Confirmar a consulta na véspera', 'call', 'Confirme o dia e o horário e mande o endereço ou o link da reunião.', 'Oi, {nome}! Tudo certo para a nossa conversa amanhã? Qualquer imprevisto, me avisa por aqui.'),
+          step('Lembrete no dia da consulta', 'other', 'Mande o lembrete algumas horas antes.', '{nome}, nossa conversa é hoje! Te espero no horário combinado.'),
+          step('Consulta', 'other', 'Hora da consulta. Depois, marque se o lead compareceu.')
+        ],
+        noshow: [
+          step('1º follow-up: remarcar', 'call', CALL + ' Troque [opção 1] e [opção 2] por dois horários livres.', 'Oi, {nome}! Tudo bem?\nVi que você não conseguiu participar da nossa conversa. Imprevistos acontecem!\nVamos remarcar? Tenho horários esta semana: fica melhor [opção 1] ou [opção 2]?'),
+          step('2º follow-up', 'call', CALL, '{nome}?'),
+          step('3º follow-up', 'call', CALL, '{nome}, a conversa inicial serve justamente para entender a sua situação com calma e explicar os caminhos. Vamos remarcar?'),
+          lostStep
+        ],
+        closing: [
+          step('1º follow-up', 'call', 'Faça 3 ligações seguidas, uma logo após a outra. Confirme se recebeu a proposta, tire as dúvidas e combine dia e hora para a resposta. Se não atender, mande a mensagem abaixo.', 'Oi, {nome}! Tudo bem?\nConseguiu analisar a proposta que te enviei? Se ficou qualquer dúvida, me fala que eu te explico.'),
+          step('2º follow-up', 'call', CALL, '{nome}?'),
+          step('3º follow-up', 'call', CALL, '{nome}, lembrei de você hoje…\nEm muitos casos os prazos fazem diferença, por isso é importante não deixar para depois.'),
+          step('4º follow-up', 'call', CALL, '{nome}, eu errei com você?\nPergunto porque combinamos de conversar sobre o seu caso e não tive mais notícias.'),
+          step('5º follow-up: último contato', 'call', CALL, 'Certo, {nome}, este é o meu último contato, porque não quero ser inconveniente. Se quiser seguir com o caso, é só me chamar.'),
+          lostStep
+        ]
+      }
+
+      const NAMES = {
+        new: ['Gustavo Teixeira', 'Larissa Freitas', 'João Pereira', 'Fernanda Alves'],
+        try: ['Daniela Moura', 'Vinícius Lopes', 'Natália Vieira', 'Diego Correia', 'Simone Batista', 'Ricardo Souza', 'Aline Ferreira'],
+        talk: ['Luiz Barros', 'Viviane Rocha', 'Jorge Martins', 'Mônica Gomes', 'Antônio Ribeiro', 'Patrícia Gomes'],
+        wait: ['Fábio Ferreira', 'Michele Lima', 'Edson Souza'],
+        meeting: ['Jaqueline Nascimento', 'Cícero Carvalho', 'Andreia Araújo', 'Sebastião Ribeiro', 'Elisângela Rodrigues'],
+        noshow: ['Rogério Almeida', 'Tatiane Barros'],
+        closing: ['Paulo Henrique Reis', 'Sandra Queiroz', 'Renato Campos', 'Bianca Rezende'],
+        won: ['Adriana Machado', 'Jefferson Lima', 'Priscila Andrade', 'Rodrigo Farias', 'Daniela Castro', 'Kátia Moreira'],
+        lost: ['Leonardo Pires', 'Viviane Souza', 'Mateus Rocha', 'Cristiane Melo', 'André Barbosa', 'Sabrina Fonseca']
+      }
+      const PROBLEMS = ['Salário atrasado há 3 meses', 'FGTS não depositado desde o ano passado', 'Sofre assédio moral do gerente', 'Faz função de supervisor sem receber por isso', 'Horas extras nunca pagas', 'Foi rebaixado depois do afastamento']
+      const ADS = ['Vídeo · Salário atrasado', 'Vídeo · FGTS não depositado', 'Vídeo · Assédio no trabalho', 'Estático · Seus direitos']
+
+      let seed = 7
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646
+      const pick = a => a[Math.floor(rnd() * a.length)]
+      const between = (a, b) => Math.round(a + rnd() * (b - a))
+      const plain = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      const money = (n, d = 0) => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d })
+
+      const DAY = 864e5
+      const today = new Date(new Date().setHours(12, 0, 0, 0))
+      const ago = min => {
+        const d = new Date(Date.now() - min * 60000)
+        if (min > 60 && d.getHours() < 8) d.setTime(d.getTime() - DAY), d.setHours(d.getHours() + 11)
+        else if (min > 60 && d.getHours() >= 20) d.setHours(d.getHours() - 8)
+        return d
+      }
+      const dateTime = d => `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })}, ${d.toTimeString().slice(0, 5)}`
+      function elapsed(min) {
+        if (min < 60) return `${Math.max(1, Math.round(min))} min`
+        if (min < 1440) return `${Math.round(min / 60)} h`
+        const d = Math.round(min / 1440)
+        return `${d} ${d === 1 ? 'dia' : 'dias'}`
+      }
+      function dayLabel(offset) {
+        if (offset === 0) return 'Hoje'
+        if (offset === -1) return 'Ontem'
+        if (offset === 1) return 'Amanhã'
+        const d = new Date(today.getTime() + offset * DAY)
+        return `${d.toLocaleDateString('pt-BR', { weekday: 'short' })}, ${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`
+      }
+      const fill = (text, L) => text.replaceAll('{nome}', L.name.split(' ')[0]).replaceAll('{meu_nome}', TEAM[L.user].split(' ')[0]).replaceAll('{escritorio}', OFFICE)
+
+      function buildLead(name, stage, i) {
+        const fromCampaign = rnd() < 0.72
+        const L = {
+          id: 300 + i,
+          name,
+          stage,
+          phone: `(51) 9${between(8100, 9999)}-${String(between(0, 9999)).padStart(4, '0')}`,
+          user: ['jr', 'bm', 'cf', 'rl'][i % 4],
+          source: fromCampaign ? 'campaign' : pick(['whatsapp', 'whatsapp', 'lead_form']),
+          campaign: fromCampaign ? 'Rescisão indireta' : null,
+          ad: fromCampaign ? pick(ADS) : null,
+          tags: rnd() < 0.25 ? ['Trabalhista', pick(['Urgente', 'Indicação', 'Retornar'])] : ['Trabalhista'],
+          problem: pick(PROBLEMS),
+          viability: stage === 'lost' ? null : rnd() < 0.8 ? 'provavel' : 'incerta',
+          notes: [],
+          extra: [],
+          chat: []
+        }
+        const reach = stageIndex(stage)
+        L.stepIndex = CADENCE[stage] ? (CADENCE[stage].length > 1 ? between(0, Math.min(2, CADENCE[stage].length - 2)) : 0) : null
+        L.due = CADENCE[stage] ? (stage === 'new' ? 0 : pick([0, 0, 0, -1, 1, 3])) : null
+        L.stageMin = stage === 'new' ? between(4, 55) : between(180, 14000)
+        L.createdMin = L.stageMin + (reach > 0 ? between(1440, 12000) : 0)
+        L.meetingDay = stage === 'meeting' ? pick([1, 1, 2, 3, 4, 5]) : -between(1, 6)
+        L.meetingTime = pick(['09:30', '10:00', '11:00', '14:00', '15:00', '16:30'])
+        if (stage === 'won') L.value = between(70, 160) * 50
+        if (stage === 'lost') {
+          L.lost = pick(LOST_REASONS).value
+          L.lostDetail = L.lost === 'disqualified' ? pick(['Divórcio consensual', 'Inventário', 'Direito criminal']) : null
+        }
+        return L
+      }
+
+      let n = 0
+      const LEADS = []
+      STAGES.forEach(s => NAMES[s.id].forEach(name => LEADS.push(buildLead(name, s.id, n++))))
+
+      const SOURCE_LABEL = { whatsapp: ['pi pi-whatsapp', 'WhatsApp'], lead_form: ['pi pi-list', 'Formulário da Meta'], campaign: ['pi pi-megaphone', ''] }
+      // Até onde o lead perdido chegou no funil, pelo motivo da perda
+      const LOST_REACH = { no_response: 'try', not_client: 'try', disqualified: 'try', no_legal_merit: 'talk', gave_up: 'talk', competitor: 'closing', fees: 'closing' }
+      const reachOf = L => stageIndex(L.stage === 'lost' ? LOST_REACH[L.lost] || 'try' : L.stage)
+      const lostLabel = L => [LOST_REASONS.find(r => r.value === L.lost)?.label, L.lostDetail].filter(Boolean).join(': ')
+      const nextTask = L => (L.stepIndex === null || L.stepIndex >= (CADENCE[L.stage]?.length || 0) ? null : CADENCE[L.stage][L.stepIndex])
+      function taskStatus(L) {
+        if (!nextTask(L)) return 'none'
+        return L.due < 0 ? 'overdue' : L.due === 0 ? 'today' : 'future'
+      }
+      const STATUS_CLASS = { overdue: 'bg-red-50 text-red-700 font-semibold', today: 'bg-yellow-50 text-yellow-800 font-semibold', future: 'text-gray-500', none: 'text-gray-400' }
+      const STATUS_ICON = { overdue: 'pi pi-exclamation-circle', today: 'pi pi-clock', future: 'pi pi-calendar', none: 'pi pi-minus-circle' }
+      const taskLabel = L => (nextTask(L) ? `${taskStatus(L) === 'overdue' ? 'Atrasada' : 'Tarefa'} ${dayLabel(L.due).toLowerCase()}` : 'Sem tarefas')
+
+      // ---------- Histórico e conversa de cada lead ----------
+      function history(L) {
+        const reach = reachOf(L)
+        const ev = []
+        const add = (icon, text, by, extra) => ev.push({ icon, text, by, ...extra })
+        add('pi pi-plus', L.campaign ? `Lead criado pela campanha "${L.campaign}" (anúncio "${L.ad}") em "Novo lead"` : `Lead criado por ${SOURCE_LABEL[L.source][1]} em "Novo lead"`, null)
+        if (L.source === 'lead_form' || L.campaign) add('pi pi-list', `Respostas do formulário${L.ad ? ` (anúncio "${L.ad}")` : ''}`, null, { body: `Você ainda trabalha na empresa? Sim\nO que está acontecendo? ${L.problem}` })
+        const moves = STAGES.slice(1, Math.max(1, reach + 1)).filter(s => !['noshow'].includes(s.id) || L.stage === 'noshow')
+        let prev = 'Novo lead'
+        moves.forEach(s => {
+          if (s.id === 'wait' && L.stage !== 'wait') return
+          if (s.id === 'talk') add('pi pi-check', 'Tarefa concluída: 1º dia: ligações + WhatsApp · ligação atendida', TEAM[L.user])
+          if (s.id === 'meeting') add('pi pi-calendar', `Reunião agendada para ${dateTime(new Date(today.getTime() + L.meetingDay * DAY))}`, null)
+          if (s.id === 'closing' || (s.id === 'noshow' && L.stage === 'noshow')) add(s.id === 'noshow' ? 'pi pi-user-minus' : 'pi pi-user-plus', s.id === 'noshow' ? 'Não compareceu à reunião' : 'Compareceu à reunião', null)
+          add('pi pi-arrow-right', `Movido de "${prev}" para "${s.name}"`, s.id === 'try' ? null : TEAM[L.user])
+          prev = s.name
+        })
+        if (reach >= 2) ev.push({ note: `${L.problem}. Tem os documentos e quer resolver o quanto antes.`, by: TEAM[L.user] })
+        if (L.stage === 'won') add('pi pi-trophy', `Contrato fechado: ${money(L.value, 2)}`, TEAM[L.user])
+        if (L.stage === 'lost') add('pi pi-times', `Perdido: ${lostLabel(L)}`, TEAM[L.user])
+        // Datas: da entrada do lead até a última mudança de etapa
+        const first = L.createdMin
+        const last = L.stageMin
+        ev.forEach((e, k) => (e.min = k === 0 ? first : first - ((first - last) * k) / Math.max(1, ev.length - 1)))
+        return [...L.extra, ...ev.reverse()]
+      }
+
+      function conversation(L) {
+        const reach = reachOf(L)
+        const me = TEAM[L.user].split(' ')[0]
+        const first = L.name.split(' ')[0]
+        const msgs = [{ in: true, text: `Olá! Vi o anúncio sobre rescisão indireta. ${L.problem}. Consigo sair da empresa e receber tudo?` }]
+        if (reach >= 1) msgs.push({ text: `Oi, ${first}! Tudo bem? Aqui é ${['Camila', 'Juliana'].includes(me) ? `a ${me}` : `o ${me}`}, do ${OFFICE}. Obrigado pelo seu interesse no nosso trabalho! Vou te mandar um áudio explicando como funciona o nosso atendimento, pode ser?` })
+        if (reach >= 2) msgs.push({ in: true, text: 'Pode sim! Ainda estou trabalhando lá.' }, { text: '🎤 Áudio (1:12)' }, { in: true, text: 'Entendi. Eu tenho os contracheques e o extrato do FGTS, serve?' })
+        if (reach >= 4) msgs.push({ text: `Serve, sim! Vamos marcar uma conversa para eu entender tudo com calma? Tenho ${dayLabel(L.meetingDay).toLowerCase()} às ${L.meetingTime}.` }, { in: true, text: 'Perfeito, pode marcar.' })
+        if (reach >= 6) msgs.push({ text: `${first}, como conversamos, segue a proposta de honorários. Qualquer dúvida, me chama!` }, { text: '📄 Documento' })
+        if (L.stage === 'won') msgs.push({ in: true, text: 'Assinei o contrato! Obrigado pela atenção 🙏' })
+        let t = 9 * 60 + between(0, 50)
+        return [...msgs.map(m => ((t += between(2, 14)), { ...m, time: `${String(Math.floor(t / 60) % 24).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}` })), ...L.chat]
+      }
+
+      // ---------- Quadro (Leads.vue) ----------
+      let query = ''
+      let fUser = ''
+      let fTag = ''
+      const visible = () => LEADS.filter(L => (!query || plain(L.name + L.phone).includes(query)) && (!fUser || L.user === fUser) && (!fTag || L.tags.includes(fTag)))
+
+      function cardHTML(L) {
+        const st = taskStatus(L)
+        const stage = stageOf(L.stage)
+        return `<div draggable="true" data-lead="${L.id}" class="card flex flex-col gap-2 p-3 rounded-xl bg-white border border-gray-200 shadow-sm cursor-pointer hover:shadow-md hover:border-primary-400 transition-all">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="font-bold text-sm text-gray-900 leading-tight">${L.name}</p>
+              ${L.campaign ? `<p class="mt-0.5 text-[11px] text-gray-500 truncate"><i class="pi pi-megaphone text-[9px] text-primary-600"></i> ${L.campaign}</p>` : `<p class="mt-0.5 text-[11px] text-gray-400 truncate"><i class="${SOURCE_LABEL[L.source][0]} text-[9px]"></i> ${SOURCE_LABEL[L.source][1]}</p>`}
+            </div>
+            <span class="shrink-0 w-6 h-6 rounded-full bg-primary-100 text-primary-800 text-[10px] font-bold flex items-center justify-center" title="${TEAM[L.user]}">${initials(TEAM[L.user])}</span>
+          </div>
+          <div class="flex flex-wrap gap-1">${L.tags.slice(0, 2).map(t => `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">${t}</span>`).join('')}</div>
+          ${stage.kind === 'won' ? `<p class="text-xs font-bold text-green-700"><i class="pi pi-trophy text-[10px]"></i> ${money(L.value)}</p>` : ''}
+          ${stage.kind === 'lost' ? `<p class="text-xs font-semibold text-red-700 truncate"><i class="pi pi-times-circle text-[10px]"></i> ${lostLabel(L)}</p>` : ''}
+          <div class="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 text-[11px]">
+            <span class="text-gray-400" title="Tempo nesta etapa"><i class="pi pi-clock text-[9px]"></i> ${elapsed(L.stageMin)}</span>
+            <span class="px-1.5 py-0.5 rounded-md ${STATUS_CLASS[st]}"><i class="${STATUS_ICON[st]} text-[9px]"></i> ${taskLabel(L)}</span>
+          </div>
+        </div>`
+      }
+
+      function renderBoard() {
+        const ls = visible()
+        document.getElementById('board').innerHTML = STAGES.map(s => {
+          const items = ls.filter(L => L.stage === s.id)
+          return `<div data-col="${s.id}" class="w-72 shrink-0 flex flex-col rounded-2xl bg-gray-100/70 transition-colors">
+            <div class="flex items-center justify-between gap-2 px-3 pt-3 pb-2">
+              <p class="font-bold text-sm text-gray-800 truncate">${KIND_ICONS[s.kind] ? `<i class="${KIND_ICONS[s.kind]} text-xs text-gray-500"></i> ` : ''}${s.name}</p>
+              <span class="text-xs font-semibold text-gray-500 bg-white rounded-full px-2 py-0.5">${items.length}</span>
+            </div>
+            <div class="no-scrollbar flex flex-col gap-2 px-2 pb-3 min-h-24 overflow-y-auto" style="max-height: calc(100vh - 18rem)">${items.map(cardHTML).join('') || '<p class="py-6 text-xs text-center text-gray-400">Nenhum lead nesta etapa</p>'}</div>
+          </div>`
+        }).join('')
+      }
+
+      function renderFilters() {
+        document.getElementById('f-user').innerHTML = `<option value="">Todos os responsáveis</option>${Object.entries(TEAM).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}`
+        const tags = [...new Set(LEADS.flatMap(L => L.tags))]
+        document.getElementById('f-tag').innerHTML = `<option value="">Etiqueta</option>${tags.map(t => `<option>${t}</option>`).join('')}`
+      }
+
+      // ---------- Ficha do lead (LeadModal.vue) ----------
+      let openId = null
+      let pending = null
+      let caseOpen = false
+      const current = () => LEADS.find(L => L.id === openId)
+
+      function stageClass(s, i, cur) {
+        if (pending === s.id) return 'bg-yellow-200 text-gray-900 ring-2 ring-inset ring-yellow-400'
+        if (i === cur) return s.kind === 'lost' ? 'bg-red-500 text-white' : s.kind === 'won' ? 'bg-green-600 text-white' : 'bg-[#eecc11] text-gray-900'
+        if (i < cur) return 'bg-yellow-100 text-gray-700 hover:bg-yellow-200'
+        return 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+      }
+
+      function questionHTML(L) {
+        const s = stageOf(pending)
+        const box = (title, body) => `<div class="flex flex-col gap-3 p-4 rounded-xl border border-yellow-300 bg-yellow-50">
+          <p class="font-bold text-gray-900">${title}</p>${body}
+          <div class="flex justify-end gap-2"><button data-cancel class="p-btn p-btn-text">Cancelar</button><button data-confirm class="p-btn p-btn-primary"><i class="pi pi-check"></i>Mover para "${s.name}"</button></div>
+        </div>`
+        if (s.kind === 'won') return box('Qual o valor do contrato?', `<input id="q-value" class="p-input w-56" value="${money(between(70, 160) * 50, 2)}" />`)
+        if (s.kind === 'lost') return box('Por que o lead foi perdido?', `<div class="flex flex-wrap gap-2">${LOST_REASONS.map((r, i) => `<label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm cursor-pointer"><input type="radio" name="q-lost" value="${r.value}" ${i === 0 ? 'checked' : ''} />${r.label}</label>`).join('')}</div>`)
+        return box('Quando é a consulta?', `<div class="flex flex-wrap items-center gap-2"><select id="q-day" class="p-input p-select">${[1, 2, 3, 4, 5].map(d => `<option value="${d}">${dayLabel(d)}</option>`).join('')}</select><select id="q-time" class="p-input p-select">${['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'].map(t => `<option>${t}</option>`).join('')}</select><span class="text-sm text-gray-600">com ${TEAM[L.user]}</span></div>`)
+      }
+
+      function nextStepHTML(L) {
+        const task = nextTask(L)
+        const steps = CADENCE[L.stage] || []
+        const closed = ['won', 'lost'].includes(L.stage)
+        const st = taskStatus(L)
+        const dueCls = st === 'overdue' ? 'text-red-600' : st === 'today' ? 'text-amber-700' : 'text-gray-500'
+        return `<section class="flex flex-col gap-3 p-4 rounded-2xl border-2 border-[#eecc11] bg-yellow-50/60">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-xs font-bold uppercase text-gray-700"><i class="pi pi-star-fill text-[10px] text-yellow-500"></i> O que fazer agora</p>
+            ${task ? '<button class="text-xs font-semibold text-gray-700 hover:underline"><i class="pi pi-question-circle text-[11px]"></i> Como fazer?</button>' : ''}
+          </div>
+          ${
+            task
+              ? `<div class="rounded-xl bg-white p-1 shadow-sm">
+                  <label class="flex items-center gap-3 px-3 py-2.5 cursor-pointer">
+                    <input type="checkbox" data-done class="w-5 h-5 rounded border-gray-300" />
+                    <span class="flex-1 flex items-center gap-2 text-sm text-gray-900"><i class="pi ${task.type === 'call' ? 'pi-phone text-green-600' : 'pi-check-square text-gray-500'} text-sm"></i>${task.title}</span>
+                    <span class="text-xs font-semibold ${dueCls}">${st === 'overdue' ? `Atrasada · ${dayLabel(L.due).toLowerCase()}` : dayLabel(L.due)}</span>
+                  </label>
+                </div>
+                <p class="text-sm text-gray-600">${task.description}</p>
+                ${
+                  task.message
+                    ? `<div class="flex flex-col gap-2">
+                        <div class="p-3 rounded-xl bg-green-50 border border-green-100 text-sm text-gray-800 whitespace-pre-line">${fill(task.message, L)}</div>
+                        <div class="flex flex-wrap gap-1">
+                          <button data-toast="Mensagem copiada" class="p-btn p-btn-text"><i class="pi pi-copy"></i>Copiar mensagem</button>
+                          <button data-toast="Abrindo o WhatsApp com a mensagem pronta…" class="p-btn p-btn-text !text-green-600"><i class="pi pi-whatsapp"></i>Abrir no WhatsApp</button>
+                        </div>
+                      </div>`
+                    : ''
+                }`
+              : `<div class="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600"><span>${closed ? 'Lead encerrado, nada pendente.' : 'Nenhuma tarefa pendente. Combine o próximo contato e crie uma tarefa.'}</span>${closed ? '' : '<button class="p-btn p-btn-outlined"><i class="pi pi-plus"></i>Nova tarefa</button>'}</div>`
+          }
+          ${
+            steps.length > 1
+              ? `<div class="flex flex-col gap-1.5">
+                  <button data-steps class="flex items-center gap-2 text-xs text-gray-600 hover:text-gray-900">
+                    <span class="flex gap-1">${steps.map((_, i) => `<span class="w-2 h-2 rounded-full ${i < L.stepIndex ? 'bg-green-500' : i === L.stepIndex ? 'bg-[#eecc11] ring-2 ring-yellow-200' : 'bg-gray-300'}"></span>`).join('')}</span>
+                    <span>${L.stepIndex >= steps.length ? 'Cadência concluída' : `Passo ${L.stepIndex + 1} de ${steps.length} da cadência`}</span><i class="pi pi-chevron-down text-[9px]"></i>
+                  </button>
+                  <ol data-steps-list hidden class="flex flex-col gap-1 pl-1">${steps
+                    .map((s, i) => {
+                      const state = i < L.stepIndex ? 'done' : i === L.stepIndex ? 'current' : 'next'
+                      return `<li class="flex items-center gap-2 text-xs ${state === 'current' ? 'font-semibold text-gray-900' : 'text-gray-500'}"><i class="${{ done: 'pi pi-check-circle text-green-500', current: 'pi pi-arrow-right text-yellow-600', next: 'pi pi-circle text-gray-300' }[state]} text-[11px] w-3"></i><span class="flex-1 truncate ${state === 'done' ? 'line-through' : ''}">${s.title}</span></li>`
+                    })
+                    .join('')}</ol>
+                </div>`
+              : ''
+          }
+        </section>`
+      }
+
+      function sheetHTML(L) {
+        const stage = stageOf(L.stage)
+        const cur = stageIndex(L.stage)
+        const viability = { provavel: ['Provável', 'bg-green-100 text-green-800'], incerta: ['Incerta', 'bg-amber-100 text-amber-800'] }[L.viability]
+        const details = [
+          ['pi pi-phone', '', L.phone],
+          ['pi pi-user', 'Responsável:', TEAM[L.user]],
+          [L.campaign ? 'pi pi-megaphone' : SOURCE_LABEL[L.source][0], 'Origem:', `${L.campaign ? `Campanha "${L.campaign}"` : SOURCE_LABEL[L.source][1]} · desde ${dateTime(ago(L.createdMin))}`]
+        ]
+        return `
+          <div class="flex items-center gap-3 px-6 pt-5 pb-3">
+            <div class="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1 min-w-0 pr-2">
+              <h3 class="text-xl font-black text-gray-900 truncate">${L.name}</h3>
+              <button data-toast="Abrindo a conversa no WhatsApp…" class="p-btn p-btn-success"><i class="pi pi-whatsapp"></i>WhatsApp</button>
+              <span class="text-sm text-gray-500"><i class="pi pi-clock text-xs"></i> há ${elapsed(L.stageMin)} em "${stage.name}"</span>
+              <button class="p-btn p-btn-text p-btn-rounded p-btn-icon ml-auto"><i class="pi pi-ellipsis-h"></i></button>
+            </div>
+            <button data-close class="w-10 h-10 rounded-full border border-slate-300 text-slate-600 hover:bg-slate-100 flex items-center justify-center" title="Fechar"><i class="pi pi-times"></i></button>
+          </div>
+          <div class="flex-1 min-h-0 flex flex-col gap-5 px-6 pb-6">
+            <div class="flex flex-col gap-2">
+              <div class="flex gap-1 overflow-x-auto pb-1 no-scrollbar">${STAGES.map(
+                (s, i) => `<button data-stage="${s.id}" class="shrink-0 flex items-center gap-1.5 px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${stageClass(s, i, cur)} ${i === 0 ? 'rounded-l-xl' : ''} ${i === STAGES.length - 1 ? 'rounded-r-xl' : ''}">${s.kind !== 'normal' && s.kind !== 'new' ? `<i class="${KIND_ICONS[s.kind]} text-xs"></i>` : ''}${s.name}</button>`
+              ).join('')}</div>
+              ${pending ? questionHTML(L) : ''}
+            </div>
+            <div class="flex-1 min-h-0 grid grid-cols-5 gap-6">
+              <div class="col-span-3 order-2 min-w-0 min-h-0 flex flex-col gap-4 overflow-y-auto pr-1 scroll">
+                ${stage.kind === 'won' ? `<div class="p-3 rounded-xl bg-green-50 border border-green-100 text-sm text-green-900"><i class="pi pi-trophy"></i> Contrato fechado: <strong>${money(L.value, 2)}</strong></div>` : ''}
+                ${stage.kind === 'lost' ? `<div class="p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-900"><i class="pi pi-times-circle"></i> Perdido: <strong>${LOST_REASONS.find(r => r.value === L.lost).label}</strong>${L.lostDetail ? ` (${L.lostDetail})` : ''}</div>` : ''}
+                ${
+                  stage.kind === 'meeting' && !pending
+                    ? `<div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-blue-50 border border-blue-100 text-sm text-blue-900">
+                        <span class="flex flex-col gap-0.5"><span><i class="pi pi-calendar"></i> Consulta em <strong>${dateTime(new Date(today.getTime() + L.meetingDay * DAY)).replace(/, .*/, '')}, ${L.meetingTime}</strong> com ${TEAM[L.user]}</span><span class="text-xs text-blue-800">Online · na Google Agenda</span></span>
+                        <button data-stage="meeting" class="p-btn p-btn-outlined">Reagendar</button>
+                      </div>`
+                    : ''
+                }
+                ${nextStepHTML(L)}
+                <div class="flex flex-col gap-2 p-3 rounded-xl border border-gray-200">
+                  <textarea id="note" rows="2" placeholder="Anotação: o que conversaram, o que combinaram..." class="p-input w-full resize-none"></textarea>
+                  <div class="flex items-center justify-between gap-2">
+                    ${['won', 'lost'].includes(L.stage) ? '<span></span>' : '<button class="p-btn p-btn-text"><i class="pi pi-plus"></i>Nova tarefa</button>'}
+                    <button data-note class="p-btn p-btn-primary ml-auto"><i class="pi pi-pencil"></i>Salvar anotação</button>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <p class="px-1 text-xs font-semibold text-gray-400 uppercase">Histórico</p>
+                  ${history(L)
+                    .map(e =>
+                      e.note
+                        ? `<div class="p-3 rounded-xl bg-yellow-50 border border-yellow-200"><p class="text-sm text-gray-900 whitespace-pre-line">${e.note}</p><p class="text-xs text-gray-500 mt-1"><i class="pi pi-pencil text-[10px]"></i> Anotação de ${e.by} • ${dateTime(ago(e.min))}</p></div>`
+                        : `<div class="flex gap-3 px-1 text-sm">
+                            <i class="${e.icon} text-xs mt-1.5 w-4 text-center" style="color: ${e.icon === 'pi pi-check' ? '#16a34a' : '#9ca3af'}"></i>
+                            <div><p class="text-gray-700">${e.text}</p>${e.body ? `<p class="text-xs text-gray-600 whitespace-pre-line">${e.body}</p>` : ''}<p class="text-xs text-gray-400">${e.by || 'Automático'} • ${dateTime(ago(e.min))}</p></div>
+                          </div>`
+                    )
+                    .join('')}
+                </div>
+              </div>
+              <div class="col-span-2 order-1 min-h-0 flex flex-col gap-4 overflow-y-auto scroll">
+                <div class="relative flex flex-col gap-2.5 p-3 rounded-xl border border-gray-200">
+                  <button class="p-btn p-btn-text p-btn-rounded !absolute top-1 right-1 !w-7 !h-7 !p-0"><i class="pi pi-pencil !text-xs"></i></button>
+                  <dl class="grid grid-cols-1 gap-y-1.5 text-sm">${details.map(([icon, prefix, value]) => `<div class="flex items-center gap-2 min-w-0"><dt class="w-4 shrink-0 text-center text-gray-400"><i class="${icon} text-xs"></i></dt><dd class="min-w-0 truncate text-gray-900">${prefix ? `<span class="mr-1 text-gray-500">${prefix}</span>` : ''}${value}</dd></div>`).join('')}</dl>
+                  <div class="flex items-start gap-2">
+                    <i class="pi pi-tags w-4 shrink-0 text-center text-xs text-gray-400 mt-1.5"></i>
+                    <div class="flex flex-wrap gap-1.5">${L.tags.map(t => `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-gray-100 text-xs font-semibold text-gray-700">${t}<i class="pi pi-times text-[8px] text-gray-400"></i></span>`).join('')}<span class="px-2 py-0.5 rounded-md border border-dashed border-gray-300 text-xs text-gray-500"><i class="pi pi-plus text-[9px]"></i> Etiqueta</span></div>
+                  </div>
+                </div>
+                ${
+                  L.stage === 'new'
+                    ? ''
+                    : `<section class="flex flex-col gap-2 p-3 rounded-xl border border-gray-200 text-sm">
+                        <button data-case class="flex flex-wrap items-center gap-2 text-left">
+                          <span class="text-xs font-semibold text-gray-400 uppercase"><i class="pi pi-briefcase text-[10px]"></i> Caso</span>
+                          <span class="font-semibold text-gray-900 truncate">Trabalhista · Rescisão indireta</span>
+                          ${viability ? `<span class="rounded-full px-2 py-0.5 text-xs font-semibold ${viability[1]}">${viability[0]}</span>` : ''}
+                          <i class="pi ${caseOpen ? 'pi-chevron-up' : 'pi-chevron-down'} ml-auto text-[10px] text-gray-400"></i>
+                        </button>
+                        ${
+                          caseOpen
+                            ? `<p class="flex items-center gap-1.5 text-xs font-semibold text-green-700"><i class="pi pi-check-circle text-[11px]"></i> Procura um serviço do escritório</p>
+                              <p class="text-gray-700">${L.name.split(' ')[0]} ainda trabalha na empresa. ${L.problem}. Tem documentos que comprovam e quer sair recebendo todos os direitos.</p>
+                              <p class="text-xs text-gray-500">Urgência alta</p>
+                              <p class="flex gap-1.5 text-gray-900"><i class="pi pi-arrow-circle-right text-purple-600 text-xs mt-1"></i><span><strong>Sugestão:</strong> marcar a consulta e pedir os contracheques e o extrato do FGTS.</span></p>
+                              ${viability ? `<p class="text-xs text-gray-500">Viabilidade ${viability[0].toLowerCase()} (impressão da IA)</p>` : ''}
+                              <p class="text-[11px] text-purple-700"><i class="pi pi-sparkles text-[9px]"></i> Resumo feito pela IA a partir da conversa</p>`
+                            : ''
+                        }
+                      </section>`
+                }
+                <div class="flex-1 min-h-80 flex flex-col gap-1">
+                  <p class="text-xs font-semibold text-gray-400 uppercase"><i class="pi pi-whatsapp text-[10px]"></i> Conversa</p>
+                  <div id="chat" class="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto p-3 rounded-xl bg-[#efeae2] scroll">
+                    ${conversation(L)
+                      .map(
+                        m => `<div class="max-w-[85%] ${m.in ? 'self-start bg-white' : 'self-end bg-[#d9fdd3]'} rounded-lg px-3 py-1.5 shadow-sm">
+                        <p class="text-sm text-gray-900 whitespace-pre-line">${m.text}</p>
+                        <p class="text-[10px] text-gray-500 text-right">${m.time}${m.in ? '' : ' <i class="pi pi-check text-[8px] text-sky-500"></i>'}</p>
+                      </div>`
+                      )
+                      .join('')}
+                  </div>
+                  <div class="flex items-center gap-2 pt-1">
+                    <input id="chat-input" class="p-input flex-1" placeholder="Digite uma mensagem" />
+                    <button data-send class="p-btn p-btn-success p-btn-rounded !w-10 !h-10 !p-0"><i class="pi pi-send"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`
+      }
+
+      function openLead(id, pendingStage = null) {
+        if (openId !== id) caseOpen = false
+        openId = id
+        pending = pendingStage
+        const m = document.getElementById('modal')
+        m.innerHTML = `<div class="p-dialog w-full mx-4" style="max-width: 80rem; height: calc(100vh - 2rem)">${sheetHTML(current())}</div>`
+        m.hidden = false
+        const chat = document.getElementById('chat')
+        chat.scrollTop = chat.scrollHeight
+      }
+      function closeLead() {
+        openId = null
+        pending = null
+        document.getElementById('modal').hidden = true
+      }
+
+      function moveLead(L, to, answer = {}) {
+        const from = stageOf(L.stage).name
+        L.stage = to
+        L.stageMin = 0.3
+        L.stepIndex = CADENCE[to] ? 0 : null
+        L.due = 0
+        if (to === 'won') L.value = answer.value || L.value || 5000
+        if (to === 'lost') (L.lost = answer.lost || 'no_response'), (L.lostDetail = null)
+        if (to === 'meeting') (L.meetingDay = answer.day ?? 1), (L.meetingTime = answer.time || '10:00')
+        if (to === 'meeting') L.extra.unshift({ icon: 'pi pi-calendar', text: `Reunião agendada para ${dateTime(new Date(today.getTime() + L.meetingDay * DAY)).replace(/, .*/, '')}, ${L.meetingTime}`, by: APP_USER, min: 0.2 })
+        if (to === 'won') L.extra.unshift({ icon: 'pi pi-trophy', text: `Contrato fechado: ${money(L.value, 2)}`, by: APP_USER, min: 0.2 })
+        if (to === 'lost') L.extra.unshift({ icon: 'pi pi-times', text: `Perdido: ${lostLabel(L)}`, by: APP_USER, min: 0.2 })
+        L.extra.unshift({ icon: 'pi pi-arrow-right', text: `Movido de "${from}" para "${stageOf(to).name}"`, by: APP_USER, min: 0.1 })
+        renderBoard()
+        appToast(to === 'won' ? `🎉 Contrato fechado com ${L.name}` : `${L.name} movido para "${stageOf(to).name}"`)
+      }
+
+      // ---------- Eventos ----------
+      document.addEventListener('click', e => {
+        if (e.target.closest('[data-close]') || e.target.id === 'modal') return closeLead()
+        const st = e.target.closest('[data-stage]')
+        if (st) {
+          const L = current()
+          const to = st.dataset.stage
+          const kind = stageOf(to).kind
+          if (['meeting', 'won', 'lost'].includes(kind)) return openLead(L.id, to)
+          if (to === L.stage) return
+          moveLead(L, to)
+          return openLead(L.id)
+        }
+        if (e.target.closest('[data-cancel]')) return openLead(openId)
+        if (e.target.closest('[data-confirm]')) {
+          const L = current()
+          const kind = stageOf(pending).kind
+          const answer = kind === 'won' ? { value: Number(document.getElementById('q-value').value.replace(/[^\d,]/g, '').replace(',', '.')) || 5000 } : kind === 'lost' ? { lost: document.querySelector('[name=q-lost]:checked').value } : { day: +document.getElementById('q-day').value, time: document.getElementById('q-time').value }
+          moveLead(L, pending, answer)
+          return openLead(L.id)
+        }
+        if (e.target.closest('[data-done]')) {
+          const L = current()
+          L.extra.unshift({ icon: 'pi pi-check', text: `Tarefa concluída: ${nextTask(L).title}${nextTask(L).type === 'call' ? ' · ligação atendida' : ''}`, by: APP_USER, min: 0.1 })
+          L.stepIndex++
+          L.due = 1
+          renderBoard()
+          appToast('Tarefa concluída')
+          return setTimeout(() => openLead(L.id), 250)
+        }
+        if (e.target.closest('[data-steps]')) {
+          const list = document.querySelector('[data-steps-list]')
+          return (list.hidden = !list.hidden)
+        }
+        if (e.target.closest('[data-case]')) return (caseOpen = !caseOpen), openLead(openId, pending)
+        if (e.target.closest('[data-note]')) {
+          const text = document.getElementById('note').value.trim()
+          if (!text) return
+          current().extra.unshift({ note: text.replace(/</g, '&lt;'), by: APP_USER, min: 0.1 })
+          return openLead(openId)
+        }
+        if (e.target.closest('[data-send]')) return sendChat()
+        const tt = e.target.closest('[data-toast]')
+        if (tt) return appToast(tt.dataset.toast)
+        const lead = e.target.closest('[data-lead]')
+        if (lead) openLead(+lead.dataset.lead)
+      })
+
+      function sendChat() {
+        const input = document.getElementById('chat-input')
+        const text = input.value.trim()
+        if (!text) return
+        const d = new Date()
+        current().chat.push({ text: text.replace(/</g, '&lt;'), time: d.toTimeString().slice(0, 5) })
+        openLead(openId, pending)
+      }
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && openId !== null) return closeLead()
+        if (e.key === 'Enter' && e.target.id === 'chat-input') return sendChat()
+      })
+
+      document.getElementById('search').addEventListener('input', e => ((query = plain(e.target.value.trim())), renderBoard()))
+      document.getElementById('f-user').addEventListener('change', e => ((fUser = e.target.value), renderBoard()))
+      document.getElementById('f-tag').addEventListener('change', e => ((fTag = e.target.value), renderBoard()))
+
+      // Arrastar o card para mudar de etapa (consulta, ganho e perda abrem a pergunta da etapa)
+      let dragId = null
+      const board = document.getElementById('board')
+      board.addEventListener('dragstart', e => {
+        const c = e.target.closest('[data-lead]')
+        if (!c) return
+        dragId = +c.dataset.lead
+        c.classList.add('opacity-40')
+      })
+      board.addEventListener('dragend', () => {
+        dragId = null
+        board.querySelectorAll('[data-col]').forEach(x => x.classList.remove('!bg-yellow-100', 'ring-2', 'ring-yellow-300'))
+        board.querySelectorAll('.opacity-40').forEach(x => x.classList.remove('opacity-40'))
+      })
+      board.addEventListener('dragover', e => {
+        const col = e.target.closest('[data-col]')
+        if (!col || dragId === null) return
+        e.preventDefault()
+        board.querySelectorAll('[data-col]').forEach(x => {
+          const on = x === col
+          x.classList.toggle('!bg-yellow-100', on)
+          x.classList.toggle('ring-2', on)
+          x.classList.toggle('ring-yellow-300', on)
+        })
+      })
+      board.addEventListener('drop', e => {
+        const col = e.target.closest('[data-col]')
+        if (!col || dragId === null) return
+        e.preventDefault()
+        const L = LEADS.find(x => x.id === dragId)
+        const to = col.dataset.col
+        if (to === L.stage) return
+        if (['meeting', 'won', 'lost'].includes(stageOf(to).kind)) return openLead(L.id, to)
+        moveLead(L, to)
+      })
+
+      renderFilters()
+      renderBoard()
+    </script>
+  </body>
+</html>

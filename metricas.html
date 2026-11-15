@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel comercial</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: { 50: '#fefce8', 100: '#fef9c3', 200: '#fef08a', 300: '#fde047', 400: '#facc15', 500: '#eecc11', 600: '#ca8a04', 700: '#a16207', 800: '#854d0e', 900: '#713f12' } },
+            fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/primeicons@7.0.0/primeicons.css" rel="stylesheet" />
+    <link href="app.css" rel="stylesheet" />
+    <style>
+      :root {
+        --brand: #eecc11;
+        --on-brand: #111827;
+      }
+      .p-select {
+        appearance: none;
+        background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+        padding-right: 2.25rem;
+        cursor: pointer;
+      }
+      .p-selectbutton.lg button {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+      }
+    </style>
+  </head>
+  <body class="h-screen overflow-hidden">
+    <div class="flex h-screen bg-slate-50">
+      <aside id="app-sidebar"></aside>
+      <div class="flex-1 flex flex-col overflow-hidden w-full min-w-0">
+        <main class="scroll flex-1 p-8 overflow-y-auto relative w-full">
+          <div class="max-w-7xl mx-auto">
+            <div class="flex flex-wrap gap-2 justify-between mt-10 mb-10">
+              <h2 class="text-3xl font-black leading-tight">Painel comercial</h2>
+              <a href="crm.html" class="p-btn p-btn-outlined !text-base !px-4 !py-2"><i class="pi pi-filter"></i>Ver leads</a>
+            </div>
+            <div id="page" class="min-w-0 flex flex-col gap-6 pb-12"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      appLayout('metricas')
+
+      // Escritório de exemplo (trabalhista, rescisão indireta). Números fictícios, mas coerentes entre si:
+      // investido ÷ custo por lead = leads; leads × agendamento = reuniões; × presença = consultas; × fechamento = contratos.
+      const BASE = { inv: 2137.48, leads: 209, ticket: 4655 }
+      const RATES = { mql: 0.727, meetings: 0.354, attended: 0.784, won: 0.552 }
+      const PRESETS = [
+        { value: 'this_month', label: 'Este mês', f: 0.27 },
+        { value: 'last_month', label: 'Mês passado', f: 1 },
+        { value: 'last_30d', label: '30 dias', f: 0.96 },
+        { value: 'last_90d', label: '90 dias', f: 2.9 },
+        { value: 'this_year', label: 'Este ano', f: 9.4 },
+        { value: 'custom', label: 'Escolher datas', f: 1 }
+      ]
+      const FUNNEL_STEPS = [
+        { key: 'leads', label: 'Leads', hint: 'Contatos que chegaram' },
+        { key: 'mql', label: 'Qualificados', range: [60, 80], rate: 'de qualificação', from: 'leads' },
+        { key: 'meetings', label: 'Reuniões marcadas', range: [20, 40], rate: 'de agendamento', from: 'leads' },
+        { key: 'attended', label: 'Reuniões com presença', range: [60, 80], rate: 'de presença', from: 'meetings' },
+        { key: 'won', label: 'Contratos fechados', range: [30, 50], rate: 'de fechamento', from: 'attended' }
+      ]
+      const OVERALL_RANGE = [5, 10]
+      const TONES = { success: 'text-green-700', danger: 'text-red-600', secondary: 'text-gray-500' }
+      function health(rate, [min, max]) {
+        if (rate < min) return { label: 'Abaixo do saudável', severity: 'danger', icon: 'pi pi-arrow-down' }
+        if (rate > max) return { label: 'Acima da meta', severity: 'success', icon: 'pi pi-star-fill' }
+        return { label: 'Saudável', severity: 'success', icon: 'pi pi-check' }
+      }
+
+      const TEAM = [
+        { name: 'Juliana Rocha', lead: 0.36, first: [96, 62], avg: [190, 130], tasks: 0.94, calls: 0.34, meetings: 0.41, won: 0.06 },
+        { name: 'Bruno Matos', lead: 0.29, first: [151, 98], avg: [262, 175], tasks: 0.88, calls: 0.31, meetings: 0.32, won: 0.03 },
+        { name: 'Camila Ferraz', lead: 0.19, first: [205, 140], avg: [310, 220], tasks: 0.91, calls: 0.29, meetings: 0.15, won: 0.53 },
+        { name: 'Rafael Lima', lead: 0.16, first: [244, 170], avg: [355, 240], tasks: 0.85, calls: 0.27, meetings: 0.12, won: 0.38 }
+      ]
+      const MEETINGS = [
+        ['Jaqueline Nascimento', 1, '11:00'],
+        ['Cícero Carvalho', 1, '15:00'],
+        ['Andreia Araújo', 2, '13:00'],
+        ['Sebastião Ribeiro', 3, '14:00'],
+        ['Elisângela Rodrigues', 3, '16:30'],
+        ['Fábio Ferreira', 4, '10:00']
+      ]
+
+      let preset = 'last_month'
+      let mode = 'real'
+      let dimension = 'user'
+
+      const number = n => Math.round(n).toLocaleString('pt-BR')
+      const percent = n => n.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%'
+      const money = (n, d = 2) => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d })
+      function duration(sec) {
+        if (sec < 60) return `${Math.round(sec)} s`
+        if (sec < 3600) return `${Math.round(sec / 60)} min`
+        if (sec < 86400) return `${(sec / 3600).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} h`
+        const d = sec / 86400
+        return `${d.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} ${d < 2 ? 'dia' : 'dias'}`
+      }
+      function split(total, parts) {
+        const raw = parts.map(p => p * total)
+        const out = raw.map(Math.floor)
+        let rest = total - out.reduce((a, b) => a + b, 0)
+        raw.map((r, i) => [r - Math.floor(r), i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => rest-- > 0 && out[i]++)
+        return out
+      }
+      const shortDate = d => d.toLocaleDateString('pt-BR')
+      function range() {
+        const now = new Date()
+        const y = now.getFullYear()
+        const m = now.getMonth()
+        return {
+          this_month: [new Date(y, m, 1), now],
+          last_month: [new Date(y, m - 1, 1), new Date(y, m, 0)],
+          last_30d: [new Date(Date.now() - 29 * 864e5), now],
+          last_90d: [new Date(Date.now() - 89 * 864e5), now],
+          this_year: [new Date(y, 0, 1), now],
+          custom: [new Date(y, m - 1, 1), new Date(y, m, 0)]
+        }[preset]
+      }
+      const card = inner => `<section class="min-w-0 bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3">${inner}</section>`
+      const tile = t => `<div class="flex items-start gap-3 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm">
+        <span class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[color-mix(in_srgb,var(--brand)_15%,white)]"><i class="${t.icon} text-gray-800"></i></span>
+        <div class="min-w-0"><p class="text-xs font-semibold text-gray-500 uppercase">${t.label}${t.tip ? ' <i class="pi pi-info-circle text-[10px]"></i>' : ''}</p><p class="${t.big ? 'text-2xl' : 'text-xl'} font-black text-gray-900">${t.value}</p><p class="text-xs text-gray-500">${t.hint}</p></div>
+      </div>`
+      const hbar = (label, value, max, right, opacity = '') => `<div class="grid grid-cols-[minmax(6rem,11rem)_1fr_auto] items-center gap-x-3 text-sm">
+        <span class="text-gray-700 truncate">${label}</span>
+        <div class="h-3 rounded-r bg-[color-mix(in_srgb,var(--brand)_10%,white)]"><div class="anim-bar h-3 rounded-r bg-[var(--brand)] ${opacity}" style="width:0" data-w="${max ? (value / max) * 100 : 0}"></div></div>
+        <span class="text-right whitespace-nowrap">${right}</span>
+      </div>`
+
+      function render() {
+        const P = PRESETS.find(p => p.value === preset)
+        const leads = Math.round(BASE.leads * P.f)
+        const F = { leads }
+        F.mql = Math.round(leads * RATES.mql)
+        F.meetings = Math.round(leads * RATES.meetings)
+        F.attended = Math.round(F.meetings * RATES.attended)
+        F.won = Math.round(F.attended * RATES.won)
+        const inv = BASE.inv * P.f
+        const value = Math.round((F.won * BASE.ticket) / 50) * 50
+        const overall = (F.won / F.leads) * 100
+        const overallHealth = health(overall, OVERALL_RANGE)
+        const steps = FUNNEL_STEPS.map(s => ({ ...s, value: F[s.key], rateValue: s.from ? (F[s.key] / F[s.from]) * 100 : null }))
+        const below = steps.filter(s => s.range && s.rateValue < s.range[0])
+        const [since, until] = range()
+        const k = leads / BASE.leads
+        const biz = mode === 'business'
+
+        // Perdas: "procurava outro serviço" + "não era cliente" = leads fora do perfil (leads - qualificados)
+        const outOfProfile = F.leads - F.mql
+        const [disq, notClient] = split(outOfProfile, [0.58, 0.42])
+        const lostRest = Math.max(0, Math.round(F.leads * 0.27))
+        const [noResp, noMerit, gaveUp, competitor, fees] = split(lostRest, [0.55, 0.16, 0.13, 0.09, 0.07])
+        const lostReasons = [
+          ['Sem resposta', noResp],
+          ['Procurava outro serviço', disq],
+          ['Não era cliente', notClient],
+          ['Sem viabilidade jurídica', noMerit],
+          ['Desistência', gaveUp],
+          ['Fechou com concorrente', competitor],
+          ['Honorários', fees]
+        ].sort((a, b) => b[1] - a[1])
+        const sought = split(disq, [0.34, 0.27, 0.22, 0.17]).map((v, i) => [['Divórcio consensual', 'Inventário', 'Direito criminal', 'Usucapião'][i], v])
+
+        // Equipe
+        const ls = split(F.leads, TEAM.map(t => t.lead))
+        const ms = split(F.meetings, TEAM.map(t => t.meetings))
+        const ws = split(F.won, TEAM.map(t => t.won))
+        const team = TEAM.map((t, i) => {
+          const due = Math.round(ls[i] * 2.4)
+          const calls = Math.round(ls[i] * 2.1)
+          return { ...t, leads: ls[i], open: Math.round(ls[i] * 0.21), first: t.first[biz ? 1 : 0], avg: t.avg[biz ? 1 : 0], count: Math.round(ls[i] * 7.1), due, onTime: Math.round(due * t.tasks), overdue: Math.round(due * (1 - t.tasks) * 0.4), calls, answered: Math.round(calls * t.calls), moves: Math.round(ls[i] * 2.6), tasksDone: Math.round(due * t.tasks), meetings: ms[i], attended: Math.round(ms[i] * RATES.attended), won: ws[i], revenue: ws[i] * BASE.ticket }
+        })
+        const responses = team.reduce((a, t) => a + t.count, 0)
+        const buckets = split(responses, biz ? [0.81, 0.13, 0.05, 0.008, 0.002, 0] : [0.72, 0.19, 0.07, 0.015, 0.004, 0.001])
+        const BUCKETS = ['Até 5 min', '5 a 15 min', '15 min a 1 h', '1 a 4 h', '4 a 24 h', 'Mais de 24 h']
+        const first = biz ? 84 : 132
+        const avgAll = biz ? 185 : 262
+        const days = Array.from({ length: 14 }, (_, i) => ({ label: new Date(until.getTime() - (13 - i) * 864e5).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), value: [4, 3, 5, 6, 3, 2, 4, 5, 3, 4, 7, 4, 3, 4][i] - (biz ? 1 : 0) }))
+        const maxDay = Math.max(...days.map(d => d.value))
+        const DIMENSIONS = [
+          ['user', 'Responsável'],
+          ['responder', 'Quem respondeu'],
+          ['source', 'Origem'],
+          ['campaign', 'Campanha']
+        ]
+        const groups = {
+          user: team.map(t => [t.name, t.avg, t.first, t.count]),
+          responder: team.map(t => [t.name, t.avg * 0.95, t.first * 0.9, Math.round(t.count * 0.9)]).concat([['Mensagem automática', 2, 2, Math.round(F.leads * 0.9)]]),
+          source: [
+            ['Campanha', biz ? 170 : 240, biz ? 80 : 120, Math.round(responses * 0.74)],
+            ['WhatsApp', biz ? 210 : 300, biz ? 95 : 150, Math.round(responses * 0.2)],
+            ['Formulário da Meta', biz ? 260 : 380, biz ? 120 : 190, Math.round(responses * 0.06)]
+          ],
+          campaign: [
+            ['Rescisão indireta', biz ? 175 : 245, biz ? 82 : 125, Math.round(responses * 0.74)],
+            ['Sem campanha', biz ? 220 : 320, biz ? 100 : 160, Math.round(responses * 0.26)]
+          ]
+        }[dimension]
+        const maxGroup = Math.max(...groups.map(g => g[1]))
+        const velocity = [
+          ['Novo lead', 300, 4, 600],
+          ['Tentando contato', 1.6 * 86400, 7, 1.1 * 86400],
+          ['Conversando', 1.9 * 86400, 6, 1.4 * 86400],
+          ['Aguardando data combinada', 3.4 * 86400, 3, 2.2 * 86400],
+          ['Consulta agendada', 2.6 * 86400, 5, 1.2 * 86400],
+          ['Faltou na consulta', 1.2 * 86400, 2, 0.8 * 86400],
+          ['Fechamento', 2.1 * 86400, 4, 1.7 * 86400]
+        ]
+        const maxVel = Math.max(...velocity.map(v => v[1]))
+        const COLUMNS = ['Leads', '1ª resposta', 'Resposta média', 'Tarefas no prazo', 'Atrasadas', 'Ligações', 'Movimentações', 'Reuniões', 'Contratos', 'Valor']
+        const meetingDate = d => new Date(Date.now() + d * 864e5)
+
+        document.getElementById('page').innerHTML = `
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="p-selectbutton lg">${PRESETS.map(p => `<button data-preset="${p.value}" class="${p.value === preset ? 'on' : ''}">${p.label}</button>`).join('')}</div>
+            <span class="text-sm text-gray-500">Leads que chegaram de ${shortDate(since)} a ${shortDate(until)}</span>
+          </div>
+
+          <a class="flex items-center gap-3 p-4 rounded-2xl border transition-colors bg-yellow-50 border-yellow-100 hover:bg-yellow-100 cursor-pointer">
+            <i class="pi pi-check-square text-xl text-yellow-700"></i>
+            <p class="flex-1 text-sm text-gray-800">Você tem <strong>27 para hoje</strong>.</p>
+            <span class="text-sm font-semibold text-gray-700">Ver tarefas <i class="pi pi-arrow-right text-xs"></i></span>
+          </a>
+
+          <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div><h3 class="font-bold text-gray-900">Funil comercial</h3><p class="text-sm text-gray-500">Quanto de cada etapa avança para a próxima</p></div>
+              <button class="p-btn p-btn-outlined ml-auto"><i class="pi pi-sliders-h"></i>Simular melhoria</button>
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 rounded-xl bg-[var(--brand)] text-[var(--on-brand)]">
+                <span class="text-sm opacity-80">Conversão total</span>
+                <strong class="text-2xl font-black">${percent(overall)}</strong>
+                <span class="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-bold ${TONES[overallHealth.severity]}"><i class="${overallHealth.icon} text-[10px]"></i>${overallHealth.label}</span>
+                <span class="text-xs opacity-80">saudável: ${OVERALL_RANGE.join('–')}%</span>
+                <i class="pi pi-info-circle text-xs opacity-80"></i>
+              </div>
+            </div>
+            <div class="grid grid-cols-5 gap-3">
+              ${steps
+                .map(s => {
+                  const h = s.range ? health(s.rateValue, s.range) : null
+                  return `<div class="flex flex-col gap-2 min-w-0">
+                    <div>
+                      <p class="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase min-w-0"><span class="truncate">${s.label}</span>${s.range ? '<i class="pi pi-info-circle text-[10px]"></i>' : ''}</p>
+                      <p class="text-3xl font-black text-gray-900">${number(s.value)}</p>
+                    </div>
+                    <div class="h-80 flex items-end rounded-xl bg-[color-mix(in_srgb,var(--brand)_10%,white)]">
+                      <div class="anim-bar w-full flex flex-col justify-end gap-1.5 p-3 rounded-xl overflow-hidden bg-[var(--brand)] text-[var(--on-brand)]" style="height: 9.5rem" data-hcalc="calc(9.5rem + (100% - 9.5rem) * ${s.value / F.leads})">
+                        ${
+                          s.range
+                            ? `<p class="text-3xl font-black leading-none">${percent(s.rateValue)}</p><p class="text-xs opacity-80">${s.rate}</p>
+                              <span class="self-start inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-bold ${TONES[h.severity]}"><i class="${h.icon} text-[9px]"></i>${h.label}</span>
+                              <p class="text-[11px] opacity-80">Saudável: ${s.range.join('–')}%</p>`
+                            : `<p class="text-3xl font-black leading-none">100%</p><p class="text-xs opacity-80">${s.hint}</p><p class="text-[11px] opacity-80">Ponto de partida do funil</p>`
+                        }
+                      </div>
+                    </div>
+                  </div>`
+                })
+                .join('')}
+            </div>
+            ${below.length ? '' : '<p class="flex items-center gap-2 text-sm text-gray-600"><i class="pi pi-check-circle text-green-600"></i> Todas as etapas com dados estão na faixa saudável. Mantenha o processo padronizado.</p>'}
+          </section>
+
+          <div class="grid grid-cols-4 gap-3">
+            ${[
+              { label: 'Investido em anúncios', value: money(inv), hint: 'No período, sem impostos', icon: 'pi pi-megaphone' },
+              { label: 'Custo por lead (CPL)', value: money(inv / F.leads), hint: `Por qualificado: ${money(inv / F.mql)}`, icon: 'pi pi-user' },
+              { label: 'Custo por reunião', value: money(inv / F.meetings), hint: 'Investido ÷ reuniões marcadas', icon: 'pi pi-calendar' },
+              { label: 'Custo por cliente (CAC)', value: money(inv / F.won), hint: 'Investido ÷ contratos fechados', icon: 'pi pi-trophy' },
+              { label: 'Retorno', value: (value / inv).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + 'x', hint: 'Valor em contratos ÷ investido', icon: 'pi pi-chart-line' },
+              { label: 'Valor em contratos', value: money(value, 0), hint: 'Soma dos contratos fechados', icon: 'pi pi-wallet' },
+              { label: 'Ticket médio', value: money(value / F.won, 0), hint: 'Valor médio por contrato', icon: 'pi pi-tag' },
+              { label: 'Tempo até o 1º contato', value: duration(first), hint: `${duration(biz ? first : 84)} em horário comercial · ligação ou mensagem`, icon: 'pi pi-bolt', tip: true }
+            ]
+              .map(tile)
+              .join('')}
+          </div>
+
+          <div class="grid grid-cols-2 gap-6 items-start">
+            ${card(`<h3 class="font-bold text-gray-900">Próximas reuniões</h3>
+              ${MEETINGS.map(
+                ([name, d, time]) => `<div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
+                <span class="shrink-0 w-12 text-center rounded-lg py-1 bg-[var(--brand)] text-[var(--on-brand)]"><span class="block text-lg font-black leading-none">${String(meetingDate(d).getDate()).padStart(2, '0')}</span><span class="block text-[10px] uppercase">${meetingDate(d).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}</span></span>
+                <a href="crm.html" class="flex-1 min-w-0"><p class="font-semibold text-gray-900 truncate">${name}</p><p class="text-xs text-gray-500">${meetingDate(d).toLocaleDateString('pt-BR', { weekday: 'long' })}, ${time}</p></a>
+                <button class="p-btn p-btn-text p-btn-rounded p-btn-icon !text-green-600"><i class="pi pi-whatsapp"></i></button>
+              </div>`
+              ).join('')}`)}
+            ${card(`<h3 class="font-bold text-gray-900">Por que os leads foram perdidos</h3>
+              ${lostReasons
+                .map(
+                  ([label, total]) => `<div class="grid grid-cols-[10rem_1fr_3rem] items-center gap-x-3 text-sm"><span class="text-gray-700 truncate">${label}</span><div class="h-3 rounded-r bg-[color-mix(in_srgb,var(--brand)_10%,white)]"><div class="anim-bar h-3 rounded-r bg-[var(--brand)]" style="width:0" data-w="${(total / lostReasons[0][1]) * 100}"></div></div><span class="text-right font-semibold text-gray-900">${total}</span></div>`
+                )
+                .join('')}
+              <div class="flex flex-col gap-1.5 pt-3 border-t border-gray-100">
+                <p class="text-sm font-semibold text-gray-900">O que procuravam os leads de outro serviço</p>
+                <div class="flex flex-wrap gap-1.5">${sought.map(([l, v]) => `<span class="px-2 py-0.5 rounded-full bg-gray-100 text-xs text-gray-700">${l} <strong>${v}</strong></span>`).join('')}</div>
+                <p class="text-xs text-gray-500">Se um serviço aparece muito, vale revisar o público e a mensagem dos anúncios.</p>
+              </div>`)}
+          </div>
+
+          <div class="min-w-0 flex flex-col gap-6">
+            <div class="flex flex-wrap items-end justify-between gap-3 pt-6 border-t border-gray-200">
+              <div><h2 class="text-xl font-black text-gray-900">Equipe e atendimento</h2><p class="text-sm text-gray-500">Tempo de resposta, desempenho por pessoa e velocidade do funil no mesmo período</p></div>
+              <select class="p-input p-select !py-2"><option>Todos os responsáveis</option>${TEAM.map(t => `<option>${t.name}</option>`).join('')}</select>
+            </div>
+            <section class="flex flex-col gap-4">
+              <div class="flex flex-wrap items-end justify-between gap-3">
+                <div><h2 class="text-lg font-bold text-gray-900">Tempo de resposta no WhatsApp</h2><p class="text-sm text-gray-500">Quanto tempo o lead espera, desde a mensagem dele até a resposta do escritório</p></div>
+                <div class="flex flex-col items-end gap-1">
+                  <div class="p-selectbutton">${[
+                    ['real', 'Tempo corrido'],
+                    ['business', 'Horário comercial']
+                  ]
+                    .map(([v, l]) => `<button data-mode="${v}" class="${mode === v ? 'on' : ''}">${l}</button>`)
+                    .join('')}</div>
+                  <span class="text-xs text-gray-500">${biz ? 'Conta só seg. a sex., das 8h às 18h' : 'Conta noites e fins de semana também'}</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-4 gap-3">
+                ${[
+                  { label: '1ª resposta média', value: duration(first), hint: `Mediana ${duration(first * 0.7)} · ${number(F.leads * 0.9)} conversas novas`, icon: 'pi pi-bolt', big: true },
+                  { label: 'Resposta média', value: duration(avgAll), hint: `Mediana ${duration(avgAll * 0.7)} · todas as respostas`, icon: 'pi pi-comments', big: true },
+                  { label: 'Respondidas em 15 min', value: percent(((buckets[0] + buckets[1]) / responses) * 100), hint: `Em até 1 h: ${percent(((buckets[0] + buckets[1] + buckets[2]) / responses) * 100)}`, icon: 'pi pi-stopwatch', big: true },
+                  { label: 'Esperando agora', value: '2', hint: 'Leads aguardando resposta', icon: 'pi pi-clock', big: true }
+                ]
+                  .map(tile)
+                  .join('')}
+              </div>
+              <div class="grid grid-cols-2 gap-6 items-start">
+                ${card(`<div><h3 class="font-bold text-gray-900">Em quanto tempo respondemos</h3><p class="text-sm text-gray-500">${number(responses)} respostas no período</p></div>
+                  ${BUCKETS.map((l, i) => `<div class="grid grid-cols-[7.5rem_1fr_5.5rem] items-center gap-x-3 text-sm"><span class="text-gray-700">${l}</span><div class="h-3 rounded-r bg-[color-mix(in_srgb,var(--brand)_10%,white)]"><div class="anim-bar h-3 rounded-r bg-[var(--brand)] ${i > 2 ? 'opacity-60' : ''}" style="width:0" data-w="${(buckets[i] / Math.max(...buckets)) * 100}"></div></div><span class="text-right text-gray-900"><strong>${percent((buckets[i] / responses) * 100)}</strong> <span class="text-xs text-gray-500">(${buckets[i]})</span></span></div>`).join('')}`)}
+                ${card(`<div class="flex items-center justify-between gap-3"><div><h3 class="font-bold text-gray-900">Esperando resposta agora</h3><p class="text-sm text-gray-500">Leads em aberto cuja última mensagem foi deles</p></div><span class="text-2xl font-black text-gray-900">2</span></div>
+                  ${[
+                    ['Natália Vieira', 'Juliana Rocha', '3 min'],
+                    ['Diego Correia', 'Bruno Matos', '7 min']
+                  ]
+                    .map(([n, u, t]) => `<a href="crm.html" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"><i class="pi pi-clock text-gray-400"></i><span class="flex-1 min-w-0"><span class="block font-semibold text-gray-900 truncate">${n}</span><span class="block text-xs text-gray-500">${u}</span></span><span class="text-sm font-semibold text-gray-700">há ${t}</span></a>`)
+                    .join('')}`)}
+              </div>
+              ${card(`<div><h3 class="font-bold text-gray-900">Tempo médio de resposta por dia</h3><p class="text-sm text-gray-500">Média de todas as respostas do dia, em minutos</p></div>
+                <div class="h-44 flex items-end gap-2 pt-4">${days.map(d => `<div class="flex-1 h-full flex flex-col justify-end items-center gap-1"><span class="text-[11px] font-semibold text-gray-700">${d.value} min</span><div class="anim-bar w-full rounded-t-md bg-[var(--brand)]" style="height:0" data-h="${(d.value / maxDay) * 80}"></div><span class="text-[10px] text-gray-500">${d.label}</span></div>`).join('')}</div>`)}
+              ${card(`<div class="flex flex-wrap items-center justify-between gap-3"><div><h3 class="font-bold text-gray-900">Tempo de resposta por</h3><p class="text-sm text-gray-500">Barra: média de todas as respostas. Ao lado: primeira resposta e quantidade.</p></div>
+                  <div class="p-selectbutton">${DIMENSIONS.map(([v, l]) => `<button data-dimension="${v}" class="${dimension === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+                ${groups.map(g => hbar(g[0], g[1], maxGroup, `<strong class="text-gray-900">${duration(g[1])}</strong><span class="text-xs text-gray-500"> · 1ª ${duration(g[2])} · ${number(g[3])}</span>`)).join('')}`)}
+            </section>
+
+            ${card(`<div><h2 class="text-lg font-bold text-gray-900">Desempenho por pessoa</h2><p class="text-sm text-gray-500">Leads do período por responsável, tarefas que venciam no período e o que cada um fez</p></div>
+              <div class="overflow-x-auto"><table class="w-full text-sm">
+                <thead><tr class="text-left text-xs uppercase text-gray-500 border-b"><th class="py-2 pr-4 font-semibold">Responsável</th>${COLUMNS.map(c => `<th class="py-2 px-3 font-semibold text-right whitespace-nowrap">${c}</th>`).join('')}</tr></thead>
+                <tbody>${team
+                  .map(
+                    r => `<tr class="border-b last:border-0">
+                  <td class="py-3 pr-4 font-semibold text-gray-900 whitespace-nowrap">${r.name}</td>
+                  <td class="py-3 px-3 text-right">${number(r.leads)}<span class="block text-xs text-gray-500">${r.open} em aberto</span></td>
+                  <td class="py-3 px-3 text-right whitespace-nowrap">${duration(r.first)}</td>
+                  <td class="py-3 px-3 text-right whitespace-nowrap">${duration(r.avg)}<span class="block text-xs text-gray-500">${number(r.count)} respostas</span></td>
+                  <td class="py-3 px-3 text-right whitespace-nowrap"><span class="inline-flex items-center gap-1 font-semibold ${r.tasks >= 0.8 ? 'text-green-700' : 'text-red-600'}"><i class="pi ${r.tasks >= 0.8 ? 'pi-check' : 'pi-arrow-down'} text-[10px]"></i>${percent((r.onTime / r.due) * 100)}</span><span class="block text-xs text-gray-500">${r.onTime} de ${r.due}</span></td>
+                  <td class="py-3 px-3 text-right ${r.overdue ? 'text-red-600 font-semibold' : 'text-gray-500'}">${r.overdue}</td>
+                  <td class="py-3 px-3 text-right whitespace-nowrap"><span class="inline-flex items-center gap-1 font-semibold text-green-700"><i class="pi pi-check text-[10px]"></i>${percent((r.answered / r.calls) * 100)}</span><span class="block text-xs text-gray-500">${r.answered} de ${r.calls} atendidas</span></td>
+                  <td class="py-3 px-3 text-right">${number(r.moves)}<span class="block text-xs text-gray-500">${r.tasksDone} tarefas feitas</span></td>
+                  <td class="py-3 px-3 text-right">${number(r.meetings)}<span class="block text-xs text-gray-500">${r.attended} compareceram</span></td>
+                  <td class="py-3 px-3 text-right">${number(r.won)}<span class="block text-xs text-gray-500">${percent(r.leads ? (r.won / r.leads) * 100 : 0)} dos leads</span></td>
+                  <td class="py-3 px-3 text-right whitespace-nowrap font-semibold text-gray-900">${money(r.revenue, 0)}</td>
+                </tr>`
+                  )
+                  .join('')}</tbody>
+              </table></div>`)}
+
+            <div class="grid grid-cols-3 gap-6 items-start">
+              <div class="col-span-2">${card(`<div><h2 class="text-lg font-bold text-gray-900">Velocidade do funil</h2><p class="text-sm text-gray-500">Barra: tempo médio que os leads ficaram em cada etapa antes de sair (saídas no período). Ao lado: quantos estão nela agora e há quanto tempo, em média.</p></div>
+                ${velocity.map(([l, avg, open, openAvg]) => hbar(l, avg, maxVel, `<strong class="text-gray-900">${duration(avg)}</strong><span class="text-xs text-gray-500"> · agora ${open} há ${duration(openAvg)}</span>`)).join('')}`)}</div>
+              ${card(`<div><h2 class="text-lg font-bold text-gray-900">Do lead ao contrato</h2><p class="text-sm text-gray-500">Tempo desde a chegada dos leads do período</p></div>
+                ${[
+                  ['Até agendar a consulta', 'pi pi-calendar-plus', 1.8 * 86400, 1.1 * 86400, F.meetings],
+                  ['Até a consulta acontecer', 'pi pi-users', 3.4 * 86400, 2.9 * 86400, F.attended],
+                  ['Até fechar o contrato', 'pi pi-trophy', 5.9 * 86400, 4.8 * 86400, F.won]
+                ]
+                  .map(([l, icon, avg, med, count]) => `<div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50"><span class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[color-mix(in_srgb,var(--brand)_15%,white)]"><i class="${icon} text-gray-800"></i></span><div class="min-w-0"><p class="text-xs font-semibold text-gray-500 uppercase">${l}</p><p class="text-xl font-black text-gray-900">${duration(avg)}</p><p class="text-xs text-gray-500">mediana ${duration(med)} · ${count} leads</p></div></div>`)
+                  .join('')}`)}
+            </div>
+          </div>`
+
+        setTimeout(() => {
+          document.querySelectorAll('[data-w]').forEach(el => (el.style.width = el.dataset.w + '%'))
+          document.querySelectorAll('[data-h]').forEach(el => (el.style.height = el.dataset.h + '%'))
+          document.querySelectorAll('[data-hcalc]').forEach(el => (el.style.height = el.dataset.hcalc))
+        }, 60)
+      }
+
+      document.addEventListener('click', e => {
+        const p = e.target.closest('[data-preset]')
+        if (p) return (preset = p.dataset.preset), render()
+        const m = e.target.closest('[data-mode]')
+        if (m) return (mode = m.dataset.mode), render()
+        const d = e.target.closest('[data-dimension]')
+        if (d) return (dimension = d.dataset.dimension), render()
+      })
+
+      render()
+    </script>
+  </body>
+</html>
