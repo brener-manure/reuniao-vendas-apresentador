@@ -724,7 +724,7 @@
           <div class="eyebrow anim !self-center">Manure · Aquisição Jurídica Previsível</div>
           <h1 class="anim d1 text-[108px] leading-[0.98] font-black text-white">Mais contratos,<br /><span class="hl">sem depender de sorte.</span></h1>
         </div>
-        <div class="absolute bottom-24 left-0 right-0 text-center text-xs text-zinc-600 tracking-wide">→ avançar · P abre a tela do apresentador (só você vê) · no Meet, compartilhe só esta guia · F tela cheia</div>
+        <div class="absolute bottom-24 left-0 right-0 text-center text-xs text-zinc-600 tracking-wide">→ avançar · P abre/fecha a tela do apresentador (só você vê) · no Meet, compartilhe só esta guia · F tela cheia</div>
         <aside class="notes">
         <p class="goal">Abrir no controle</p>
         <ul class="topics">
@@ -2583,7 +2583,12 @@
         else if (k === 'a' || k === 'A' || k === 'b' || k === 'B') setPerfil(k.toLowerCase())
         else if (k === 'm' || k === 'M') toggleOverlay('map')
         else if (k === 'n' || k === 'N') toggleNotes()
-        else if (k === 'p' || k === 'P') openPresenter()
+        else if (k === 'p' || k === 'P') {
+          if (pw && !pw.closed) {
+            pw.close()
+            pw = null
+          } else openPresenter()
+        }
         else if (k === 'f' || k === 'F') {
           if (!document.fullscreenElement) document.documentElement.requestFullscreen?.()
           else document.exitFullscreen?.()
