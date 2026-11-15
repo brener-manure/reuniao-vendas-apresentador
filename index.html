@@ -2536,6 +2536,28 @@
             .ask,.obj,.next{font-size:13px;padding:7px 9px} .how{font-size:11px}
             footer{margin-top:10px;padding-top:8px;gap:6px} button{padding:7px 12px;font-size:14px} .nx{font-size:11px}
           }
+        
+          /* versão simples: só o que ajuda a conduzir */
+          header,details,#p-step,.how,#p-chapter,#p-reset{display:none!important}
+          body{display:flex;flex-direction:column;min-height:100vh;padding:18px 20px}
+          h1{order:1;font-size:26px;margin:0 0 10px;color:#a1a1aa;font-weight:700}
+          #p-notes{order:2;flex:1}
+          #p-obj{order:3;margin-top:12px}
+          footer{order:4}
+          .goal{display:none}
+          ul.topics li{font-size:26px;line-height:1.3;padding:10px 12px;margin-bottom:6px;font-weight:600}
+          ul.topics li .ck{min-width:30px;height:30px;font-size:15px}
+          ul.topics li.wait{opacity:.25}
+          .ask,.obj,.next{font-size:20px;line-height:1.35;padding:12px 14px;margin:0 0 10px}
+          .next{border-top:none;padding-left:0}
+          @media (max-width:560px){
+            body{padding:12px 14px}
+            h1{font-size:18px;margin-bottom:6px}
+            ul.topics li{font-size:21px;padding:8px 10px;gap:10px}
+            ul.topics li .ck{min-width:26px;height:26px;font-size:13px}
+            .ask,.obj,.next{font-size:17px;padding:9px 11px}
+            #p-obj button{font-size:12px;padding:5px 9px}
+          }
         `
       const PRESENTER_BODY = `
         <header><div><div style="font-size:13px;color:#71717a" id="p-pos"></div><div id="p-timer">00:00</div></div><div style="text-align:right"><div id="p-pace" class="ok">no tempo</div><div style="font-size:12px;color:#71717a;margin-top:6px" id="p-plan"></div></div></header>
@@ -2551,7 +2573,7 @@
           // Telinha flutuante: fica por cima de tudo (inclusive do Meet) e não entra no compartilhamento da guia
           if (window.documentPictureInPicture) {
             try {
-              pw = await documentPictureInPicture.requestWindow({ width: 420, height: 640 })
+              pw = await documentPictureInPicture.requestWindow({ width: 480, height: 720 })
               pw.addEventListener('pagehide', () => { pw = null })
             } catch (e) {
               pw = null
