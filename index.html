@@ -1220,7 +1220,7 @@
         </ul>
         <p class="ask">“Ficou palpável pra você?”</p>
         <p class="obj">Quer começar com verba menor pra equipe engrenar? Tudo bem: ajuste a verba aqui e mostre o resultado menor.</p>
-        <p class="next">“E isso não é teoria. Deixa eu te mostrar quem já roda.”</p>
+        <p class="next">“Melhor do que eu falar é ouvir quem já roda.”</p>
         <p class="how">Clique no número e digite. Enter/Esc devolve as setas.</p>
         </aside>
       </section>
@@ -1228,56 +1228,6 @@
       <!-- =========================================================
            RESULTADOS
            ========================================================= -->
-
-      <section class="slide" data-id="caso-natalia" data-chapter="4" data-case="0" data-title="Natália Mamoto" data-time="1.5">
-        <div class="slide-inner"></div>
-        <aside class="notes">
-        <p class="goal">Escritório real, do investimento ao faturamento</p>
-        <ul class="topics">
-        <li data-c="0">R$ 1.450 em anúncios</li>
-        <li data-c="0">71 leads → 20 reuniões → 7 contratos</li>
-        <li data-c="0">R$ 42 mil de faturamento imediato</li>
-        </ul>
-        </aside>
-      </section>
-
-      <section class="slide" data-id="caso-pinheiro" data-chapter="4" data-case="1" data-title="Pinheiro & Pinheiro" data-time="1.5">
-        <div class="slide-inner"></div>
-        <aside class="notes">
-        <p class="goal">Escala</p>
-        <ul class="topics">
-        <li data-c="0">R$ 2.280 → 38 contratos/mês</li>
-        <li data-c="0">Ticket ~R$ 10 mil: R$ 380 mil plantados</li>
-        <li data-c="0">É êxito: não entra tudo agora (deixe claro)</li>
-        <li data-c="0">Cidade de ~26 mil habitantes</li>
-        </ul>
-        </aside>
-      </section>
-
-      <section class="slide" data-id="caso-andrade" data-chapter="4" data-case="2" data-title="Andrade Ferreira" data-time="1.5">
-        <div class="slide-inner"></div>
-        <aside class="notes">
-        <p class="goal">Ticket alto no trabalhista</p>
-        <ul class="topics">
-        <li data-c="0">R$ 1.800 → 8 contratos</li>
-        <li data-c="0">Ticket de R$ 17 mil: R$ 136 mil projetados</li>
-        <li data-c="0">Cliente mais qualificado, ticket maior</li>
-        </ul>
-        </aside>
-      </section>
-
-      <section class="slide" data-id="caso-guilherme" data-chapter="4" data-case="3" data-title="Guilherme Nunes" data-time="1.5">
-        <div class="slide-inner"></div>
-        <aside class="notes">
-        <p class="goal">Funciona também no high ticket</p>
-        <ul class="topics">
-        <li data-c="0">Holding: R$ 3.000 → 2 fechadas → R$ 90 mil</li>
-        <li data-c="0">Lead caro, mas são poucos e muito qualificados</li>
-        <li data-c="0">Não é volume: é o cliente certo</li>
-        </ul>
-        <p class="next">“Melhor do que eu falar é ouvir deles.”</p>
-        </aside>
-      </section>
 
       <section class="slide" data-id="depoimentos" data-chapter="4" data-title="Depoimentos" data-time="2">
         <div class="slide-inner">
@@ -1306,17 +1256,14 @@
           <div class="grid grid-cols-3 gap-8 mt-10 flex-1 min-h-0" id="delivery"></div>
         </div>
         <aside class="notes">
-        <p class="goal">Tudo o que ele recebe, por pilar</p>
+        <p class="goal">Tudo o que ele recebe, módulo por módulo</p>
         <ul class="topics">
-        <li data-c="0">Oferta, página, roteiros e edição dos vídeos</li>
-        <li data-c="0">Gestão de anúncios com dados reais</li>
-        <li data-c="0">Relatório ao vivo no CRM, no celular</li>
-        <li data-c="0">Reuniões de projeção: 3, 6 e 12 meses</li>
-        <li data-c="0">CRM, scripts, treinamento e acompanhamento ao vivo</li>
+        <li data-c="1"><span class="ck">1</span>Fundação Digital: oferta, página, roteiros e edição</li>
+        <li data-c="2"><span class="ck">2</span>Máquina de Aquisição: anúncios, otimização, relatórios</li>
+        <li data-c="3"><span class="ck">3</span>Arsenal Comercial: CRM, scripts, treino e acompanhamento</li>
         </ul>
         <p class="obj">Quando vem o retorno? Campanhas em até 10 dias · ajustes no 1º mês · validação no 2º · escala do 3º.</p>
         <p class="next">“E tem uma coisa que quase ninguém faz.”</p>
-        <p class="how">Não prometa quantidade de posts nem diga se o acompanhamento é exclusivo.</p>
         </aside>
       </section>
 
@@ -1379,6 +1326,17 @@
         <ul class="topics">
         <li data-c="1"><span class="ck">1</span>Contratos</li>
         <li data-c="2"><span class="ck">2</span>Soma</li>
+        </ul>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="vale-pinheiro" data-chapter="5" data-value="1" data-title="Vale: Pinheiro & Pinheiro" data-time="0.5">
+        <div class="slide-inner"></div>
+        <aside class="notes">
+        <p class="goal">R$ 380 mil plantados · êxito</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Contratos</li>
+        <li data-c="2"><span class="ck">2</span>Soma: é êxito, não entra tudo agora</li>
         </ul>
         </aside>
       </section>
@@ -1954,11 +1912,10 @@
           </button>`
         ).join('')
 
-        let k = 0
         document.getElementById('delivery').innerHTML = DELIVERY.map(
-          col => `<div class="card p-8 flex flex-col">
+          (col, ci) => `<div data-step="${ci + 1}" class="card p-8 flex flex-col">
             <div class="flex items-center gap-4">${iconBox(col.icon)}<div><div class="text-sm font-bold uppercase tracking-[0.15em] text-brand-400">${col.p}</div><div class="font-display font-black text-3xl text-white">${col.t}</div></div></div>
-            <div class="flex flex-col gap-4 mt-8">${col.items.map(it => `<div data-step="${++k}" class="flex items-start gap-4 text-2xl text-zinc-200 leading-snug"><span class="text-brand-400 mt-1 shrink-0">${ICON.check}</span>${it}</div>`).join('')}</div>
+            <div class="flex flex-col gap-4 mt-8">${col.items.map(it => `<div class="flex items-start gap-4 text-2xl text-zinc-200 leading-snug"><span class="text-brand-400 mt-1 shrink-0">${ICON.check}</span>${it}</div>`).join('')}</div>
           </div>`
         ).join('')
 
