@@ -1059,44 +1059,7 @@
         <li data-c="0">Liga → ganha confiança → vira vídeo → contrato e procuração</li>
         <li data-c="0">Conversando, fecha 2 ou 3 ações do mesmo cliente</li>
         </ul>
-        <p class="next">A: “E se eu colocar uma IA pra atender?” · B: “E isso a gente treina, etapa por etapa.”</p>
-        </aside>
-      </section>
-
-      <section class="slide" data-id="humano" data-perfil="a" data-chapter="2" data-title="Humano × IA" data-time="1.5">
-        <div class="slide-inner">
-          <div class="eyebrow anim">2º pilar · Arsenal comercial</div>
-          <h2 class="anim d1">Atendimento <span class="hl">humano</span> <span class="text-zinc-600">×</span> por IA</h2>
-          <div class="text-2xl text-zinc-400 mt-3 anim d2">De cada 100 leads, quantos viram contrato:</div>
-          <div class="grid grid-cols-2 gap-10 mt-8 flex-1 min-h-0">
-            <div data-step="1" class="card-plain p-8 flex gap-10 items-center">
-              <div class="dots100 w-[300px]" style="--c: #a1a1aa" id="dots-robo"></div>
-              <div>
-                <div class="text-sm font-bold uppercase tracking-[0.15em] text-zinc-500">Atendimento por IA</div>
-                <div class="font-display font-black text-7xl text-zinc-300 mt-2">2–3</div>
-                <div class="text-2xl text-zinc-500 mt-1">contratos</div>
-              </div>
-            </div>
-            <div data-step="2" class="card p-8 flex gap-10 items-center !border-brand-500/50">
-              <div class="dots100 w-[300px]" style="--c: #facc15" id="dots-humano"></div>
-              <div>
-                <div class="text-sm font-bold uppercase tracking-[0.15em] text-brand-400">Humano treinado</div>
-                <div class="font-display font-black text-7xl text-brand-400 mt-2">10–15</div>
-                <div class="text-2xl text-zinc-400 mt-1">contratos</div>
-              </div>
-            </div>
-          </div>
-          <div data-step="3" class="mt-8 card p-6 text-center text-3xl text-white">Mesmo anúncio, mesma verba. <b class="text-brand-400">Até 5× mais contratos.</b></div>
-        </div>
-        <aside class="notes">
-        <p class="goal">Os números do humano × IA</p>
-        <ul class="topics">
-        <li data-c="1"><span class="ck">1</span>IA: 2% a 3% dos leads viram contrato</li>
-        <li data-c="2"><span class="ck">2</span>Humano treinado: 10% a 15%</li>
-        <li data-c="3"><span class="ck">3</span>Cliente da internet quer falar com gente</li>
-        <li data-c="0">Em saúde, a IA trava ainda mais</li>
-        </ul>
-        <p class="next">“E esse humano é treinado, etapa por etapa.”</p>
+        <p class="next">“E isso a gente treina, etapa por etapa.”</p>
         </aside>
       </section>
 
@@ -1891,8 +1854,8 @@
 
         document.getElementById('trust-flow').innerHTML = flowHTML(TRUST, 120)
 
-        document.getElementById('dots-robo').innerHTML = Array.from({ length: 100 }, (_, i) => `<i class="${i < 3 ? 'win' : ''}"></i>`).join('')
-        document.getElementById('dots-humano').innerHTML = Array.from({ length: 100 }, (_, i) => `<i class="${i < 15 ? 'win' : ''}"></i>`).join('')
+        if (document.getElementById('dots-robo')) document.getElementById('dots-robo').innerHTML = Array.from({ length: 100 }, (_, i) => `<i class="${i < 3 ? 'win' : ''}"></i>`).join('')
+        if (document.getElementById('dots-humano')) document.getElementById('dots-humano').innerHTML = Array.from({ length: 100 }, (_, i) => `<i class="${i < 15 ? 'win' : ''}"></i>`).join('')
 
         document.getElementById('training').innerHTML = TRAINING.map(
           (t, i) => `<div data-step="${i + 1}" class="card p-9 text-center ${t.ok ? '!border-emerald-500/50' : ''}">
