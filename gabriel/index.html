@@ -1605,7 +1605,7 @@
       const LIVE_LINK = 'https://app.manure.marketing'
 
       // Valores de partida da calculadora
-      const DIAG_DEFAULT = { ticket: 7000, verba: 1450, cpl: 15 }
+      const DIAG_DEFAULT = { ticket: 10000, verba: 2000, cpl: 12 }
 
       const PILLARS = [
         { icon: 'target', t: 'Inteligência de demanda qualificada' },
@@ -1725,8 +1725,8 @@
 
       const STORE_KEY = 'manure-apresentacao-gabriel'
       let DIAG = { ...DIAG_DEFAULT }
-      let TIER = 3
-      let RATES = { agend: 35, pres: 60, fech: 30 }
+      let TIER = 1
+      let RATES = { agend: 35, pres: 70, fech: 60 }
       let PERFIL = 'a'
       let SHOW_G = true
       try {
@@ -2148,7 +2148,7 @@
           if (pf) setPerfil(pf.dataset.perfilBtn)
           if (e.target.closest('[data-diag-reset]')) {
             DIAG = { ...DIAG_DEFAULT }
-            RATES = { agend: 35, pres: 60, fech: 30 }
+            RATES = { agend: 35, pres: 70, fech: 60 }
             save()
             renderDiag()
           }
