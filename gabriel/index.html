@@ -1144,16 +1144,16 @@
           <div class="grid grid-cols-[320px_1fr_320px] gap-8 mt-8 flex-1 min-h-0">
             <div class="anim d2 card p-7 flex flex-col justify-between" id="sim-inputs"></div>
             <div class="anim d3 card p-8 flex flex-col justify-between" id="sim-funnel"></div>
-            <div data-step="3" class="flex flex-col gap-4" id="sim-out"></div>
+            <div class="flex flex-col gap-4" id="sim-out"></div>
           </div>
         </div>
         <aside class="notes">
         <p class="goal">O comercial muda mais que a verba</p>
         <ul class="topics">
         <li data-c="0">Use o ticket e a verba que ele falou</li>
-        <li data-c="1"><span class="ck">1</span>Quantos agendam (mín. 35% com o método)</li>
-        <li data-c="2"><span class="ck">2</span>Quantos comparecem (~70% a 80%)</li>
-        <li data-c="3"><span class="ck">3</span>Quantos fecham → contratos e faturamento</li>
+        <li data-c="0">Quantos agendam (mín. 35% com o método)</li>
+        <li data-c="0">Quantos comparecem (~70% a 80%)</li>
+        <li data-c="0">Quantos fecham → contratos e faturamento</li>
         <li data-c="0">Comercial desalinhado → arraste pro Manure</li>
         <li data-c="0">“A gente mudou só o comercial”</li>
         <li data-c="0">Mostre um cenário pessimista: ainda fecha</li>
@@ -1991,7 +1991,7 @@
           `<div><div class="flex items-end justify-between mb-3"><span class="text-2xl text-zinc-300 font-semibold">Leads <span class="text-lg text-zinc-500 font-normal">anúncios ÷ custo por lead</span></span><span class="font-display font-black text-5xl text-white" id="sim-leads"></span></div>
             <div class="h-10 rounded-xl bg-zinc-900 overflow-hidden"><div class="hbar" style="width:100%"></div></div></div>` +
           SIM_RATES.map(
-            (r, i) => `<div data-step="${i + 1}">
+            (r, i) => `<div>
               <div class="flex items-end justify-between mb-3"><span class="text-2xl text-zinc-300 font-semibold flex items-baseline gap-2">${r.t} <span class="text-brand-300 font-bold"><input type="number" class="num-type w-[2.6ch] text-right" data-rate="${r.k}" min="0" max="100" />%</span></span><span class="font-display font-black text-5xl text-white" data-ratec="${r.k}"></span></div>
               <div class="grid grid-cols-[1fr_200px] gap-6 items-center">
                 <div class="h-10 rounded-xl bg-zinc-900 overflow-hidden"><div class="hbar" data-rateb="${r.k}"></div></div>
