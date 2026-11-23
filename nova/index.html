@@ -1,0 +1,2833 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apresentação Nova · Manure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: { 200: '#fef08a', 300: '#fde047', 400: '#facc15', 500: '#eab308', 600: '#ca8a04', 900: '#713f12' }
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+              display: ['Playfair Display', 'serif']
+            }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #09090b;
+        color: #fafafa;
+        overflow: hidden;
+        height: 100vh;
+        margin: 0;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      .font-display {
+        font-family: 'Playfair Display', serif;
+      }
+
+      .bg-grid {
+        background-size: 50px 50px;
+        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+        -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+      }
+
+      #particles-bg {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.5;
+      }
+
+      /* ---------- Palco fixo 16:9, escalado para caber na tela ---------- */
+      #stage {
+        position: absolute;
+        width: 1600px;
+        height: 900px;
+        left: 50%;
+        top: 50%;
+        transform-origin: center;
+        z-index: 10;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          opacity 0.5s ease,
+          visibility 0.5s ease;
+      }
+      .slide.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .slide-inner {
+        position: absolute;
+        inset: 0;
+        padding: 56px 96px 104px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .slide h2 {
+        font-size: 54px;
+        line-height: 1.08;
+        font-weight: 900;
+        color: #fff;
+      }
+
+      .hl {
+        color: #facc15;
+        font-style: italic;
+        text-shadow: 0 0 30px rgba(234, 179, 8, 0.45);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-self: flex-start;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+        background: #18181b;
+        color: #eab308;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        box-shadow: 0 0 15px rgba(234, 179, 8, 0.15);
+        margin-bottom: 18px;
+      }
+
+      /* Entrada dos elementos ao abrir o slide */
+      .anim {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .slide.active .anim {
+        opacity: 1;
+        transform: none;
+      }
+      .d1 { transition-delay: 0.1s; }
+      .d2 { transition-delay: 0.2s; }
+      .d3 { transition-delay: 0.3s; }
+      .d4 { transition-delay: 0.4s; }
+      .d5 { transition-delay: 0.5s; }
+
+      /* Elementos revelados a cada clique */
+      .slide [data-step] {
+        opacity: 0;
+        transform: translateY(16px);
+        transition:
+          opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: none;
+      }
+      .slide [data-step].shown {
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+      }
+
+      .card {
+        background: linear-gradient(145deg, rgba(24, 24, 27, 0.75) 0%, rgba(9, 9, 11, 0.95) 100%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(234, 179, 8, 0.15);
+        box-shadow:
+          0 4px 30px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        border-radius: 28px;
+      }
+      /* Risco que corta o item a cada clique (slide "Antes que você pense") */
+      .slide .strike[data-step] {
+        opacity: 1;
+        transform: scaleX(0);
+        transform-origin: left center;
+      }
+      .slide .strike[data-step].shown {
+        transform: scaleX(1);
+      }
+
+      .card-plain {
+        background: rgba(24, 24, 27, 0.7);
+        border: 1px solid #27272a;
+        border-radius: 22px;
+      }
+      .card-danger {
+        background: linear-gradient(145deg, rgba(69, 10, 10, 0.55), rgba(9, 9, 11, 0.95));
+        border: 1px solid rgba(239, 68, 68, 0.45);
+        border-radius: 24px;
+      }
+      .card-ok {
+        background: linear-gradient(145deg, rgba(6, 78, 59, 0.45), rgba(9, 9, 11, 0.95));
+        border: 1px solid rgba(52, 211, 153, 0.4);
+        border-radius: 24px;
+      }
+
+      .btn-toggle {
+        padding: 12px 22px;
+        border-radius: 999px;
+        border: 1px solid #3f3f46;
+        background: #18181b;
+        color: #a1a1aa;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.25s;
+      }
+      .btn-toggle:hover {
+        border-color: #eab308;
+        color: #fff;
+      }
+      .btn-toggle.on {
+        background: #eab308;
+        border-color: #eab308;
+        color: #09090b;
+      }
+
+      /* ---------- Números digitáveis da calculadora ---------- */
+      .num-type {
+        background: transparent;
+        border: none;
+        border-bottom: 2px dashed transparent;
+        color: inherit;
+        font: inherit;
+        padding: 0;
+        outline: none;
+        -moz-appearance: textfield;
+        cursor: text;
+        transition: border-color 0.2s;
+      }
+      .num-type::-webkit-outer-spin-button,
+      .num-type::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .num-type:hover {
+        border-bottom-color: #52525b;
+      }
+      .num-type:focus {
+        border-bottom-color: #eab308;
+      }
+
+      /* ---------- Sliders ---------- */
+      input[type='range'].rng {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        background: linear-gradient(to right, #eab308 var(--p, 50%), #27272a var(--p, 50%));
+        outline: none;
+        cursor: pointer;
+      }
+      input[type='range'].rng::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        background: #facc15;
+        border: 5px solid #09090b;
+        box-shadow:
+          0 0 0 2px #facc15,
+          0 0 20px rgba(234, 179, 8, 0.6);
+        cursor: grab;
+      }
+      input[type='range'].rng::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: #facc15;
+        border: 5px solid #09090b;
+        box-shadow: 0 0 0 2px #facc15;
+        cursor: grab;
+      }
+      /* ---------- Público: quem vê o anúncio ---------- */
+      .crowd .p {
+        color: #52525b;
+        transition:
+          color 0.5s,
+          opacity 0.5s,
+          transform 0.5s,
+          filter 0.5s;
+      }
+      .slide.s1 .crowd .p {
+        opacity: 0.25;
+      }
+      .slide.s1 .crowd .p.ideal {
+        opacity: 1;
+        color: #facc15;
+        transform: translateY(-4px);
+        filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.6));
+      }
+
+      /* Painel de público, no estilo do gerenciador de anúncios */
+      .meta {
+        background: #fff;
+        color: #1c1e21;
+        border-radius: 20px;
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
+        overflow: hidden;
+      }
+      .meta-row {
+        padding: 22px 28px;
+        border-top: 1px solid #e4e6eb;
+      }
+      .meta-label {
+        font-size: 15px;
+        font-weight: 700;
+        color: #65676b;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #e7f0fd;
+        color: #1b5fc1;
+        font-weight: 600;
+        font-size: 18px;
+      }
+      .aud-ring {
+        border-radius: 999px;
+        transition:
+          width 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+          height 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        background: radial-gradient(circle, rgba(234, 179, 8, 0.35), rgba(234, 179, 8, 0.05) 70%);
+        border: 2px solid rgba(234, 179, 8, 0.6);
+        box-shadow: 0 0 60px rgba(234, 179, 8, 0.25);
+      }
+
+      /* ---------- Bolinhas de 100 leads ---------- */
+      .dots100 {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 9px;
+      }
+      .dots100 i {
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: #27272a;
+        transition:
+          background 0.4s,
+          box-shadow 0.4s;
+      }
+      .dots100.on i.win {
+        background: var(--c);
+        box-shadow: 0 0 10px var(--c);
+      }
+
+      /* ---------- Barras animadas ---------- */
+      .bar {
+        height: 0;
+        transition:
+          height 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+          background 0.4s;
+        border-radius: 14px 14px 4px 4px;
+        background: linear-gradient(to top, #a16207, #facc15);
+      }
+      .slide.active .bar {
+        height: var(--h);
+      }
+      .hbar {
+        height: 100%;
+        border-radius: 12px;
+        background: linear-gradient(to right, #a16207, #facc15);
+        transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .fbar {
+        transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      /* ---------- Celular ---------- */
+      .phone {
+        background: #0b141a;
+        border: 8px solid #27272a;
+        border-radius: 36px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
+      }
+      .reel {
+        position: relative;
+        width: 230px;
+        height: 410px;
+        border-radius: 28px;
+        border: 6px solid #27272a;
+        overflow: hidden;
+        background: radial-gradient(ellipse at 50% 70%, #3f3f46 0%, #18181b 55%, #09090b 100%);
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
+      }
+      .reel .hook {
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        top: 70px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: #facc15;
+        color: #09090b;
+        font-weight: 800;
+        font-size: 19px;
+        line-height: 1.2;
+        text-align: center;
+      }
+      .reel .who {
+        position: absolute;
+        left: 50%;
+        bottom: 70px;
+        width: 120px;
+        height: 150px;
+        transform: translateX(-50%);
+        color: #52525b;
+      }
+      .reel .foot {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        padding: 9px;
+        border-radius: 10px;
+        background: #0e7a3a;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      /* WhatsApp */
+      .wa-head {
+        background: #202c33;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      /* Perfil do Instagram */
+      .ig {
+        width: 380px;
+        background: #000;
+        border: 8px solid #27272a;
+        border-radius: 36px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
+        color: #f5f5f5;
+      }
+      .ig-av {
+        width: 78px;
+        height: 78px;
+        border-radius: 999px;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 1px solid #262626;
+      }
+      .ig-btn {
+        flex: 1;
+        padding: 6px 0;
+        border-radius: 8px;
+        background: #262626;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      /* Condição da reunião: visual próprio para não parecer o mesmo slide do investimento */
+      .deal-slide::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 60% 55% at 50% 60%, rgba(234, 179, 8, 0.22), transparent 70%),
+          radial-gradient(ellipse 40% 30% at 85% 10%, rgba(234, 179, 8, 0.12), transparent 70%);
+        pointer-events: none;
+      }
+      .deal-card {
+        border-radius: 28px;
+        border: 2px solid rgba(234, 179, 8, 0.7);
+        background: linear-gradient(145deg, rgba(39, 39, 42, 0.9), rgba(9, 9, 11, 0.95));
+        box-shadow: 0 0 60px -10px rgba(234, 179, 8, 0.35);
+      }
+      .deal-card.deal-best {
+        border-color: #fde047;
+        background: linear-gradient(145deg, #fde047, #eab308);
+        box-shadow: 0 0 90px -5px rgba(234, 179, 8, 0.6);
+      }
+      .deal-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #09090b;
+        animation: deal-pulse 1.4s ease-in-out infinite;
+      }
+      @keyframes deal-pulse {
+        50% {
+          opacity: 0.25;
+        }
+      }
+
+      /* Janela de navegador com o sistema ao vivo */
+      .browser {
+        border-radius: 18px;
+        border: 1px solid #3f3f46;
+        background: #18181b;
+        overflow: hidden;
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+      }
+      .browser-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-bottom: 1px solid #27272a;
+      }
+      .browser-bar i {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: #3f3f46;
+      }
+      .browser iframe {
+        flex: 1;
+        width: 100%;
+        border: 0;
+        background: #fff;
+      }
+      /* O clone do app renderiza a 115% e é reduzido: cabe na janela sem deixar a letra pequena demais para quem assiste */
+      .browser-view {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background: #f8fafc;
+      }
+      .browser-view iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 115%;
+        height: 115%;
+        transform: scale(0.8696);
+        transform-origin: 0 0;
+      }
+
+      /* Galeria de exemplos (estáticos, vídeos e páginas) */
+      .gal-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+        width: min(1200px, 92vw);
+        max-height: 78vh;
+        overflow: auto;
+      }
+      .gal-grid img,
+      .gal-grid video {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid #3f3f46;
+        background: #000;
+      }
+
+      /* Pilha de contratos */
+      .doc {
+        width: 84px;
+        height: 104px;
+        border-radius: 12px;
+        background: linear-gradient(160deg, #facc15, #ca8a04);
+        color: #09090b;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        box-shadow: 0 10px 30px -8px rgba(234, 179, 8, 0.6);
+        font-weight: 800;
+        font-size: 14px;
+      }
+      .slide [data-step].shown .doc {
+        animation: pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      /* ---------- Anel da garantia ---------- */
+      .ring-fg {
+        stroke-dasharray: 0 1000;
+        transition: stroke-dasharray 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+      }
+      .slide.active .ring-fg {
+        stroke-dasharray: var(--len) 1000;
+      }
+
+      /* ---------- Interface do apresentador (fora do palco) ---------- */
+      #nav {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: rgba(9, 9, 11, 0.85);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(234, 179, 8, 0.25);
+        transition: opacity 0.4s;
+      }
+      #nav.idle {
+        opacity: 0;
+      }
+      #nav button {
+        color: #a1a1aa;
+        padding: 6px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+      #nav button:hover {
+        color: #facc15;
+        background: rgba(234, 179, 8, 0.1);
+      }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        background: rgba(9, 9, 11, 0.92);
+        backdrop-filter: blur(10px);
+        display: none;
+        overflow: auto;
+      }
+      .overlay.open {
+        display: block;
+      }
+      .modal {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        /* Fundo sólido, sem desfoque: o desfoque sobre iframes rolando fazia a tela piscar */
+        background: #09090b;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 16px;
+        padding: 40px;
+      }
+      .modal.open {
+        display: flex;
+      }
+      body.modal-open #stage {
+        visibility: hidden;
+      }
+      .modal .x {
+        position: absolute;
+        top: 22px;
+        right: 26px;
+        color: #a1a1aa;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      .modal .x:hover {
+        color: #fff;
+      }
+      #notes-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 440px;
+        z-index: 70;
+        background: #111113;
+        border-left: 1px solid #27272a;
+        padding: 24px;
+        overflow: auto;
+        transform: translateX(100%);
+        transition: transform 0.35s ease;
+      }
+      #notes-panel.open {
+        transform: none;
+      }
+      aside.notes {
+        display: none;
+      }
+      .notes-body .goal {
+        color: #facc15;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+      .notes-body ul {
+        margin: 0 0 12px;
+        padding-left: 18px;
+      }
+      .notes-body li {
+        margin-bottom: 7px;
+        line-height: 1.45;
+      }
+      .notes-body .ask {
+        background: rgba(56, 189, 248, 0.08);
+        border-left: 3px solid #38bdf8;
+        padding: 10px 12px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+      .notes-body .obj {
+        background: rgba(239, 68, 68, 0.08);
+        border-left: 3px solid #ef4444;
+        padding: 10px 12px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+      .notes-body .next {
+        color: #a1a1aa;
+        font-style: italic;
+        border-top: 1px dashed #3f3f46;
+        padding-top: 10px;
+      }
+      .notes-body ul.topics { list-style: none; padding-left: 0; }
+      .notes-body .ck { display: inline-block; min-width: 20px; margin-right: 8px; border-radius: 99px; background: #27272a; color: #a1a1aa; font-size: 11px; font-weight: 800; text-align: center; }
+      .notes-body .how { font-size: 12px; color: #52525b; }
+      .notes-body b {
+        color: #fff;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="fixed inset-0 bg-grid z-0 pointer-events-none"></div>
+    <div class="fixed top-[-10%] left-[-10%] w-[700px] h-[700px] bg-brand-600/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-brand-500/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
+    <canvas id="particles-bg"></canvas>
+
+    <div id="stage">
+      <!-- =========================================================
+           ABERTURA
+           ========================================================= -->
+
+      <section class="slide" data-id="capa" data-chapter="0" data-title="Capa" data-time="0.5">
+        <div class="slide-inner items-center justify-center text-center">
+          <div class="eyebrow anim !self-center">Manure · Aquisição Jurídica Previsível</div>
+          <h1 class="anim d1 text-[108px] leading-[0.98] font-black text-white">Mais contratos,<br /><span class="hl">sem depender de sorte.</span></h1>
+        </div>
+        <div class="absolute bottom-24 left-0 right-0 text-center text-xs text-zinc-600 tracking-wide">→ avançar · P abre/fecha a tela do apresentador (só você vê) · no Meet, compartilhe só esta guia · F tela cheia</div>
+        <aside class="notes">
+        <p class="goal">Abrir no controle</p>
+        <ul class="topics">
+        <li data-c="0">Sócio · aceleradora de escritórios · Serra Gaúcha (Ivoti)</li>
+        <li data-c="0">Reunião em 2 etapas: entender você → mostrar o método</li>
+        <li data-c="0">Vou anotando enquanto você fala</li>
+        <li data-c="0">Investimento só no final · no fim, diga com sinceridade se faz sentido</li>
+        </ul>
+        <p class="ask">Diagnóstico: anos de advocacia · já anunciou? quanto/mês? · contratos/mês · região anunciada · quem atende (IA ou humano) · quem fecha · área/tese preferida · ticket · meta de contratos</p>
+        <p class="obj">Decisor: “Além de você, mais alguém participa dessa decisão?” Se sim, chamar agora ou remarcar com os dois.</p>
+        <p class="next">“Para crescer de verdade, existem três pilares.”</p>
+        <p class="how">Compartilhe só a guia (aba) no Meet. Esta janela fica só com você. A/B = perfil · 1/2/3 = faixa.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="principios" data-chapter="0" data-title="Os 3 pilares" data-time="2">
+        <div class="slide-inner">
+          <div class="eyebrow anim">O método</div>
+          <h2 class="anim d1">Os 3 pilares para <span class="hl">escalar o escritório</span></h2>
+          <div class="relative mt-24">
+            <div class="absolute left-[12%] right-[12%] top-[70px] h-[2px] bg-gradient-to-r from-brand-500/60 to-emerald-500/60"></div>
+            <div class="relative grid grid-cols-4 gap-6 text-center" id="pillars"></div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">O mapa da reunião</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Demanda no detalhe: quem é o cliente ideal</li>
+        <li data-c="2"><span class="ck">2</span>Comercial alinhado: sabe atender e passar confiança até o fechamento</li>
+        <li data-c="3"><span class="ck">3</span>Dados: saber quanto custa cada contrato</li>
+        <li data-c="4"><span class="ck">4</span>Se um desses pilares falha, não tem fechamento de contrato nem crescimento</li>
+        </ul>
+        <p class="next">“Começando pelo primeiro pilar.”</p>
+        </aside>
+      </section>
+
+      <!-- =========================================================
+           1º PILAR · INTELIGÊNCIA DE DEMANDA QUALIFICADA
+           ========================================================= -->
+
+      <section class="slide" data-id="pilar-1" data-chapter="1" data-title="1º pilar · Inteligência de demanda qualificada" data-time="0.5">
+        <div class="slide-inner items-center justify-center text-center">
+          <div class="anim text-2xl font-bold uppercase tracking-[0.3em] text-brand-500">1º pilar</div>
+          <h1 class="anim d1 text-[104px] leading-[1] font-black text-white mt-6">Inteligência de<br /><span class="hl">demanda qualificada</span></h1>
+          <div class="anim d2 mt-16 card px-12 py-8 max-w-[1100px]">
+            <div class="text-sm font-bold uppercase tracking-[0.2em] text-sky-400">Pergunta para você</div>
+            <div class="text-4xl text-white mt-3 leading-snug">Hoje, qual é o cliente que você <b class="text-brand-400">mais quer atender?</b></div>
+          </div>
+        </div>
+        <aside class="notes">
+        </aside>
+      </section>
+
+      <section class="slide" data-id="icp" data-chapter="1" data-title="O cliente ideal" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">1º pilar · Inteligência de demanda qualificada</div>
+          <h2 class="anim d1">Aqui entendemos <span class="hl">quem você busca</span></h2>
+          <div class="crowd grid grid-cols-12 gap-x-6 gap-y-6 mt-12 px-10 anim d2" id="crowd"></div>
+          <div class="flex justify-center gap-12 mt-auto">
+            <div data-step="1" class="flex items-center gap-3 text-2xl text-white"><span class="w-4 h-4 rounded-full bg-brand-400 shadow-[0_0_12px_rgba(234,179,8,0.7)]"></span>O seu cliente ideal</div>
+            <div data-step="1" class="flex items-center gap-3 text-2xl text-zinc-500"><span class="w-4 h-4 rounded-full bg-zinc-700"></span>Curioso, fora do perfil</div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Anúncio para o cliente dele, não para qualquer um</p>
+        <ul class="topics">
+        <li data-c="0">Buscamos exatamente quem tem o problema que você resolve: o seu cliente ideal</li>
+        <li data-c="0">Ex.: trabalhador de usina de etanol (MT)</li>
+        <li data-c="0">Ex.: funcionário de rede de farmácia local (MA)</li>
+        <li data-c="0">Ex.: operador de máquina / metalúrgico (MG)</li>
+        <li data-c="1"><span class="ck">1</span>Buscamos o lead qualificado: dentro do perfil do seu cliente</li>
+        <li data-c="0">Não buscamos só volume de contatos, e sim qualidade de quem chama</li>
+        </ul>
+        <p class="next">“E isso começa nos filtros do anúncio.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="publico" data-chapter="1" data-title="Quem vê o seu anúncio" data-time="2">
+        <div class="slide-inner">
+          <div class="eyebrow anim">1º pilar · Inteligência de demanda qualificada</div>
+          <h2 class="anim d1">A cada filtro, <span class="hl">sobra quem importa</span></h2>
+          <div class="grid grid-cols-[1fr_520px] gap-14 mt-10 flex-1 min-h-0 items-center">
+            <div class="meta anim d2">
+              <div class="px-7 py-5 flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-[#1877f2] text-white flex items-center justify-center font-black">f</div><div class="font-bold text-xl">Público do anúncio</div></div>
+              <div data-step="1" class="meta-row"><div class="meta-label">Localização</div><div class="mt-3 flex items-center gap-3"><span class="meta-chip">📍 Sua cidade</span><span class="text-lg text-[#65676b]">+ raio definido</span></div></div>
+              <div data-step="2" class="meta-row"><div class="meta-label">Idade</div><div class="mt-3 flex items-center gap-4"><span class="text-2xl font-bold">A do seu cliente</span><div class="flex-1 h-2 rounded-full bg-[#e4e6eb] relative"><div class="absolute left-[35%] right-[15%] h-2 rounded-full bg-[#1877f2]"></div></div></div></div>
+              <div class="meta-row"><div class="meta-label">Interesses</div><div class="mt-3 flex flex-col items-start gap-3"><span data-step="3" class="meta-chip">+ Interesse 1</span><span data-step="4" class="meta-chip">+ Interesse 2</span><span data-step="5" class="meta-chip">+ Interesse 3</span></div></div>
+            </div>
+            <div class="flex flex-col items-center justify-center anim d3">
+              <div class="relative w-[460px] h-[460px] flex items-center justify-center">
+                <div class="aud-ring absolute" id="pub-ring"></div>
+                <div class="relative text-center"><div class="font-display font-black text-6xl text-white" id="pub-num"></div><div class="text-lg text-zinc-300 mt-1">pessoas</div></div>
+              </div>
+              <div class="text-xl text-zinc-400 mt-2">podem ver o anúncio <span class="text-zinc-600">· números de exemplo</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Do Brasil inteiro até quem importa</p>
+        <ul class="topics">
+        <li data-c="0">150 milhões de usuários: não faz sentido falar com todos</li>
+        <li data-c="1"><span class="ck">1</span>Cidades / raio de atuação</li>
+        <li data-c="2"><span class="ck">2</span>Idade de quem tem a dor</li>
+        <li data-c="3"><span class="ck">3</span>Interesse 1 → exemplo da área dele</li>
+        <li data-c="4"><span class="ck">4</span>Interesse 2 → o que faz no dia a dia</li>
+        <li data-c="5"><span class="ck">5</span>Interesse 3 → sobram ~15 mil: é essa gente</li>
+        <li data-c="0">Distância já é uma objeção a menos</li>
+        </ul>
+        <p class="next">“E aí entra a pergunta: Brasil inteiro ou a sua região?”</p>
+        <p class="how">Números ilustrativos. Dê os exemplos de interesse com a tese que ele contou.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="localizacao" data-chapter="1" data-title="Brasil ou regional" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">1º pilar · Inteligência de demanda qualificada</div>
+          <h2 class="anim d1">Anunciamos <span class="hl">onde o seu cliente está</span></h2>
+          <div class="grid grid-cols-2 gap-8 mt-10 flex-1 min-h-0">
+            <div data-step="1" class="card-danger p-8 flex flex-col">
+              <div class="flex items-center justify-between"><div class="font-display font-black text-4xl text-white">Brasil inteiro</div><span class="text-sm font-bold uppercase tracking-[0.15em] text-red-400">O que não fazemos</span></div>
+              <svg viewBox="0 0 600 300" class="w-full flex-1 mt-4" id="loc-wide"></svg>
+              <div class="flex flex-wrap gap-2 mt-2"><span class="px-4 py-1.5 rounded-full bg-red-500/10 text-red-300 text-lg">Outro estado</span><span class="px-4 py-1.5 rounded-full bg-red-500/10 text-red-300 text-lg">Universitários</span><span class="px-4 py-1.5 rounded-full bg-red-500/10 text-red-300 text-lg">Curiosos</span></div>
+            </div>
+            <div data-step="2" class="card p-8 flex flex-col !border-brand-500/50">
+              <div class="flex items-center justify-between"><div class="font-display font-black text-4xl text-white">Sua região</div><span class="text-sm font-bold uppercase tracking-[0.15em] text-brand-400">O que fazemos</span></div>
+              <svg viewBox="0 0 600 300" class="w-full flex-1 mt-4" id="loc-near"></svg>
+              <div class="mt-2"><span class="px-4 py-1.5 rounded-full bg-brand-500/15 text-brand-200 text-lg">Só dentro do raio</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Nível Brasil × regional</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Brasil/região grande: aparece 1x pra cada pessoa</li>
+        <li data-c="1"><span class="ck">1</span>Ele não clica na hora → você aquece pro concorrente</li>
+        <li data-c="1"><span class="ck">1</span>Nível Brasil dá, mas pede verba bem maior</li>
+        <li data-c="2"><span class="ck">2</span>Regional: frequência + marca + autoridade</li>
+        <li data-c="2"><span class="ck">2</span>Interior: menos advogado anunciando, leilão mais barato</li>
+        <li data-c="2"><span class="ck">2</span>Pinheiro &amp; Pinheiro: Caxias (industrial), começou com R$ 900</li>
+        <li data-c="2"><span class="ck">2</span>Dá pra escalar a verba sem sair da região</li>
+        </ul>
+        <p class="ask">“Hoje você anuncia para qual região?”</p>
+        <p class="next">“E o que faz essa pessoa parar e chamar é o vídeo.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="videos" data-chapter="1" data-title="Vídeos que falam da dor" data-time="2">
+        <div class="slide-inner">
+          <div class="eyebrow anim">1º pilar · Inteligência de demanda qualificada</div>
+          <h2 class="anim d1">O vídeo fala <span class="hl">da dor do cliente</span></h2>
+          <div class="grid grid-cols-[360px_1fr] gap-12 mt-10 flex-1 min-h-0 items-center">
+            <div data-step="1" class="flex flex-col items-center">
+              <div class="text-sm font-bold uppercase tracking-[0.15em] text-red-400 mb-4">Vídeo genérico</div>
+              <div class="reel opacity-70">
+                <div class="hook !bg-zinc-700 !text-zinc-300 !font-semibold">“Olá! Eu sou advogado especialista em…”</div>
+                <svg class="who" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7" r="4.5" /><path d="M3 23c0-5 4-9 9-9s9 4 9 9z" /></svg>
+                <div class="foot !bg-zinc-700">Saiba mais</div>
+              </div>
+              <div class="text-xl text-zinc-500 mt-4">Ninguém para de rolar a tela.</div>
+            </div>
+            <div data-step="2" class="flex flex-col items-center">
+              <div class="text-sm font-bold uppercase tracking-[0.15em] text-brand-400 mb-4">Vídeo que fala da dor</div>
+              <div class="flex gap-6" id="hooks"></div>
+              <div class="text-xl text-zinc-300 mt-4">A pessoa se reconhece <b class="text-white">e chama já sabendo o que precisa.</b></div>
+            </div>
+          </div>
+          <div data-step="3" class="mt-6 card p-6 text-center text-2xl text-white">Roteiro, edição e publicação são nossos. <b class="text-brand-400">Você só grava, no celular.</b></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">O criativo filtra o cliente</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Genérico: “sou advogado especialista…” → ninguém para</li>
+        <li data-c="2"><span class="ck">2</span>Começa pela dor, com a tese dele</li>
+        <li data-c="2"><span class="ck">2</span>Um criativo validou → testamos outras dores (mesmo assunto, outro formato)</li>
+        <li data-c="2"><span class="ck">2</span>Variar os vídeos que trazem cliente qualificado: baixa o custo e mantém a qualidade</li>
+        <li data-c="3"><span class="ck">3</span>Roteiro, edição e publicação são nossos</li>
+        <li data-c="0">Rosto do advogado = confiança (e tira o medo de golpe)</li>
+        </ul>
+        <p class="obj">“Não gosto de aparecer”: formato pergunta e resposta, ou o sócio que fala melhor. Se travar, abra a objeção.</p>
+        <p class="next">“E o vídeo é um dos formatos.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="formatos" data-chapter="1" data-title="Formatos de anúncio" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">1º pilar · Inteligência de demanda qualificada</div>
+          <h2 class="anim d1">Os formatos <span class="hl">que usamos</span></h2>
+          <div class="grid grid-cols-3 gap-10 mt-10 flex-1 min-h-0">
+            <div data-step="1" class="card p-8 flex flex-col items-center text-center">
+              <div class="flex-1 min-h-0 flex items-center justify-center"><div class="w-[300px] h-[300px] rounded-2xl border border-zinc-700 shadow-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 p-6 flex flex-col text-left">
+                  <div class="h-3 w-24 rounded-full bg-zinc-600"></div>
+                  <div class="mt-auto rounded-xl bg-brand-500 px-4 py-3 text-zinc-950 font-black text-2xl leading-tight">A dor do seu cliente, em uma frase</div>
+                  <div class="mt-4 self-start rounded-lg bg-[#128C4B] px-4 py-2 text-white font-bold text-base">Fale com um advogado</div>
+                </div></div>
+              <div class="font-display font-black text-4xl text-white mt-6">Estático</div>
+              <div class="text-xl text-zinc-400 mt-1">imagem com a dor e a chamada</div>
+              <div class="mt-5 h-[46px]"></div>
+            </div>
+            <div data-step="2" class="card p-8 flex flex-col items-center text-center">
+              <div class="flex-1 min-h-0 flex items-center justify-center">
+                <div class="reel !w-[170px] !h-[300px]"><div class="hook !text-[15px] !top-12">A dor do seu cliente, na primeira frase</div><svg class="who !w-[90px] !h-[110px] !bottom-14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7" r="4.5" /><path d="M3 23c0-5 4-9 9-9s9 4 9 9z" /></svg><div class="absolute inset-0 flex items-center justify-center"><div class="w-16 h-16 rounded-full bg-black/60 flex items-center justify-center"><svg class="w-8 h-8 ml-1 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z" /></svg></div></div></div>
+              </div>
+              <div class="font-display font-black text-4xl text-white mt-6">Vídeo</div>
+              <div class="text-xl text-zinc-400 mt-1">gravado no celular, roteiro nosso</div>
+              <button data-gal="video" class="mt-5 px-6 py-2.5 rounded-full border border-brand-500/50 text-brand-300 font-bold hover:bg-brand-500 hover:text-zinc-950 transition-colors">Ver exemplos</button>
+            </div>
+            <div data-step="3" class="card p-8 flex flex-col items-center text-center">
+              <div class="flex-1 min-h-0 flex items-center justify-center">
+                <div class="w-[300px] h-[220px] rounded-2xl border border-zinc-700 bg-zinc-950 overflow-hidden shadow-2xl text-left">
+                  <div class="flex items-center gap-1.5 px-3 py-2 border-b border-zinc-800"><i class="w-2 h-2 rounded-full bg-zinc-600"></i><i class="w-2 h-2 rounded-full bg-zinc-600"></i><i class="w-2 h-2 rounded-full bg-zinc-600"></i></div>
+                  <div class="p-5 flex flex-col gap-3"><div class="h-4 w-4/5 rounded bg-zinc-300"></div><div class="h-4 w-3/5 rounded bg-zinc-300"></div><div class="h-2.5 w-full rounded bg-zinc-700 mt-2"></div><div class="h-2.5 w-11/12 rounded bg-zinc-700"></div><div class="h-10 w-1/2 rounded-lg bg-[#0e7a3a] mt-3"></div></div>
+                </div>
+              </div>
+              <div class="font-display font-black text-4xl text-white mt-6">Landing page</div>
+              <div class="text-xl text-zinc-400 mt-1">a página do escritório</div>
+              <button data-gal="pagina" class="mt-5 px-6 py-2.5 rounded-full border border-brand-500/50 text-brand-300 font-bold hover:bg-brand-500 hover:text-zinc-950 transition-colors">Ver exemplos</button>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Os 3 formatos, mesma lógica</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Estático: chama pela dor, não pela pessoa</li>
+        <li data-c="2"><span class="ck">2</span>Vídeo: chama pela dor e ele compra você</li>
+        <li data-c="3"><span class="ck">3</span>Página: anúncio no Google, pra quem já está pesquisando</li>
+        <li data-c="3"><span class="ck">3</span>(Funil de qualificação: anúncio em vídeo → landing page que qualifica o cliente)</li>
+        <li data-c="0">Com ele, o principal vai ser vídeo</li>
+        </ul>
+        <p class="next">“E antes de chamar, a pessoa faz mais uma coisa.”</p>
+        <p class="how">“Ver exemplos” só se ele quiser. Esc fecha.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="vitrine" data-chapter="1" data-title="O Instagram gera confiança" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">1º pilar · Inteligência de demanda qualificada</div>
+          <h2 class="anim d1">Antes de chamar, <span class="hl">ela olha o seu perfil</span></h2>
+          <div class="flex justify-center items-stretch gap-10 mt-8 flex-1 min-h-0" id="profiles"></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">O perfil fecha a confiança</p>
+        <ul class="topics">
+        <li data-c="0">Viu o anúncio → abre o perfil → decide se confia</li>
+        <li data-c="0">Coelho &amp; Santana: sem rosto, fecha, mas o comercial rala mais</li>
+        <li data-c="0">Pinheiro / Iully: com rosto, ele compra a sua imagem</li>
+        <li data-c="0">Elogie o que já tem de bom no perfil dele</li>
+        </ul>
+        <p class="ask">“Até aqui, ficou claro como a gente atrai o cliente certo?”</p>
+        <p class="next">“O cliente certo chegou no WhatsApp. E aí? Segundo pilar.”</p>
+        </aside>
+      </section>
+
+      <!-- =========================================================
+           2º PILAR · ARSENAL COMERCIAL
+           ========================================================= -->
+
+      <section class="slide" data-id="pilar-2" data-chapter="2" data-title="2º pilar · Arsenal comercial" data-time="0.5">
+        <div class="slide-inner items-center justify-center text-center">
+          <div class="anim text-2xl font-bold uppercase tracking-[0.3em] text-brand-500">2º pilar</div>
+          <h1 class="anim d1 text-[120px] leading-[1] font-black text-white mt-6">Arsenal <span class="hl">comercial</span></h1>
+          <div class="anim d2 mt-16 card px-12 py-8 max-w-[1100px]">
+            <div class="text-sm font-bold uppercase tracking-[0.2em] text-sky-400">Pergunta para você</div>
+            <div class="text-4xl text-white mt-3 leading-snug">Hoje, quem atende os contatos que chegam <b class="text-brand-400">no seu escritório?</b></div>
+          </div>
+        </div>
+        <aside class="notes">
+        </aside>
+      </section>
+
+      <section class="slide" data-id="indicacao" data-chapter="2" data-title="Indicação × internet" data-time="2">
+        <div class="slide-inner">
+          <div class="eyebrow anim">2º pilar · Arsenal comercial</div>
+          <h2 class="anim d1">Indicação <span class="text-zinc-600">×</span> <span class="hl">internet</span></h2>
+          <div class="grid grid-cols-2 gap-10 mt-12 flex-1 min-h-0">
+            <div class="anim d2 flex flex-col items-center text-center">
+              <div class="relative w-[170px] h-[170px] rounded-full bg-emerald-500/15 border-2 border-emerald-400 text-emerald-300 flex items-center justify-center shadow-[0_0_60px_rgba(16,185,129,0.35)]"><svg class="w-24 h-24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7" r="4.5" /><path d="M3 23c0-5 4-9 9-9s9 4 9 9z" /></svg><span class="absolute -right-3 -top-3 w-14 h-14 rounded-full bg-emerald-500 text-white text-3xl flex items-center justify-center">♥</span></div>
+              <div class="font-display font-black text-5xl text-white mt-8">Indicação</div>
+              <div class="text-3xl text-emerald-300 mt-3">já chega confiando</div>
+            </div>
+            <div class="anim d3 flex flex-col items-center text-center">
+              <div class="relative w-[170px] h-[170px] rounded-full bg-zinc-800 border-2 border-zinc-600 text-zinc-400 flex items-center justify-center"><svg class="w-24 h-24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7" r="4.5" /><path d="M3 23c0-5 4-9 9-9s9 4 9 9z" /></svg><span class="absolute -right-3 -top-3 w-14 h-14 rounded-full bg-zinc-600 text-white text-3xl font-black flex items-center justify-center">?</span></div>
+              <div class="font-display font-black text-5xl text-white mt-8">Internet</div>
+              <div class="text-3xl text-zinc-400 mt-3">chega desconfiado</div>
+            </div>
+          </div>
+          <div data-step="1" class="mt-auto card p-7 text-center text-3xl text-white">Atender os dois do mesmo jeito <b class="text-brand-400">é o que perde contrato.</b></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Por que o comercial muda com o marketing</p>
+        <ul class="topics">
+        <li data-c="0">Indicação: chega pronto, quase não pergunta preço</li>
+        <li data-c="0">Internet: não te conhece, fala com outros escritórios</li>
+        <li data-c="1"><span class="ck">1</span>Por isso treinamos todo o atendimento, do primeiro contato ao fechamento</li>
+        <li data-c="0">Lead da internet esfria rápido: quem liga primeiro, fecha</li>
+        </ul>
+        <p class="next">“O que transforma esse cliente desconfiado em contrato é proximidade.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="proximidade" data-chapter="2" data-title="Proximidade gera confiança" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">2º pilar · Arsenal comercial</div>
+          <h2 class="anim d1">Proximidade <span class="hl">gera confiança</span></h2>
+          <div class="relative mt-16">
+            <div class="absolute left-[17%] right-[17%] top-[60px] h-[2px] bg-gradient-to-r from-brand-500/60 to-emerald-500/50"></div>
+            <div class="relative grid grid-cols-3 gap-6 text-center" id="trust-flow"></div>
+          </div>
+          <div data-step="4" class="mt-auto card p-7 text-center text-3xl text-white">Confiança se constrói <b class="text-brand-400">antes da consulta.</b></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Confiança é processo</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Resposta humanizada e rápida</li>
+        <li data-c="2"><span class="ck">2</span>Ligação: a voz cria proximidade</li>
+        <li data-c="3"><span class="ck">3</span>Consulta: vídeo rápido + assinatura na hora</li>
+        <li data-c="0">Liga → ganha confiança → vira vídeo → contrato e procuração</li>
+        <li data-c="0">Conversando, fecha 2 ou 3 ações do mesmo cliente</li>
+        </ul>
+        <p class="next">“E isso a gente treina, etapa por etapa.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="treinamento" data-chapter="2" data-title="Seu time treinado" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">2º pilar · Arsenal comercial</div>
+          <h2 class="anim d1">Treinamos <span class="hl">cada etapa</span></h2>
+          <div class="grid grid-cols-4 gap-6 mt-14" id="training"></div>
+          <div data-step="5" class="mt-auto card p-7 text-center text-3xl text-white">A estrutura que a gente vive na prática, <b class="text-brand-400">implantada no seu escritório.</b></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">O que o time dele vai aprender</p>
+        <ul class="topics">
+        <li data-c="0">Várias reuniões: aplica → revisa na semana seguinte</li>
+        <li data-c="0">Material didático com scripts de ligação e mensagem</li>
+        <li data-c="0">CS que já foi SDR, no grupo, todo dia</li>
+        <li data-c="0">Nova contratação também é treinada</li>
+        <li data-c="0">SDR sem experiência bateu meta no 1º mês</li>
+        <li data-c="5"><span class="ck">5</span>“É o que eu vivo na prática e vou implementar aí”</li>
+        </ul>
+        <p class="next">“Deixa eu te mostrar como isso fica no dia a dia.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="crm-vivo" data-chapter="2" data-title="O CRM na prática" data-time="3">
+        <div class="slide-inner !pt-10 !pb-24">
+          <div class="flex items-end justify-between anim">
+            <h2 class="!text-[44px]">O CRM <span class="hl">na prática</span></h2>
+            <a data-live-link="crm" target="_blank" rel="noopener" class="text-base text-zinc-500 hover:text-brand-400 pb-2">ver no sistema real ↗</a>
+          </div>
+          <div class="browser anim d1 mt-5 flex-1 min-h-0">
+            <div class="browser-bar"><i></i><i></i><i></i><span class="ml-3 text-sm text-zinc-500" data-live-url="crm"></span></div>
+            <div class="browser-view"><iframe data-live="crm" title="CRM"></iframe></div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Cada lead, do contato ao contrato</p>
+        <ul class="topics">
+        <li data-c="0">Primeiro: abra um lead e mostre o CRM funcionando na prática</li>
+        <li data-c="0">CRM sem custo: é ele que otimiza a campanha</li>
+        <li data-c="0">Integrado à Meta: agendou/fechou = dado real pro algoritmo</li>
+        <li data-c="0">Sei qual anúncio trouxe cada contrato → replico</li>
+        <li data-c="0">Tarefa do dia + mensagem pronta pra copiar</li>
+        <li data-c="0">Ex.: “aguardando data”: laudo combinado pro dia 10</li>
+        </ul>
+        <p class="ask">“Ficou alguma dúvida de como o seu time vai trabalhar?”</p>
+        <p class="next">“Terceiro pilar: os números.”</p>
+        <p class="how">Role o quadro para o lado. Abra um lead em Fechamento e um Perdido. Esc fecha a ficha.</p>
+        </aside>
+      </section>
+
+      <!-- =========================================================
+           3º PILAR · PREVISIBILIDADE MATEMÁTICA
+           ========================================================= -->
+
+      <section class="slide" data-id="pilar-3" data-chapter="3" data-title="3º pilar · Previsibilidade matemática" data-time="0.5">
+        <div class="slide-inner items-center justify-center text-center">
+          <div class="anim text-2xl font-bold uppercase tracking-[0.3em] text-brand-500">3º pilar</div>
+          <h1 class="anim d1 text-[110px] leading-[1] font-black text-white mt-6">Previsibilidade <span class="hl">matemática</span></h1>
+          <div class="anim d2 mt-16 card px-12 py-8 max-w-[1100px]">
+            <div class="text-sm font-bold uppercase tracking-[0.2em] text-sky-400">Pergunta para você</div>
+            <div class="text-4xl text-white mt-3 leading-snug">Hoje, você sabe quanto custa <b class="text-brand-400">fechar um contrato?</b></div>
+          </div>
+        </div>
+        <aside class="notes">
+        </aside>
+      </section>
+
+      <section class="slide" data-id="medir" data-chapter="3" data-title="Tudo é medido" data-time="2">
+        <div class="slide-inner !pt-10 !pb-24">
+          <div class="flex items-end justify-between anim">
+            <h2 class="!text-[44px]">O que não é medido <span class="hl">vira sorte</span></h2>
+            <a data-live-link="metricas" target="_blank" rel="noopener" class="text-base text-zinc-500 hover:text-brand-400 pb-2">ver no sistema real ↗</a>
+          </div>
+          <div class="browser anim d1 mt-5 flex-1 min-h-0">
+            <div class="browser-bar"><i></i><i></i><i></i><span class="ml-3 text-sm text-zinc-500" data-live-url="metricas"></span></div>
+            <div class="browser-view"><iframe data-live="metricas" title="Métricas comerciais"></iframe></div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Saber onde vai cada real</p>
+        <ul class="topics">
+        <li data-c="0">Funil: leads → qualificados → agendados → presença → contratos</li>
+        <li data-c="0">Qualificado baixo = problema de criativo</li>
+        <li data-c="0">Agendamento baixo = primeira ligação</li>
+        <li data-c="0">Caso SP: R$ 25 mil/mês, só 30% compareciam → ligação + lembrete</li>
+        <li data-c="0">Tempo médio do lead ao contrato: quando a verba reflete</li>
+        <li data-c="0">Desempenho e tempo de resposta de cada pessoa</li>
+        </ul>
+        <p class="next">“Agora a conta com os números do seu escritório.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="simulacao" data-chapter="3" data-title="A conta do seu escritório" data-time="3">
+        <div class="slide-inner">
+          <div class="eyebrow anim">3º pilar · Previsibilidade matemática</div>
+          <h2 class="anim d1">A conta <span class="hl">do seu escritório</span></h2>
+          <div class="grid grid-cols-[320px_1fr_320px] gap-8 mt-8 flex-1 min-h-0">
+            <div class="anim d2 card p-7 flex flex-col justify-between" id="sim-inputs"></div>
+            <div class="anim d3 card p-8 flex flex-col justify-between" id="sim-funnel"></div>
+            <div data-step="3" class="flex flex-col gap-4" id="sim-out"></div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">O comercial muda mais que a verba</p>
+        <ul class="topics">
+        <li data-c="0">Use o ticket e a verba que ele falou</li>
+        <li data-c="1"><span class="ck">1</span>Quantos agendam (mín. 35% com o método)</li>
+        <li data-c="2"><span class="ck">2</span>Quantos comparecem (~70% a 80%)</li>
+        <li data-c="3"><span class="ck">3</span>Quantos fecham → contratos e faturamento</li>
+        <li data-c="0">Comercial desalinhado → arraste pro Manure</li>
+        <li data-c="0">“A gente mudou só o comercial”</li>
+        <li data-c="0">Mostre um cenário pessimista: ainda fecha</li>
+        </ul>
+        <p class="ask">“Ficou palpável pra você?”</p>
+        <p class="obj">Quer começar com verba menor pra equipe engrenar? Tudo bem: ajuste a verba aqui e mostre o resultado menor.</p>
+        <p class="next">“Melhor do que eu falar é ouvir quem já roda.”</p>
+        <p class="how">Clique no número e digite. Enter/Esc devolve as setas.</p>
+        </aside>
+      </section>
+
+      <!-- =========================================================
+           RESULTADOS
+           ========================================================= -->
+
+      <section class="slide" data-id="depoimentos" data-chapter="4" data-title="Depoimentos" data-time="2">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Resultados</div>
+          <h2 class="anim d1">Quem já roda <span class="hl">a operação</span></h2>
+          <div class="grid grid-cols-4 gap-6 mt-8 flex-1 min-h-0" id="depos"></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Prova na voz do cliente</p>
+        <ul class="topics">
+        <li data-c="0">Escolha 1 vídeo da área dele</li>
+        <li data-c="0">Um bem escolhido vale mais que todos</li>
+        </ul>
+        <p class="next">“Então, como a gente monta isso no seu escritório.”</p>
+        </aside>
+      </section>
+
+      <!-- =========================================================
+           PROPOSTA
+           ========================================================= -->
+
+      <section class="slide" data-id="entrega" data-chapter="5" data-title="O que você recebe" data-time="2.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">A proposta</div>
+          <h2 class="anim d1">O que você <span class="hl">recebe</span></h2>
+          <div class="grid grid-cols-3 gap-8 mt-10 flex-1 min-h-0" id="delivery"></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Tudo o que ele recebe, módulo por módulo</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Fundação Digital: oferta, página, roteiros e edição</li>
+        <li data-c="2"><span class="ck">2</span>Máquina de Aquisição: anúncios, otimização, relatórios</li>
+        <li data-c="3"><span class="ck">3</span>Arsenal Comercial: CRM, scripts, treino e acompanhamento</li>
+        </ul>
+        <p class="obj">Quando vem o retorno? Campanhas no ar em até 10 dias.</p>
+        <p class="next">“Agora pensa em montar esse time sozinho.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="time-sozinho" data-chapter="5" data-title="Montar o time sozinho" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">A proposta</div>
+          <h2 class="anim d1">Quanto custaria montar <span class="hl">esse time sozinho?</span></h2>
+          <div class="grid grid-cols-[1fr_520px] gap-10 mt-10 flex-1 min-h-0 items-center">
+            <div class="anim d2 card px-10 py-6 flex flex-col">
+              <div class="flex justify-between items-center py-4 border-b border-zinc-800 text-3xl"><span class="text-zinc-300">Head de squad</span><b class="font-display text-white">R$ 24.000</b></div>
+              <div class="flex justify-between items-center py-4 border-b border-zinc-800 text-3xl"><span class="text-zinc-300">Gestor de tráfego</span><b class="font-display text-white">R$ 21.000</b></div>
+              <div class="flex justify-between items-center py-4 border-b border-zinc-800 text-3xl"><span class="text-zinc-300">Sucesso do cliente</span><b class="font-display text-white">R$ 21.000</b></div>
+              <div class="flex justify-between items-center py-4 border-b border-zinc-800 text-3xl"><span class="text-zinc-300">Designer gráfico</span><b class="font-display text-white">R$ 18.000</b></div>
+              <div class="flex justify-between items-center py-4 text-3xl"><span class="text-zinc-300">Editor de vídeos</span><b class="font-display text-white">R$ 15.000</b></div>
+              <div class="text-lg text-zinc-500 mt-2">Salário de cada um, em 6 meses</div>
+            </div>
+            <div class="flex flex-col gap-6">
+              <div data-step="1" class="card-danger p-8 text-center">
+                <div class="text-xl font-bold uppercase tracking-[0.15em] text-red-300">Em 6 meses, só em salários</div>
+                <div class="font-display font-black text-[72px] leading-none text-white mt-4">R$ 99 mil</div>
+                <div class="text-2xl text-zinc-400 mt-3">R$ 16.500 por mês × 6 meses</div>
+              </div>
+              <div data-step="2" class="card p-7 text-center text-3xl text-white !border-brand-500/50">Esse time inteiro rodando pra você, <b class="text-brand-400">com campanhas no ar em até 10 dias.</b></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Ancorar o preço no custo de montar sozinho</p>
+        <ul class="topics">
+        <li data-c="0">5 pessoas, cada uma especialista numa parte</li>
+        <li data-c="1"><span class="ck">1</span>R$ 99 mil em 6 meses, só em salário (sem encargo, sem treino)</li>
+        <li data-c="0">Fora o tempo de contratar, treinar e errar</li>
+        <li data-c="2"><span class="ck">2</span>Com a gente, o time já está pronto: no ar em até 10 dias</li>
+        </ul>
+        <p class="next">“E tem uma coisa que quase ninguém faz.”</p>
+        <p class="how">Valores de mercado estimados.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="garantia" data-chapter="5" data-title="A garantia" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">A proposta</div>
+          <div class="grid grid-cols-[440px_1fr] gap-16 flex-1 items-center">
+            <div class="anim d1 relative w-[440px] h-[440px]">
+              <svg viewBox="0 0 200 200" class="w-full h-full -rotate-90">
+                <circle cx="100" cy="100" r="86" fill="none" stroke="#27272a" stroke-width="14" />
+                <circle cx="100" cy="100" r="86" fill="none" stroke="#facc15" stroke-width="14" stroke-linecap="round" class="ring-fg" style="--len: 324" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <div class="font-display font-black text-[120px] leading-none text-white">60%</div>
+                <div class="text-2xl text-zinc-400 mt-2">de leads qualificados</div>
+              </div>
+            </div>
+            <div>
+              <div class="eyebrow anim d2">Garantia Manure</div>
+              <h2 class="anim d2 !text-[64px]">60% de leads qualificados em 60 dias, <span class="hl">ou 100% do seu dinheiro de volta.</span></h2>
+              <div class="anim d3 mt-8 text-3xl text-zinc-300 leading-snug">A gente consegue garantir porque entendemos exatamente <b class="text-white">quem é o seu cliente ideal.</b></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Tirar o risco antes do preço</p>
+        <ul class="topics">
+        <li data-c="0">60 dias: menos de 60% qualificados → devolvemos tudo</li>
+        <li data-c="0">Garantimos porque entendemos exatamente quem é o cliente ideal dele</li>
+        <li data-c="0">Quem pontua o lead é o comercial dele, no CRM</li>
+        <li data-c="0">Critérios de qualificação definidos juntos</li>
+        <li data-c="0">Contrato eu não garanto: quem fecha é o time dele</li>
+        <li data-c="0">Nenhum cliente que aplica o método saiu</li>
+        </ul>
+        <p class="ask">“Alguma dúvida antes de falarmos de investimento?”</p>
+        <p class="next">“Resumindo o que muda pra você.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="cenarios" data-chapter="5" data-title="O que muda pra você" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Cenários</div>
+          <h2 class="anim d1">O que muda pra você, <span class="hl">ponto a ponto</span></h2>
+          <div class="grid grid-cols-[1fr_60px_1fr] gap-x-4 gap-y-5 mt-10 items-stretch">
+            <div class="anim d2 text-xl font-bold uppercase tracking-[0.2em] text-red-300">Onde você está</div>
+            <div></div>
+            <div class="anim d2 text-xl font-bold uppercase tracking-[0.2em] text-brand-400">Com a Manure</div>
+
+            <div data-step="1" class="card-danger px-7 py-5 text-[26px] text-zinc-200 flex items-center gap-4"><span class="text-red-400 font-black">✕</span>Depende de indicação pra ter contrato novo</div>
+            <div data-step="1" class="flex items-center justify-center text-4xl text-zinc-600">→</div>
+            <div data-step="1" class="card px-7 py-5 text-[26px] text-white flex items-center gap-4 !border-brand-500/40"><span class="text-emerald-400 font-black">✓</span>O cliente certo chegando pelo anúncio, na sua região</div>
+
+            <div data-step="2" class="card-danger px-7 py-5 text-[26px] text-zinc-200 flex items-center gap-4"><span class="text-red-400 font-black">✕</span>O lead chega desconfiado e some depois do preço</div>
+            <div data-step="2" class="flex items-center justify-center text-4xl text-zinc-600">→</div>
+            <div data-step="2" class="card px-7 py-5 text-[26px] text-white flex items-center gap-4 !border-brand-500/40"><span class="text-emerald-400 font-black">✓</span>Time treinado com script, do primeiro contato à assinatura</div>
+
+            <div data-step="3" class="card-danger px-7 py-5 text-[26px] text-zinc-200 flex items-center gap-4"><span class="text-red-400 font-black">✕</span>Não sabe quanto custa fechar um contrato</div>
+            <div data-step="3" class="flex items-center justify-center text-4xl text-zinc-600">→</div>
+            <div data-step="3" class="card px-7 py-5 text-[26px] text-white flex items-center gap-4 !border-brand-500/40"><span class="text-emerald-400 font-black">✓</span>CRM e relatórios mostram o custo de cada contrato</div>
+
+            <div data-step="4" class="card-danger px-7 py-5 text-[26px] text-zinc-200 flex items-center gap-4"><span class="text-red-400 font-black">✕</span>Sem tempo pra pensar no crescimento do escritório</div>
+            <div data-step="4" class="flex items-center justify-center text-4xl text-zinc-600">→</div>
+            <div data-step="4" class="card px-7 py-5 text-[26px] text-white flex items-center gap-4 !border-brand-500/40"><span class="text-emerald-400 font-black">✓</span>Roteiro, edição, anúncios e CRM são nossos: você grava e fecha</div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Recapitular o método como antes × depois</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Indicação → anúncio para o cliente ideal, na região</li>
+        <li data-c="2"><span class="ck">2</span>Lead desconfiado → time treinado até a assinatura</li>
+        <li data-c="3"><span class="ck">3</span>Sem número → custo de cada contrato no CRM</li>
+        <li data-c="4"><span class="ck">4</span>Sem tempo → a operação é nossa, ele grava e fecha</li>
+        </ul>
+        <p class="next">“Agora, quanto vale isso tudo?”</p>
+        <p class="how">Use as dores que ele contou no diagnóstico.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="quanto-vale" data-chapter="5" data-title="Quanto vale?" data-time="1">
+        <div class="slide-inner items-center justify-center text-center">
+          <div class="eyebrow anim !self-center">A proposta</div>
+          <h1 class="anim d1 text-[96px] leading-[1] font-black text-white">Quanto vale<br /><span class="hl">o que a gente implementa?</span></h1>
+          <div class="anim d2 mt-12 text-4xl text-zinc-400">Não sou eu que vou dizer. <b class="text-white">Os resultados dos meus clientes falam por mim.</b></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Ancorar no resultado</p>
+        <ul class="topics">
+        <li data-c="0">Pergunta no ar, deixa ele pensar</li>
+        <li data-c="0">“Os resultados dos meus clientes falam por mim”</li>
+        </ul>
+        <p class="next">“Primeiro, a Natália.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="vale-natalia" data-chapter="5" data-value="0" data-title="Vale: Natália" data-time="0.5">
+        <div class="slide-inner"></div>
+        <aside class="notes">
+        <p class="goal">R$ 42 mil por mês</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Investiu → leads → contratos</li>
+        <li data-c="2"><span class="ck">2</span>Quanto vale por mês</li>
+        </ul>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="vale-pinheiro" data-chapter="5" data-value="1" data-title="Vale: Pinheiro & Pinheiro" data-time="0.5">
+        <div class="slide-inner"></div>
+        <aside class="notes">
+        <p class="goal">R$ 380 mil plantados · êxito</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Investiu → leads → contratos</li>
+        <li data-c="2"><span class="ck">2</span>Quanto vale: é êxito, não entra tudo agora</li>
+        </ul>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="vale-guilherme" data-chapter="5" data-value="3" data-title="Vale: Guilherme" data-time="0.5">
+        <div class="slide-inner"></div>
+        <aside class="notes">
+        <p class="goal">R$ 90 mil · duas holdings</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Investiu → leads → contratos</li>
+        <li data-c="2"><span class="ck">2</span>Quanto vale por mês</li>
+        </ul>
+        <p class="how">G mostra/esconde este slide</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="vale-andrade" data-chapter="5" data-value="2" data-title="Vale: Andrade Ferreira" data-time="0.5">
+        <div class="slide-inner"></div>
+        <aside class="notes">
+        <p class="goal">R$ 136 mil projetados</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Investiu → leads → contratos</li>
+        <li data-c="2"><span class="ck">2</span>Quanto vale por mês</li>
+        </ul>
+        <p class="next">“Antes que você pense…”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="antes-pense" data-chapter="5" data-title="Antes que você pense" data-time="1">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Antes que você pense…</div>
+          <h2 class="anim d1">“Mas eles tiveram resultado porque <span class="hl">provavelmente…</span>”</h2>
+          <ul class="anim d2 mt-12 flex flex-col gap-7 text-[44px] font-bold text-zinc-200">
+            <li class="relative self-start">Já tinham a operação estruturada<span data-step="1" class="strike absolute left-[-8px] right-[-8px] top-1/2 h-[5px] -mt-[2px] rounded bg-red-500"></span></li>
+            <li class="relative self-start">Tinham time comercial<span data-step="2" class="strike absolute left-[-8px] right-[-8px] top-1/2 h-[5px] -mt-[2px] rounded bg-red-500"></span></li>
+            <li class="relative self-start">São escritórios grandes<span data-step="3" class="strike absolute left-[-8px] right-[-8px] top-1/2 h-[5px] -mt-[2px] rounded bg-red-500"></span></li>
+            <li class="relative self-start">Já eram conhecidos na região<span data-step="4" class="strike absolute left-[-8px] right-[-8px] top-1/2 h-[5px] -mt-[2px] rounded bg-red-500"></span></li>
+          </ul>
+          <div data-step="5" class="mt-auto card p-7 text-center text-3xl text-white">Não. O que muda é <b class="text-brand-400">o método aplicado no dia a dia.</b></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Tirar o “eles são diferentes de mim”</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Operação: a estrutura a gente implanta</li>
+        <li data-c="2"><span class="ck">2</span>Time: SDR sem experiência bateu meta no 1º mês</li>
+        <li data-c="3"><span class="ck">3</span>Tamanho: Pinheiro &amp; Pinheiro começou com R$ 900</li>
+        <li data-c="4"><span class="ck">4</span>Conhecido: o anúncio regional constrói a marca</li>
+        <li data-c="5"><span class="ck">5</span>O que muda é o método</li>
+        </ul>
+        <p class="next">“E para você?”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="vale-voce" data-chapter="5" data-value="voce" data-title="E para você?" data-time="1">
+        <div class="slide-inner"></div>
+        <aside class="notes">
+        <p class="goal">O número dele antes do preço</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Contratos do mês</li>
+        <li data-c="2"><span class="ck">2</span>Quanto vale por mês</li>
+        <li data-c="3"><span class="ck">3</span>Em 6 meses → silêncio de 1 segundo</li>
+        </ul>
+        <p class="next">“Agora você tem dois caminhos.”</p>
+        <p class="how">Usa os números que ficaram na simulação.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="dois-caminhos" data-chapter="5" data-title="2 caminhos" data-time="1">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Chegou a hora de decidir</div>
+          <h2 class="anim d1">Agora você tem <span class="hl">2 caminhos</span></h2>
+          <div class="grid grid-cols-2 gap-10 mt-12 flex-1 min-h-0 pb-6">
+            <div data-step="1" class="card-danger p-12 flex flex-col justify-center">
+              <div class="text-xl font-bold uppercase tracking-[0.2em] text-red-300">Caminho 1</div>
+              <div class="font-display font-black text-5xl text-white mt-4">Continuar como está</div>
+              <div class="text-3xl text-zinc-300 mt-6 leading-snug">Seguir dependendo de indicação, crescendo no ritmo da sorte, enquanto outro escritório anuncia para o seu cliente na sua região.</div>
+            </div>
+            <div data-step="2" class="card p-12 flex flex-col justify-center !border-brand-500/60">
+              <div class="text-xl font-bold uppercase tracking-[0.2em] text-brand-400">Caminho 2</div>
+              <div class="font-display font-black text-5xl text-white mt-4">Crescer com a <span class="hl">Manure</span></div>
+              <div class="text-3xl text-zinc-300 mt-6 leading-snug">O cliente certo chegando pelo anúncio, um time treinado para fechar e o custo de cada contrato na sua mão.</div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Decisão é entre dois cenários, não sobre o preço</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Continuar: indicação e sorte, concorrente ocupando a região</li>
+        <li data-c="2"><span class="ck">2</span>Crescer: os 3 pilares rodando no escritório</li>
+        </ul>
+        <p class="next">“E o investimento para ter isso funcionando…”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="investimento" data-chapter="5" data-title="Investimento" data-time="2">
+        <div class="slide-inner">
+          <div class="eyebrow anim">A proposta</div>
+          <h2 class="anim d1">O <span class="hl">investimento</span></h2>
+          <div class="grid grid-cols-2 gap-10 mt-12 flex-1 min-h-0 pb-6" id="plans"></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Preço com calma, ouvir o que cabe</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Semestral</li>
+        <li data-c="2"><span class="ck">2</span>Anual</li>
+        <li data-c="0">Dez/jan: muitos param de anunciar → leilão mais barato</li>
+        <li data-c="0">Depois de falar: silêncio</li>
+        <li data-c="0">Antes da condição: fechando na reunião, eu antecipo o fechamento</li>
+        <li data-c="0">Sem comissão do time comercial e sem custo de follow-up</li>
+        <li data-c="0">Essa economia eu repasso: vira desconto pra você</li>
+        </ul>
+        <p class="ask">“Isso está dentro do que você está disposto a investir?”</p>
+        <p class="obj">Não cabe → pergunte “o que ficaria saudável pra começarmos?” e abra “Não cabe no orçamento”.</p>
+        <p class="next">“Fechando hoje, eu consigo uma condição.”</p>
+        </aside>
+      </section>
+
+      <section class="slide deal-slide" data-id="condicao" data-chapter="5" data-title="Condição na reunião" data-time="1.5">
+        <div class="slide-inner">
+          <div class="anim inline-flex self-start items-center gap-3 px-5 py-2 rounded-full bg-brand-500 text-zinc-950 text-base font-black uppercase tracking-[0.2em]"><span class="deal-dot"></span>Condição exclusiva desta reunião</div>
+          <h2 class="anim d1 mt-6">Oferta <span class="hl">protagonista</span></h2>
+          <div class="anim d2 grid grid-cols-2 gap-10 mt-12 flex-1 min-h-0 pb-6" id="deal"></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Motivo para decidir hoje</p>
+        <ul class="topics">
+        <li data-c="0">Vale só fechando nesta reunião</li>
+        <li data-c="0">Anual: menor por mês</li>
+        <li data-c="0">À vista: 10% sobre o cartão</li>
+        <li data-c="0">Data da cobrança pode ser ajustada</li>
+        </ul>
+        <p class="next">“Fechando hoje, o próximo passo é esse.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="proximos" data-chapter="5" data-title="Próximos passos" data-time="1">
+        <div class="slide-inner">
+          <div class="eyebrow anim">A proposta</div>
+          <h2 class="anim d1">Campanhas no ar <span class="hl">em até 10 dias</span></h2>
+          <div class="relative mt-16">
+            <div class="absolute left-[16%] right-[16%] top-[112px] h-[2px] bg-gradient-to-r from-brand-500/60 to-emerald-500/50"></div>
+            <div class="relative grid grid-cols-3 gap-8 text-center" id="next-steps"></div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">O “sim” vira ação</p>
+        <ul class="topics">
+        <li data-c="0">Link de dados no grupo: preencher ainda na call</li>
+        <li data-c="0">Dia 1: onboarding, grupo e acessos</li>
+        <li data-c="0">Dias 2 a 7: página, criativos, CRM, campanhas</li>
+        <li data-c="0">Até o dia 10: campanhas no ar</li>
+        </ul>
+        <p class="next">“Vamos começar?”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="fim" data-chapter="5" data-title="Vamos começar?" data-time="0.5">
+        <div class="slide-inner items-center justify-center text-center">
+          <div class="eyebrow anim !self-center">Próximo passo</div>
+          <h1 class="anim d1 text-[110px] leading-[1] font-black text-white">Vamos <span class="hl">começar?</span></h1>
+        </div>
+        <aside class="notes">
+        <p class="goal">Pedir o fechamento</p>
+        <ul class="topics">
+        <li data-c="0">Qual plano faz mais sentido?</li>
+        <li data-c="0">Combine a forma de pagamento agora</li>
+        <li data-c="0">Defina a primeira tese/campanha juntos</li>
+        </ul>
+        <p class="obj">Travou? Abra a objeção aqui em cima e volte com V.</p>
+        </aside>
+      </section>
+
+      <!-- =========================================================
+           OBJEÇÕES (sob demanda: só abrem pelo mapa ou pelo modo apresentador; V volta)
+           ========================================================= -->
+
+      <section class="slide" data-extra data-id="obj-comparar" data-chapter="6" data-title="Vou comparar agências" data-time="2">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Para decidir com segurança</div>
+          <h2 class="anim d1">Vai comparar? <span class="hl">Compare isso.</span></h2>
+          <div class="anim d2 card p-8 mt-8 flex-1 min-h-0 flex flex-col">
+            <div class="grid grid-cols-[1fr_180px_180px] gap-4 pb-4 border-b border-zinc-800 text-sm font-bold uppercase tracking-[0.15em]"><span class="text-zinc-500">Pergunte para qualquer agência</span><span class="text-center text-brand-400">Manure</span><span class="text-center text-zinc-500">Outra</span></div>
+            <div class="flex flex-col flex-1 justify-around" id="compare"></div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Dar a régua pra comparar</p>
+        <ul class="topics">
+        <li data-c="0">“Ótimo comparar. Leva essas perguntas.”</li>
+        <li data-c="0">Uma pergunta por clique, sem falar mal de ninguém</li>
+        </ul>
+        <p class="ask">“Fora a comparação, teve algo em que não sentiu confiança?”</p>
+        <p class="next">Feche com data e hora para a resposta.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-extra data-id="obj-socio" data-chapter="6" data-title="Preciso falar com o sócio" data-time="2">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Para decidir com segurança</div>
+          <h2 class="anim d1">Para levar <span class="hl">ao seu sócio</span></h2>
+          <div class="grid grid-cols-[1fr_440px] gap-10 mt-8 flex-1 min-h-0">
+            <div class="anim d2 card p-9 flex flex-col gap-5" id="partner"></div>
+            <div class="anim d3 flex flex-col min-h-0">
+              <div class="phone !rounded-[28px] flex-1 min-h-0 flex flex-col">
+                <div class="wa-head !py-3"><div class="w-9 h-9 rounded-full bg-zinc-600 flex items-center justify-center font-bold text-white">S</div><div><b class="block text-white">Sócio</b><small class="text-[#8696a0] text-xs">WhatsApp</small></div></div>
+                <div class="p-4 flex-1 overflow-hidden"><div class="ml-auto max-w-[94%] rounded-xl rounded-tr-sm bg-[#005c4b] text-[#e9edef] text-[13px] leading-snug px-3 py-2 whitespace-pre-line" id="partner-msg"></div></div>
+              </div>
+              <button id="partner-copy" class="mt-4 rounded-2xl bg-brand-500 hover:bg-brand-400 text-zinc-950 font-bold text-xl py-4 transition-colors">Copiar mensagem</button>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Não sair sem próximo passo</p>
+        <ul class="topics">
+        <li data-c="0">“Ele consegue entrar 15 minutos agora?”</li>
+        <li data-c="0">Se não: reunião com os dois, dia e hora marcados</li>
+        <li data-c="0">Mande o resumo pronto pra ele encaminhar</li>
+        </ul>
+        </aside>
+      </section>
+
+      <section class="slide" data-extra data-id="obj-teste" data-chapter="6" data-title="Quero testar 3 meses" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Para decidir com segurança</div>
+          <h2 class="anim d1">Quero testar <span class="hl">antes</span></h2>
+          <div class="grid grid-cols-2 gap-8 mt-10">
+            <div class="anim d2 card-plain p-9">
+              <div class="font-display font-black text-4xl text-white">3 meses</div>
+              <div class="flex flex-col gap-4 mt-7 text-2xl text-zinc-400" id="test-3"></div>
+            </div>
+            <div class="anim d3 card p-9 !border-brand-500/50">
+              <div class="font-display font-black text-4xl text-white">6 meses</div>
+              <div class="flex flex-col gap-4 mt-7 text-2xl text-zinc-200" id="test-6"></div>
+            </div>
+          </div>
+          <div data-step="1" class="mt-auto card p-7 text-center text-3xl text-white">O teste já está no contrato: <b class="text-brand-400">a garantia de 60 dias.</b></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Trocar o teste curto pelo contrato completo</p>
+        <ul class="topics">
+        <li data-c="0">3 meses acaba quando começa a escalar</li>
+        <li data-c="0">6 meses com parcela que caiba</li>
+        <li data-c="1"><span class="ck">1</span>Os primeiros 60 dias já são risco nosso</li>
+        </ul>
+        </aside>
+      </section>
+
+      <section class="slide" data-extra data-id="obj-orcamento" data-chapter="6" data-title="Não cabe no orçamento" data-time="1.5">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Para decidir com segurança</div>
+          <h2 class="anim d1">Começar <span class="hl">do tamanho certo</span></h2>
+          <div class="grid grid-cols-3 gap-8 mt-12">
+            <div data-step="1" class="card p-9"><div class="font-display font-black text-6xl text-brand-400">1</div><div class="font-display font-black text-3xl text-white mt-4">Uma tese só</div><div class="text-xl text-zinc-400 mt-2">a de mais demanda e melhor ticket</div></div>
+            <div data-step="2" class="card p-9"><div class="font-display font-black text-6xl text-brand-400">2</div><div class="font-display font-black text-3xl text-white mt-4">R$ 30 por dia</div><div class="text-xl text-zinc-400 mt-2">em anúncios</div></div>
+            <div data-step="3" class="card p-9"><div class="font-display font-black text-6xl text-brand-400">3</div><div class="font-display font-black text-3xl text-white mt-4">Reinvestir</div><div class="text-xl text-zinc-400 mt-2">a partir do mês 3</div></div>
+          </div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Versão menor, não desconto às cegas</p>
+        <ul class="topics">
+        <li data-c="0">“Qual parcela fica saudável pra você hoje?”</li>
+        <li data-c="0">Menor no tamanho (1 tese, verba menor), não no prazo</li>
+        <li data-c="0">Dividir o risco: parte fixa + parte só se bater a meta</li>
+        <li data-c="0">Ex. que fechou: 6× fixas + 6× condicionadas a X contratos no semestre</li>
+        <li data-c="0">Ou entrada + parcelas, ou ajustar a data da cobrança</li>
+        </ul>
+        <p class="how">Troque a faixa (teclas 2 e 3) e volte ao investimento.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-extra data-id="obj-video" data-chapter="6" data-title="Não gosto de aparecer" data-time="1">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Para decidir com segurança</div>
+          <h2 class="anim d1">Não gosto <span class="hl">de aparecer</span></h2>
+          <div class="grid grid-cols-3 gap-8 mt-12">
+            <div data-step="1" class="card p-9 text-center"><div class="w-20 h-20 rounded-full bg-brand-500/15 text-brand-400 flex items-center justify-center mx-auto [&>svg]:w-10 [&>svg]:h-10" data-icon="chat"></div><div class="font-display font-black text-3xl text-white mt-6">Pergunta e resposta</div><div class="text-xl text-zinc-400 mt-2">como na consulta</div></div>
+            <div data-step="2" class="card p-9 text-center"><div class="w-20 h-20 rounded-full bg-brand-500/15 text-brand-400 flex items-center justify-center mx-auto [&>svg]:w-10 [&>svg]:h-10" data-icon="clock"></div><div class="font-display font-black text-3xl text-white mt-6">Uma hora por mês</div><div class="text-xl text-zinc-400 mt-2">só o celular</div></div>
+            <div data-step="3" class="card p-9 text-center"><div class="w-20 h-20 rounded-full bg-brand-500/15 text-brand-400 flex items-center justify-center mx-auto [&>svg]:w-10 [&>svg]:h-10" data-icon="users"></div><div class="font-display font-black text-3xl text-white mt-6">Outro rosto</div><div class="text-xl text-zinc-400 mt-2">o sócio que fala melhor</div></div>
+          </div>
+          <div data-step="4" class="mt-auto card p-7 text-center text-3xl text-white">Vídeo simples de celular <b class="text-brand-400">performa melhor que vídeo produzido.</b></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Destravar a gravação</p>
+        <ul class="topics">
+        <li data-c="0">Pergunta e resposta: ele só responde</li>
+        <li data-c="0">Roteiro, edição e publicação são nossos</li>
+        <li data-c="0">Vídeo informal de celular: ~55 mil views</li>
+        </ul>
+        </aside>
+      </section>
+    </div>
+
+    <!-- Navegação -->
+    <div id="nav">
+      <button onclick="prev()" title="Voltar (←)"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
+      <div class="text-sm font-bold text-white tracking-widest uppercase font-display italic min-w-[200px] text-center" id="nav-label"></div>
+      <button onclick="next()" title="Avançar (→)"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></button>
+      <div class="w-px h-5 bg-zinc-700"></div>
+      <button onclick="toggleOverlay('map')" title="Mapa (M)"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg></button>
+      <button onclick="openPresenter()" title="Modo apresentador (P)"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></button>
+    </div>
+
+    <!-- Mapa da apresentação -->
+    <div class="overlay" id="map">
+      <div class="max-w-5xl mx-auto px-8 py-14">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-4xl font-black text-white">Mapa da apresentação</h2>
+          <button onclick="toggleOverlay('map')" class="text-zinc-400 hover:text-white text-sm">Fechar (Esc)</button>
+        </div>
+        <div id="map-list" class="grid grid-cols-2 gap-6"></div>
+      </div>
+    </div>
+
+    <!-- Depoimento em vídeo -->
+    <div class="modal" id="video" onclick="if (event.target === this) closeModal('video')">
+      <button class="x" onclick="closeModal('video')">Fechar (Esc)</button>
+      <video id="video-el" controls playsinline class="max-h-[82vh] max-w-[92vw] rounded-2xl border border-zinc-700 shadow-2xl"></video>
+      <div id="video-cap" class="text-zinc-300 text-lg"></div>
+    </div>
+
+    <!-- Exemplos de anúncios (estáticos, vídeos e páginas) -->
+    <div class="modal" id="gal" onclick="if (event.target === this) closeModal('gal')">
+      <button class="x" onclick="closeModal('gal')">Fechar (Esc)</button>
+      <div id="gal-title" class="font-display font-black text-3xl text-white"></div>
+      <div id="gal-body"></div>
+    </div>
+
+    <!-- Notas na própria tela (para ensaio) -->
+    <div id="notes-panel">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-xs font-bold uppercase tracking-widest text-zinc-500">Notas do apresentador</div>
+        <button onclick="toggleNotes()" class="text-zinc-500 hover:text-white text-sm">Fechar (N)</button>
+      </div>
+      <div class="text-[11px] text-red-400/80 mb-4">Visível para quem vê sua tela. Em reunião, use o modo apresentador (P).</div>
+      <div id="notes-meta" class="text-sm text-zinc-400 mb-3"></div>
+      <div id="notes-content" class="notes-body text-[15px] text-zinc-300"></div>
+    </div>
+
+    <script>
+      const ICON = {
+        eye: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>',
+        chat: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>',
+        check: '<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',
+        users: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
+        user: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>',
+        target: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
+        cash: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>',
+        building: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>',
+        spark: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>',
+        clock: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+        calendar: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>',
+        megaphone: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>',
+        shield: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>',
+        scale: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>',
+        phone: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>',
+        bolt: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>',
+        doc: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>',
+        chart: '<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>'
+      }
+      const PERSON = '<svg viewBox="0 0 24 24" fill="currentColor" class="w-full"><circle cx="12" cy="7" r="4.5"/><path d="M3 23c0-5 4-9 9-9s9 4 9 9z"/></svg>'
+
+      // =====================================================================
+      // CONTEÚDO EDITÁVEL
+      // =====================================================================
+
+      const CHAPTERS = ['Abertura', 'Inteligência de demanda qualificada', 'Arsenal comercial', 'Previsibilidade matemática', 'Resultados', 'A proposta', 'Objeções (sob demanda)']
+
+      // Faixas de preço: o closer escolhe com as teclas 1, 2 e 3 (ou no modo apresentador). O cliente só vê a faixa escolhida.
+      // "cond" é a condição fechando na reunião. Para mostrar "ou X à vista" num card, acrescente avista: 15700 ao lado da parcela.
+      // Regra: anual ~5% abaixo do semestral por mês, condição da reunião 10% abaixo da tabela, à vista 10% abaixo do total no cartão (arredondado de 50 em 50)
+      const TIERS = {
+        1: { label: '2.900', semestral: { x: 6, parcela: 2900, avista: 15650 }, anual: { x: 12, parcela: 2750, avista: 29700 }, cond: { semestral: { parcela: 2610, avista: 14100 }, anual: { parcela: 2480, avista: 26800 } } },
+        2: { label: '2.250', semestral: { x: 6, parcela: 2250, avista: 12150 }, anual: { x: 12, parcela: 2140, avista: 23100 }, cond: { semestral: { parcela: 2030, avista: 10950 }, anual: { parcela: 1930, avista: 20850 } } },
+        3: { label: '1.770', semestral: { x: 6, parcela: 1770, avista: 9550 }, anual: { x: 12, parcela: 1680, avista: 18150 }, cond: { semestral: { parcela: 1590, avista: 8600 }, anual: { parcela: 1510, avista: 16300 } } }
+      }
+
+      // Perfil do lead (teclas A e B): slides com data-perfil="a" só aparecem no A, data-perfil="b" só no B
+      const PERFIS = {
+        a: 'A · já anunciou',
+        b: 'B · primeira vez'
+      }
+
+      // Clones do app Manure AI, o CRM que o cliente usa (crm.html e metricas.html, nesta pasta), abertos nos slides "O CRM na prática" e "O que não é medido vira sorte".
+      // LIVE é o endereço que aparece na barra do navegador; o link "ver no sistema real" abre o app de verdade
+      const CLONE = { crm: '../crm.html', metricas: '../metricas.html' }
+      const LIVE = {
+        crm: 'https://app.manure.marketing/ferraz-lima/leads',
+        metricas: 'https://app.manure.marketing/ferraz-lima/commercial'
+      }
+      const LIVE_LINK = 'https://app.manure.marketing'
+
+      // Valores de partida da calculadora
+      const DIAG_DEFAULT = { ticket: 7000, verba: 1200, cpl: 12 }
+
+      const PILLARS = [
+        { icon: 'target', t: 'Inteligência de demanda qualificada' },
+        { icon: 'phone', t: 'Arsenal comercial' },
+        { icon: 'chart', t: 'Previsibilidade matemática' },
+        { icon: 'doc', t: 'Contrato todo mês', ok: true }
+      ]
+
+      const JOURNEY = [
+        { icon: 'megaphone', t: 'Anúncio' },
+        { icon: 'chat', t: 'WhatsApp' },
+        { icon: 'phone', t: 'Atendimento' },
+        { icon: 'calendar', t: 'Consulta' },
+        { icon: 'doc', t: 'Contrato' }
+      ]
+
+      // O que quase todo mundo já viveu × o que fazemos
+      const FAILS = [
+        { erro: 'Impulsionar post', certo: 'Público e região definidos' },
+        { erro: 'Vídeo genérico', certo: 'Vídeo que fala da dor' },
+        { erro: 'Lead solto no WhatsApp', certo: 'CRM com o funil' },
+        { erro: 'Atendimento frio ou por IA', certo: 'Atendimento humanizado' }
+      ]
+
+      // Público: quantas pessoas sobram a cada filtro (números de exemplo)
+      const AUDIENCE = [150000000, 900000, 380000, 120000, 45000, 15000]
+
+      // Ganchos dos vídeos: a dor de cada um é dita em voz alta, com a área do lead
+      const HOOKS = [
+        ['Você está passando por ', 'dor 1', '?'],
+        ['Sabia que ', 'dor 2', ' tem solução?'],
+        ['Cuidado com ', 'dor 3', '']
+      ]
+
+      // Perfis reais de clientes no Instagram (foto e grade recortadas do próprio perfil)
+      const PROFILES = [
+        { user: 'coelhoesantana', nome: 'Coelho & Santana Advogados', av: '../img/ig-coelho.jpg', grid: '../img/ig-coelho-grid.jpg', stats: ['61', '288', '59'], bio: ['Escritório especializado em ações e defesas trabalhistas', 'Osasco, Alphaville e Itapevi · SP'] },
+        { user: 'iullyfreireadvogados', nome: 'Iully Freire Adv. Associados', av: '../img/ig-iully.jpg', grid: '../img/ig-iully-grid.jpg', check: true, stats: ['826', '25,9 mil', '992'], bio: ['Direito do Trabalho no setor financeiro', '+25 anos · +10 mil bancários atendidos'] },
+        { user: 'pinheiro_e_pinheiro_advogados', nome: 'Pinheiro & Pinheiro Advogados', av: '../img/ig-pinheiro.jpg', grid: '../img/ig-pinheiro-grid.jpg', stats: ['231', '1.043', '62'], bio: ['Previdenciário, Cível, Médico e do Trabalho', '26 anos na defesa dos seus direitos'] }
+      ]
+
+      // Exemplos do slide "Os formatos que usamos". Vídeo: arquivo .mp4 nesta pasta ou link de YouTube/Drive (embed)
+      const GALLERY = {
+        video: { t: 'Vídeos', items: ['pinheiro', 'debora', 'guilherme'].map(n => ({ video: `../vid/${n}.mp4`, poster: `../vid/${n}.jpg` })) },
+        pagina: {
+          t: 'Landing pages',
+          items: [{ page: 'https://braco.falarcomadvogado.com.br' }, { page: 'https://natalia-yamamoto-advocacia.falarcomadvogado.com.br' }]
+        }
+      }
+
+      const TRUST = [
+        { icon: 'chat', t: 'Resposta humanizada', d: 'gente falando com gente' },
+        { icon: 'phone', t: 'Ligação', d: 'a voz aproxima', fill: true },
+        { icon: 'calendar', t: 'Consulta marcada', d: 'dia e hora combinados', ok: true }
+      ]
+
+      const TRAINING = [
+        { icon: 'bolt', t: 'Primeiro atendimento' },
+        { icon: 'phone', t: 'A ligação' },
+        { icon: 'calendar', t: 'A consulta' },
+        { icon: 'doc', t: 'O fechamento', ok: true }
+      ]
+
+      // Simulação: a calculadora abre no desalinhado; o closer arrasta até o Manure
+      const SCEN = {
+        desalinhado: { agend: 25, pres: 55, fech: 50 },
+        manure: { agend: 40, pres: 80, fech: 50 }
+      }
+      const SIM_INPUTS = [
+        { k: 'ticket', t: 'Ticket médio', min: 1000, max: 50000, step: 500 },
+        { k: 'verba', t: 'Anúncios por mês', min: 300, max: 10000, step: 100 },
+        { k: 'cpl', t: 'Custo por lead', min: 3, max: 150, step: 1 }
+      ]
+      const SIM_RATES = [
+        { k: 'agend', t: 'Agendam' },
+        { k: 'pres', t: 'Comparecem' },
+        { k: 'fech', t: 'Fecham' }
+      ]
+
+      // Casos reais (relatórios da Meta)
+      const CASES = [
+        { n: 'Natália Mamoto', a: 'Família e Cível', foto: '../img/natalia.jpg', inv: 1450, leads: 71, reun: 20, contr: 7, contrLabel: 'contratos', tk: 6000, fat: 42000, fatLabel: 'por mês em contratos' },
+        { n: 'Pinheiro & Pinheiro', a: 'Trabalhista e Previdenciário', foto: '../img/pinheiro-redonda.jpg', inv: 2280, leads: 285, reun: 71, contr: 38, contrLabel: 'contratos', tk: 10000, fat: 380000, fatLabel: 'em honorários plantados' },
+        { n: 'Andrade Ferreira', a: 'Trabalhista', foto: '../img/andrade-ferreira.jpg', inv: 1800, leads: 150, reun: 38, contr: 8, contrLabel: 'contratos', tk: 17000, fat: 136000, fatLabel: 'de faturamento projetado' },
+        { n: 'Guilherme Nunes', a: 'Holding', foto: '../img/guilherme-nunes.jpg', inv: 3000, leads: 33, reun: 10, contr: 2, contrLabel: 'holdings', tk: 45000, fat: 90000, fatLabel: 'por mês em contratos' }
+      ]
+
+      const ASSETS = '../depoimentos/'
+      const DEPOS = [
+        { n: 'Guilherme Nunes', a: 'Holding', v: 'depoimento-guilherme.mp4', p: 'depoimento-guilherme.webp' },
+        { n: 'Pinheiro & Pinheiro', a: 'Trabalhista e Previdenciário', v: 'depoimento-pinheiro.mp4', p: 'depoimento-pinheiro.webp' },
+        { n: 'Janina Valente', a: 'Advocacia', v: 'depoimento-janina.mp4', p: 'depoimento-janina.webp' },
+        { n: 'Esriel Dias', a: 'Advocacia', v: 'depoimento-esriel.mp4', p: 'depoimento-esriel.webp' }
+      ]
+
+      const DELIVERY = [
+        { t: 'Fundação Digital', p: 'Inteligência de demanda', icon: 'target', items: ['Posicionamento e oferta do escritório', 'Landing page de alta conversão', 'Estratégia para criativos', 'Roteiros para vídeos', 'Pós-produção de conteúdo'] },
+        { t: 'Máquina de Aquisição', p: 'Previsibilidade matemática', icon: 'chart', items: ['Gestão de tráfego no Google e no Meta', 'Otimizações de verba e campanha', 'Relatórios de CAC e CPL', 'Reuniões periódicas de resultado'] },
+        { t: 'Arsenal Comercial', p: 'Arsenal comercial', icon: 'phone', items: ['Implementação do CRM e do funil', 'Scripts de abordagem e fechamento', 'Treinamento prático com advogados e secretária', 'Treinamentos e acompanhamento ao vivo'] }
+      ]
+
+      const NEXT_STEPS = [
+        { d: 'Dia 1', t: 'Onboarding', s: 'grupo, acessos e plano', icon: 'users' },
+        { d: 'Dias 2 a 7', t: 'Estrutura', s: 'página, criativos, CRM e campanhas', icon: 'spark' },
+        { d: 'Até o dia 10', t: 'No ar', s: 'leads sendo atendidos', icon: 'bolt', ok: true }
+      ]
+
+      // Régua para comparar agências
+      const COMPARE = ['Quem atende o lead quando ele chama?', 'O seu time é treinado para fechar?', 'Tem CRM com a cadência pronta?', 'O relatório mostra contrato fechado, ou só custo por lead?', 'Tem garantia por escrito?', 'Tem cases com números reais?']
+
+      const TEST_3 = ['Mês 1: ajuste', 'Mês 2: validação', 'Acaba quando começaria a escalar', 'Parcela maior']
+      const TEST_6 = ['Mês 1: ajuste', 'Mês 2: validação', 'Meses 3 a 6: escala', 'Parcela menor']
+
+      // =====================================================================
+      // ESTADO: calculadora, perfil do lead e faixa de preço (salvos neste navegador)
+      // =====================================================================
+
+      const STORE_KEY = 'manure-apresentacao-nova'
+      let DIAG = { ...DIAG_DEFAULT }
+      let TIER = 1
+      let RATES = { ...SCEN.desalinhado }
+      let PERFIL = 'a'
+      let SHOW_G = true
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null')
+        if (saved) {
+          DIAG = { ...DIAG_DEFAULT, ...saved.diag }
+          if (TIERS[saved.tier]) TIER = saved.tier
+          if (saved.rates) RATES = { ...RATES, ...saved.rates }
+          if (PERFIS[saved.perfil]) PERFIL = saved.perfil
+          if (saved.showG === false) SHOW_G = false
+        }
+      } catch {}
+      function save() {
+        try {
+          localStorage.setItem(STORE_KEY, JSON.stringify({ diag: DIAG, tier: TIER, rates: RATES, perfil: PERFIL, showG: SHOW_G }))
+        } catch {}
+      }
+
+      const brl = n => 'R$ ' + Math.round(n).toLocaleString('pt-BR')
+      const num = n => Math.round(n).toLocaleString('pt-BR')
+      const one = n => n.toLocaleString('pt-BR', { maximumFractionDigits: 1 })
+      const mil = n => {
+        if (n >= 1e6) {
+          const m = n / 1e6
+          return 'R$ ' + m.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + (m < 2 ? ' milhão' : ' milhões')
+        }
+        return n >= 1000 ? 'R$ ' + one(n / 1000) + ' mil' : brl(n)
+      }
+      const people = n => (n >= 1e6 ? one(n / 1e6) + ' milhões' : n >= 1000 ? num(n / 1000) + ' mil' : num(n))
+      const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
+
+      // =====================================================================
+      // MONTAGEM DOS SLIDES
+      // =====================================================================
+
+      const iconBox = (name, cls = 'bg-brand-500/15 text-brand-400') => `<div class="w-16 h-16 rounded-2xl ${cls} flex items-center justify-center shrink-0">${ICON[name]}</div>`
+
+      // Círculos ligados por uma linha; startStep 0 = sem revelar por clique
+      function flowHTML(list, size = 120, startStep = 1) {
+        const ring = f => (f.ok ? 'bg-emerald-500 text-white shadow-[0_0_40px_rgba(16,185,129,0.5)]' : f.fill ? 'bg-brand-500 text-zinc-950 shadow-[0_0_40px_rgba(234,179,8,0.5)]' : 'bg-zinc-900 border-2 border-brand-500 text-brand-400')
+        return list
+          .map(
+            (f, i) => `<div ${startStep ? `data-step="${i + startStep}"` : ''} class="flex flex-col items-center">
+              ${f.d && f.s ? `<div class="mb-4 px-4 py-1.5 rounded-full bg-brand-500/15 text-brand-300 text-lg font-bold">${f.d}</div>` : ''}
+              <div style="width:${size}px;height:${size}px" class="rounded-full flex items-center justify-center [&>svg]:w-12 [&>svg]:h-12 ${ring(f)}">${ICON[f.icon]}</div>
+              <div class="font-display font-black text-3xl text-white mt-6">${f.t}</div>
+              ${f.s ? `<div class="text-xl text-zinc-400 mt-2">${f.s}</div>` : f.d ? `<div class="text-xl text-zinc-400 mt-2">${f.d}</div>` : ''}
+            </div>`
+          )
+          .join('')
+      }
+
+      function profileHTML(p, step) {
+        return `<div data-step="${step}" class="ig shrink-0 flex flex-col max-h-full">
+          <div class="px-4 pt-4 pb-3 flex items-center gap-2 font-bold text-[17px]"><span class="truncate">${esc(p.user)}</span>${p.check ? '<span class="w-4 h-4 shrink-0 rounded-full bg-[#0095f6] text-white text-[10px] flex items-center justify-center">✓</span>' : ''}</div>
+          <div class="px-4 flex items-center gap-5">
+            <img src="${p.av}" alt="" class="ig-av" />
+            <div class="flex-1 grid grid-cols-3 text-center text-[13px] leading-tight">${['posts', 'seguidores', 'seguindo'].map((l, i) => `<div><b class="block text-[17px]">${p.stats[i]}</b>${l}</div>`).join('')}</div>
+          </div>
+          <div class="px-4 pt-3 text-[13px] leading-snug"><div class="font-bold">${esc(p.nome)}</div>${p.bio.map(b => `<div class="text-zinc-300">${esc(b)}</div>`).join('')}</div>
+          <div class="px-4 pt-3 pb-3 flex gap-2"><div class="ig-btn">Seguir</div><div class="ig-btn">Mensagem</div><div class="ig-btn">Contato</div></div>
+          <div class="flex justify-around border-t border-zinc-800 py-2 text-zinc-500 text-lg"><span class="text-white border-b-2 border-white px-4">▦</span><span>▶</span><span>☺</span></div>
+          <div class="flex-1 min-h-0 overflow-hidden"><img src="${p.grid}" alt="" class="w-full" /></div>
+        </div>`
+      }
+
+      function renderStatic() {
+        document.querySelectorAll('[data-icon]').forEach(el => (el.innerHTML = ICON[el.dataset.icon]))
+
+        document.getElementById('pillars').innerHTML = flowHTML(PILLARS, 140)
+
+        if (document.getElementById('journey')) document.getElementById('journey').innerHTML = JOURNEY.map(
+          j => `<div class="flex flex-col items-center"><div class="w-[110px] h-[110px] rounded-full bg-zinc-900 border-2 border-zinc-700 text-zinc-300 flex items-center justify-center [&>svg]:w-11 [&>svg]:h-11">${ICON[j.icon]}</div><div class="font-display font-black text-3xl text-white mt-5">${j.t}</div></div>`
+        ).join('')
+
+        if (document.getElementById('fails')) document.getElementById('fails').innerHTML = FAILS.map(
+          (f, i) => `<div class="grid grid-cols-[1fr_60px_1fr] items-center gap-4">
+            <div class="anim d${i + 2} card-danger px-8 py-6 flex items-center gap-4"><span class="text-red-400 text-4xl leading-none">×</span><span class="text-3xl text-zinc-200">${f.erro}</span></div>
+            <div data-step="${i + 1}" class="text-center text-4xl text-brand-400">→</div>
+            <div data-step="${i + 1}" class="card-ok px-8 py-6 flex items-center gap-4"><span class="text-emerald-400">${ICON.check}</span><span class="text-3xl text-white font-semibold">${f.certo}</span></div>
+          </div>`
+        ).join('')
+
+        // Público: 60 pessoas, só algumas com o perfil
+        const ideal = new Set([2, 9, 15, 22, 27, 34, 40, 45, 51, 58])
+        document.getElementById('crowd').innerHTML = Array.from({ length: 60 }, (_, i) => `<div class="p ${ideal.has(i) ? 'ideal' : ''}">${PERSON}</div>`).join('')
+
+        document.getElementById('hooks').innerHTML = HOOKS.map(
+          ([a, dor, b]) => `<div class="reel"><div class="hook">“${a}<span class="inline-block px-2 rounded-md bg-zinc-950 text-brand-300">${dor}</span>${b}”</div>
+            <svg class="who" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7" r="4.5"/><path d="M3 23c0-5 4-9 9-9s9 4 9 9z"/></svg>
+            <div class="foot">Enviar mensagem no WhatsApp</div></div>`
+        ).join('')
+
+        document.getElementById('profiles').innerHTML = PROFILES.map((p, i) => profileHTML(p, i + 1)).join('')
+
+        document.getElementById('trust-flow').innerHTML = flowHTML(TRUST, 120)
+
+        if (document.getElementById('dots-robo')) document.getElementById('dots-robo').innerHTML = Array.from({ length: 100 }, (_, i) => `<i class="${i < 3 ? 'win' : ''}"></i>`).join('')
+        if (document.getElementById('dots-humano')) document.getElementById('dots-humano').innerHTML = Array.from({ length: 100 }, (_, i) => `<i class="${i < 15 ? 'win' : ''}"></i>`).join('')
+
+        document.getElementById('training').innerHTML = TRAINING.map(
+          (t, i) => `<div data-step="${i + 1}" class="card p-9 text-center ${t.ok ? '!border-emerald-500/50' : ''}">
+            <div class="w-24 h-24 rounded-full mx-auto flex items-center justify-center [&>svg]:w-11 [&>svg]:h-11 ${t.ok ? 'bg-emerald-500 text-white' : 'bg-brand-500/15 text-brand-400'}">${ICON[t.icon]}</div>
+            <div class="font-display font-black text-3xl text-white mt-6">${t.t}</div>
+          </div>`
+        ).join('')
+
+        document.getElementById('next-steps').innerHTML = flowHTML(NEXT_STEPS, 120)
+
+        document.getElementById('depos').innerHTML = DEPOS.map(
+          (d, i) => `<button data-depo="${i}" class="anim d${i + 2} group relative rounded-[28px] overflow-hidden border border-zinc-700 hover:border-brand-500 transition-colors h-full">
+            <img src="${ASSETS + d.p}" alt="" class="absolute inset-0 w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent"></div>
+            <div class="absolute inset-0 flex items-center justify-center"><div class="w-20 h-20 rounded-full bg-brand-500 text-zinc-950 flex items-center justify-center shadow-[0_0_40px_rgba(234,179,8,0.6)] group-hover:scale-110 transition-transform"><svg class="w-9 h-9 ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg></div></div>
+            <div class="absolute left-6 right-6 bottom-6 text-left"><div class="font-display font-black text-3xl text-white">${esc(d.n)}</div><div class="text-lg text-zinc-400">${d.a}</div></div>
+          </button>`
+        ).join('')
+
+        document.getElementById('delivery').innerHTML = DELIVERY.map(
+          (col, ci) => `<div data-step="${ci + 1}" class="card p-8 flex flex-col">
+            <div class="flex items-center gap-4">${iconBox(col.icon)}<div><div class="text-sm font-bold uppercase tracking-[0.15em] text-brand-400">${col.p}</div><div class="font-display font-black text-3xl text-white">${col.t}</div></div></div>
+            <div class="flex flex-col gap-4 mt-8">${col.items.map(it => `<div class="flex items-start gap-4 text-2xl text-zinc-200 leading-snug"><span class="text-brand-400 mt-1 shrink-0">${ICON.check}</span>${it}</div>`).join('')}</div>
+          </div>`
+        ).join('')
+
+        document.getElementById('compare').innerHTML = COMPARE.map(
+          (q, i) => `<div data-step="${i + 1}" class="grid grid-cols-[1fr_180px_180px] gap-4 items-center py-2">
+            <span class="text-2xl text-white">${q}</span>
+            <span class="flex justify-center"><span class="w-11 h-11 rounded-full bg-brand-500 text-zinc-950 flex items-center justify-center">${ICON.check}</span></span>
+            <span class="text-center font-display font-black text-3xl text-zinc-600">?</span>
+          </div>`
+        ).join('')
+
+        document.getElementById('test-3').innerHTML = TEST_3.map(t => `<div class="flex items-center gap-4"><span class="text-zinc-600 text-3xl leading-none w-6 text-center">·</span>${t}</div>`).join('')
+        document.getElementById('test-6').innerHTML = TEST_6.map(t => `<div class="flex items-center gap-4"><span class="text-brand-400">${ICON.check}</span>${t}</div>`).join('')
+
+        // Sem exemplo cadastrado, o botão "Ver exemplos" some (e o card mantém o alinhamento)
+        document.querySelectorAll('[data-gal]').forEach(b => (b.style.visibility = GALLERY[b.dataset.gal].items.length ? '' : 'hidden'))
+
+        document.querySelectorAll('[data-live-link]').forEach(a => (a.href = LIVE_LINK))
+        document.querySelectorAll('[data-live-url]').forEach(el => (el.textContent = LIVE[el.dataset.liveUrl].replace('https://', '')))
+
+        // Slides de caso e de "quanto vale" são montados a partir dos dados
+        document.querySelectorAll('[data-case]').forEach(s => (s.querySelector('.slide-inner').innerHTML = caseHTML(CASES[+s.dataset.case])))
+        document.querySelectorAll('[data-value]').forEach(s => {
+          if (s.dataset.value !== 'voce') s.querySelector('.slide-inner').innerHTML = valueHTML(CASES[+s.dataset.value])
+        })
+      }
+
+      // Caso: a foto e o funil, do investimento ao faturamento
+      function caseHTML(c) {
+        const rows = [
+          { t: 'Leads', v: num(c.leads), w: 100 },
+          { t: 'Reuniões', v: num(c.reun), w: (c.reun / c.leads) * 100 },
+          { t: c.contrLabel[0].toUpperCase() + c.contrLabel.slice(1), v: num(c.contr), w: (c.contr / c.leads) * 100 }
+        ]
+        return `<div class="eyebrow anim">Clientes que aplicam o método</div>
+          <div class="grid grid-cols-[380px_1fr] gap-16 flex-1 items-center">
+            <div class="anim d1 text-center">
+              <img src="${c.foto}" alt="" class="w-[260px] h-[260px] rounded-full object-cover border-4 border-brand-500/60 mx-auto shadow-[0_0_80px_rgba(234,179,8,0.3)]" />
+              <div class="font-display font-black text-5xl text-white mt-8">${esc(c.n)}</div>
+              <div class="text-2xl text-zinc-400 mt-2">${c.a}</div>
+            </div>
+            <div class="flex flex-col gap-5">
+              <div data-step="1" class="flex items-center gap-6"><div class="w-40 text-right text-xl text-zinc-400">Investiu</div><div class="font-display font-black text-5xl text-white">${brl(c.inv)}</div><div class="text-xl text-zinc-500">em anúncios</div></div>
+              ${rows
+                .map(
+                  (r, i) => `<div data-step="${i + 2}" class="flex items-center gap-6"><div class="w-40 text-right text-xl text-zinc-400">${r.t}</div>
+                  <div class="flex-1 h-16 rounded-2xl bg-zinc-900 overflow-hidden"><div class="h-full rounded-2xl bg-gradient-to-r from-brand-600 to-brand-400 flex items-center px-5 font-display font-black text-3xl text-zinc-950" style="width:${Math.max(r.w, 14)}%">${r.v}</div></div></div>`
+                )
+                .join('')}
+              <div data-step="5" class="flex items-center gap-6 mt-4"><div class="w-40"></div><div class="card !border-brand-500/60 px-9 py-6 shadow-[0_0_60px_-10px_rgba(234,179,8,0.5)]"><div class="font-display font-black text-7xl text-brand-400">${mil(c.fat)}</div><div class="text-2xl text-zinc-300 mt-1">${c.fatLabel}</div></div></div>
+            </div>
+          </div>`
+      }
+
+      // Quanto vale: os contratos aparecem e somam
+      function docsHTML(n, label) {
+        const shown = Math.min(n, 20)
+        return Array.from({ length: shown }, (_, i) => `<div class="doc" style="animation-delay:${i * 0.07}s">${ICON.doc}<span>${label}</span></div>`).join('')
+      }
+      function valueHTML(c) {
+        const stat = (t, v, s) => `<div class="card px-8 py-7 text-center"><div class="text-xl text-zinc-400">${t}</div><div class="font-display font-black text-6xl text-white mt-2 leading-none">${v}</div>${s ? `<div class="text-lg text-zinc-500 mt-2">${s}</div>` : ''}</div>`
+        return `<div class="eyebrow anim">Quanto vale</div>
+          <div class="grid grid-cols-[340px_1fr] gap-16 flex-1 items-center">
+            <div class="anim d1 text-center">
+              <img src="${c.foto}" alt="" class="w-[220px] h-[220px] rounded-full object-cover border-4 border-brand-500/60 mx-auto shadow-[0_0_80px_rgba(234,179,8,0.3)]" />
+              <div class="font-display font-black text-4xl text-white mt-6">${esc(c.n)}</div>
+              <div class="text-xl text-zinc-400 mt-1">${c.a}</div>
+            </div>
+            <div class="flex flex-col gap-12">
+              <div data-step="1" class="grid grid-cols-3 gap-5">
+                ${stat('Investiu em anúncios', brl(c.inv), 'no mês')}
+                ${stat('Recebeu', num(c.leads), 'leads')}
+                ${stat('Fechou', num(c.contr), `${c.contrLabel} × ${mil(c.tk)}`)}
+              </div>
+              <div data-step="2" class="card !border-brand-500/60 px-10 py-8 shadow-[0_0_60px_-10px_rgba(234,179,8,0.5)]">
+                <div class="text-2xl text-zinc-400">Quanto vale</div>
+                <div class="font-display font-black text-[110px] leading-none text-brand-400 mt-2" style="text-shadow:0 0 50px rgba(234,179,8,0.4)">${mil(c.fat)}</div>
+                <div class="text-3xl text-zinc-300 mt-3">${c.fatLabel}</div>
+              </div>
+            </div>
+          </div>`
+      }
+
+      // Localização: pontos espalhados × pontos dentro do raio
+      function renderLoc() {
+        let seed = 7
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        let wide = ''
+        for (let i = 0; i < 70; i++) wide += `<circle cx="${20 + rnd() * 560}" cy="${20 + rnd() * 260}" r="${4 + rnd() * 3}" fill="${i % 6 ? '#52525b' : '#ef4444'}" opacity="${0.5 + rnd() * 0.5}"/>`
+        document.getElementById('loc-wide').innerHTML = wide
+        let near = '<circle cx="300" cy="150" r="130" fill="rgba(234,179,8,0.08)" stroke="#eab308" stroke-width="2" stroke-dasharray="6 6"/><circle cx="300" cy="150" r="70" fill="rgba(234,179,8,0.06)"/>'
+        for (let i = 0; i < 70; i++) {
+          const a = rnd() * Math.PI * 2
+          const r = rnd() * 280
+          const x = 300 + Math.cos(a) * r
+          const y = 150 + Math.sin(a) * r * 0.55
+          if (x < 10 || x > 590) continue
+          const inside = Math.hypot(x - 300, y - 150) < 125
+          near += `<circle cx="${x}" cy="${y}" r="${inside ? 6 : 4}" fill="${inside ? '#facc15' : '#3f3f46'}" opacity="${inside ? 1 : 0.4}"/>`
+        }
+        near += '<path d="M300 112c-14 0-25 11-25 25 0 19 25 43 25 43s25-24 25-43c0-14-11-25-25-25z" fill="#facc15"/><circle cx="300" cy="137" r="9" fill="#09090b"/>'
+        document.getElementById('loc-near').innerHTML = near
+      }
+
+      // ---------- Público ----------
+      function renderAudience(s) {
+        const i = Math.min(s, AUDIENCE.length - 1)
+        document.getElementById('pub-num').textContent = people(AUDIENCE[i])
+        const size = [450, 380, 330, 290, 255, 225][i]
+        const ring = document.getElementById('pub-ring')
+        ring.style.width = size + 'px'
+        ring.style.height = size + 'px'
+      }
+
+      // Tudo o que depende da calculadora e da faixa de preço
+      function renderDiag() {
+        renderSim()
+        renderPrice()
+        syncForms()
+        if (typeof applySteps === 'function') applySteps()
+      }
+
+      // ---------- Simulação ----------
+      function simCalc() {
+        const leads = DIAG.cpl > 0 ? DIAG.verba / DIAG.cpl : 0
+        const ag = (leads * RATES.agend) / 100
+        const pr = (ag * RATES.pres) / 100
+        const ct = (pr * RATES.fech) / 100
+        return { leads, ag, pr, ct, fat: ct * DIAG.ticket, cac: ct > 0 ? DIAG.verba / ct : 0 }
+      }
+      const pct = (inp, v) => inp.style.setProperty('--p', ((v - inp.min) / (inp.max - inp.min)) * 100 + '%')
+
+      function renderSimStatic() {
+        document.getElementById('sim-inputs').innerHTML = SIM_INPUTS.map(
+          f => `<div><div class="text-sm font-bold uppercase tracking-[0.15em] text-zinc-500">${f.t}</div>
+            <div class="flex items-baseline gap-2 font-display font-black text-4xl text-white mt-1 mb-4"><span class="text-zinc-500 text-2xl">R$</span><input type="number" class="num-type w-full" data-sim="${f.k}" min="${f.min}" step="${f.step}" /></div>
+            <input type="range" class="rng" data-sim="${f.k}" min="${f.min}" max="${f.max}" step="${f.step}" /></div>`
+        ).join('')
+        document.getElementById('sim-funnel').innerHTML =
+          `<div><div class="flex items-end justify-between mb-3"><span class="text-2xl text-zinc-300 font-semibold">Leads <span class="text-lg text-zinc-500 font-normal">anúncios ÷ custo por lead</span></span><span class="font-display font-black text-5xl text-white" id="sim-leads"></span></div>
+            <div class="h-10 rounded-xl bg-zinc-900 overflow-hidden"><div class="hbar" style="width:100%"></div></div></div>` +
+          SIM_RATES.map(
+            (r, i) => `<div data-step="${i + 1}">
+              <div class="flex items-end justify-between mb-3"><span class="text-2xl text-zinc-300 font-semibold flex items-baseline gap-2">${r.t} <span class="text-brand-300 font-bold"><input type="number" class="num-type w-[2.6ch] text-right" data-rate="${r.k}" min="0" max="100" />%</span></span><span class="font-display font-black text-5xl text-white" data-ratec="${r.k}"></span></div>
+              <div class="grid grid-cols-[1fr_200px] gap-6 items-center">
+                <div class="h-10 rounded-xl bg-zinc-900 overflow-hidden"><div class="hbar" data-rateb="${r.k}"></div></div>
+                <input type="range" class="rng" data-rate="${r.k}" min="0" max="100" step="1" />
+              </div>
+            </div>`
+          ).join('')
+        document.getElementById('sim-out').innerHTML = `
+          <div class="card !border-brand-500/60 p-7 flex-1 flex flex-col justify-center"><div class="text-sm font-bold uppercase tracking-[0.15em] text-brand-400">Contratos por mês</div><div class="font-display font-black text-8xl text-white mt-1" id="sim-ct"></div></div>
+          <div class="card-plain p-6"><div class="text-sm font-bold uppercase tracking-[0.15em] text-zinc-500">Faturamento por mês</div><div class="font-display font-black text-4xl text-brand-400 mt-1" id="sim-fat"></div></div>
+          <div class="card-plain p-6"><div class="text-sm font-bold uppercase tracking-[0.15em] text-zinc-500">Custo por contrato</div><div class="font-display font-black text-4xl text-white mt-1" id="sim-cac"></div></div>`
+      }
+
+      function renderSim() {
+        const active = document.activeElement
+        SIM_INPUTS.forEach(f => {
+          document.querySelectorAll(`[data-sim="${f.k}"]`).forEach(inp => {
+            if (inp !== active) inp.value = DIAG[f.k]
+            if (inp.type === 'range') pct(inp, DIAG[f.k])
+          })
+        })
+        const r = simCalc()
+        const counts = { agend: r.ag, pres: r.pr, fech: r.ct }
+        document.getElementById('sim-leads').textContent = num(r.leads)
+        SIM_RATES.forEach(x => {
+          document.querySelectorAll(`[data-rate="${x.k}"]`).forEach(inp => {
+            if (inp !== active) inp.value = RATES[x.k]
+            if (inp.type === 'range') pct(inp, RATES[x.k])
+          })
+          document.querySelector(`[data-ratec="${x.k}"]`).textContent = one(counts[x.k])
+          document.querySelector(`[data-rateb="${x.k}"]`).style.width = (r.leads ? Math.max(2, (counts[x.k] / r.leads) * 100) : 2) + '%'
+        })
+        document.getElementById('sim-ct').textContent = one(r.ct)
+        document.getElementById('sim-fat').textContent = brl(r.fat)
+        document.getElementById('sim-cac').textContent = r.cac ? brl(r.cac) : '—'
+        renderYou()
+        if (typeof renderPartner === 'function') renderPartner()
+      }
+
+      // "E para você?": o valor com os números da simulação
+      function renderYou() {
+        const r = simCalc()
+        const n = Math.max(1, Math.round(r.ct))
+        const label = mil(DIAG.ticket).replace('R$ ', '')
+        document.querySelector('[data-value="voce"] .slide-inner').innerHTML = `<div class="eyebrow anim">Quanto vale</div>
+          <h2 class="anim d1">E para <span class="hl">você</span>?</h2>
+          <div class="flex flex-col gap-10 mt-10 flex-1">
+            <div data-step="1"><div class="text-2xl text-zinc-400 mb-5">${one(r.ct)} contratos por mês × ${brl(DIAG.ticket)}</div><div class="flex flex-wrap gap-4">${docsHTML(n, label)}</div></div>
+            <div class="flex items-end gap-16 mt-8">
+              <div data-step="2"><div class="font-display font-black text-[100px] leading-none text-white">${mil(r.fat)}</div><div class="text-3xl text-zinc-400 mt-3">por mês</div></div>
+              <div data-step="3"><div class="font-display font-black text-[100px] leading-none text-brand-400" style="text-shadow:0 0 50px rgba(234,179,8,0.4)">${mil(r.fat * 6)}</div><div class="text-3xl text-zinc-300 mt-3">em 6 meses</div></div>
+            </div>
+          </div>`
+        if (typeof applySteps === 'function' && slides[cur] && slides[cur].dataset.value === 'voce') applySteps()
+      }
+
+      // ---------- Preço ----------
+      function renderPrice() {
+        const t = TIERS[TIER]
+        const card = (p, nome, best, step) => `<div ${step ? `data-step="${step}"` : ''} class="${best ? 'card !border-brand-500/60' : 'card'} px-12 py-10 relative flex flex-col justify-center">
+            <div class="text-lg font-bold uppercase tracking-[0.15em] ${best ? 'text-brand-400' : 'text-zinc-500'}">${nome}</div>
+            <div class="flex items-baseline gap-4 mt-6"><span class="font-display font-black text-6xl text-zinc-400">${p.x}×</span><span class="font-display font-black text-[120px] leading-none ${best ? 'text-brand-400' : 'text-white'}">${num(p.parcela)}</span></div>
+            ${p.avista ? `<div class="mt-8 pt-6 border-t border-zinc-800 text-3xl text-zinc-400">ou <b class="text-white">${num(p.avista)}</b> à vista</div>` : ''}
+          </div>`
+        // Condição da reunião: outro visual (anual em amarelo cheio, semestral com borda dourada), sem preço riscado
+        const deal = (p, nome, best) => `<div class="deal-card ${best ? 'deal-best' : ''} px-12 py-10 relative flex flex-col justify-center">
+            <div class="text-lg font-bold uppercase tracking-[0.15em] ${best ? 'text-zinc-900/70' : 'text-brand-400'}">${nome}</div>
+            <div class="flex items-baseline gap-4 mt-6"><span class="font-display font-black text-6xl ${best ? 'text-zinc-900/60' : 'text-zinc-400'}">${p.x}×</span><span class="font-display font-black text-[120px] leading-none ${best ? 'text-zinc-950' : 'text-white'}">${num(p.parcela)}</span></div>
+            <div class="mt-8 pt-6 border-t ${best ? 'border-zinc-900/20 text-zinc-900/75' : 'border-brand-500/25 text-zinc-400'} text-3xl">ou <b class="${best ? 'text-zinc-950' : 'text-white'}">${num(p.avista)}</b> à vista</div>
+          </div>`
+        document.getElementById('plans').innerHTML = card(t.semestral, 'Semestral', false, 1) + card(t.anual, 'Anual', true, 2)
+        document.getElementById('deal').innerHTML = deal({ x: t.semestral.x, ...t.cond.semestral }, 'Semestral', false) + deal({ x: t.anual.x, ...t.cond.anual }, 'Anual', true)
+        renderPartner()
+      }
+
+      // ---------- Resumo para o sócio ----------
+      function partnerText() {
+        const r = simCalc()
+        const t = TIERS[TIER]
+        return [
+          'Conversei hoje com a Manure sobre captação de clientes para o escritório.',
+          '',
+          '• Anúncios só para o nosso cliente ideal, na nossa região, com vídeos que falam da dor dele.',
+          '• Eles treinam o nosso time para atender e fechar, com CRM e cadência de ligações prontos.',
+          `• A conta com os nossos números: ${brl(DIAG.verba)} em anúncios por mês ≈ ${one(r.ct)} contratos e ${brl(r.fat)} por mês.`,
+          `• Investimento: ${t.semestral.x}× ${brl(t.semestral.parcela)}${t.semestral.avista ? ` (ou ${brl(t.semestral.avista)} à vista)` : ''}, mais a verba de anúncios paga direto à plataforma.`,
+          '• Garantia: 60% de leads qualificados em 60 dias, ou 100% do valor devolvido.',
+          '',
+          'Consegue entrar 15 minutos numa conversa com eles?'
+        ].join('\n')
+      }
+      function renderPartner() {
+        const el = document.getElementById('partner')
+        if (!el) return
+        const r = simCalc()
+        const t = TIERS[TIER]
+        const row = (l, v) => `<div class="flex items-baseline justify-between gap-6 border-b border-zinc-800 pb-4"><span class="text-xl text-zinc-400">${l}</span><span class="text-2xl text-white font-semibold text-right">${v}</span></div>`
+        el.innerHTML =
+          `<div class="font-display font-black text-3xl text-white">Resumo da conversa</div>` +
+          row('Cliente ideal', 'definido com vocês, na nossa região') +
+          row('Com os nossos números', `${one(r.ct)} contratos · <b class="text-brand-400">${mil(r.fat)}</b> por mês`) +
+          row('Investimento', `${t.semestral.x}× ${brl(t.semestral.parcela)} + anúncios`) +
+          row('Garantia', '60% qualificados em 60 dias, ou 100% de volta') +
+          row('Começa', 'campanhas no ar em até 10 dias')
+        document.getElementById('partner-msg').textContent = partnerText()
+      }
+      document.getElementById('partner-copy').addEventListener('click', async e => {
+        const btn = e.currentTarget
+        try {
+          await navigator.clipboard.writeText(partnerText())
+        } catch {
+          const ta = document.createElement('textarea')
+          ta.value = partnerText()
+          document.body.append(ta)
+          ta.select()
+          document.execCommand('copy')
+          ta.remove()
+        }
+        btn.textContent = 'Copiado!'
+        setTimeout(() => (btn.textContent = 'Copiar mensagem'), 1800)
+      })
+
+      function setTier(k) {
+        if (!TIERS[k]) return
+        TIER = k
+        save()
+        renderPrice()
+        if (typeof applySteps === 'function') applySteps()
+        syncPresenter()
+      }
+
+      // ---------- Perfil do lead e faixa de preço (modo apresentador) ----------
+      function diagFormHTML() {
+        return `<div class="flex items-center gap-3" style="grid-column:1/-1">
+            <span class="text-sm text-zinc-500">Perfil do lead:</span>
+            ${Object.entries(PERFIS)
+              .map(([k, t]) => `<button type="button" data-perfil-btn="${k}" class="btn-toggle !py-2 !px-4 !text-sm">${t}</button>`)
+              .join('')}
+          </div>
+          <div class="flex items-center gap-3" style="grid-column:1/-1">
+            <span class="text-sm text-zinc-500">Faixa de preço:</span>
+            ${Object.entries(TIERS)
+              .map(([k, t]) => `<button type="button" data-tier="${k}" class="btn-toggle !py-2 !px-4 !text-sm">${k} · ${t.label}</button>`)
+              .join('')}
+            <button type="button" data-diag-reset class="ml-auto text-sm text-zinc-500 hover:text-red-400">Nova reunião (limpar calculadora)</button>
+          </div>`
+      }
+      function bindDiagForm(root) {
+        root.innerHTML = diagFormHTML()
+        root.addEventListener('click', e => {
+          const t = e.target.closest('[data-tier]')
+          if (t) setTier(+t.dataset.tier)
+          const pf = e.target.closest('[data-perfil-btn]')
+          if (pf) setPerfil(pf.dataset.perfilBtn)
+          if (e.target.closest('[data-diag-reset]')) {
+            DIAG = { ...DIAG_DEFAULT }
+            RATES = { ...SCEN.desalinhado }
+            save()
+            renderDiag()
+          }
+        })
+      }
+      function setPerfil(k) {
+        if (!PERFIS[k]) return
+        PERFIL = k
+        save()
+        update()
+      }
+      // Copia o estado para todos os campos abertos, sem mexer no que está sendo digitado
+      function syncForms() {
+        const docs = [document]
+        if (pw && !pw.closed) docs.push(pw.document)
+        docs.forEach(d => {
+          d.querySelectorAll('[data-perfil-btn]').forEach(b => b.classList.toggle('on', b.dataset.perfilBtn === PERFIL))
+          d.querySelectorAll('[data-tier]').forEach(b => b.classList.toggle('on', +b.dataset.tier === TIER))
+        })
+      }
+
+      const stageEl = document.getElementById('stage')
+      stageEl.addEventListener('input', e => {
+        const k = e.target.dataset.sim
+        if (k) {
+          DIAG[k] = +e.target.value || 0
+          save()
+          renderSim()
+        }
+        const rk = e.target.dataset.rate
+        if (rk) {
+          RATES[rk] = Math.min(100, Math.max(0, +e.target.value || 0))
+          save()
+          renderSim()
+        }
+      })
+      stageEl.addEventListener('click', e => {
+        const dp = e.target.closest('[data-depo]')
+        if (dp) openDepo(+dp.dataset.depo)
+        const g = e.target.closest('[data-gal]')
+        if (g) openGal(g.dataset.gal)
+      })
+
+      // ---------- Vídeo ----------
+      function openModal(id) {
+        document.getElementById(id).classList.add('open')
+        document.body.classList.add('modal-open')
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.remove('open')
+        if (id === 'video') document.getElementById('video-el').pause()
+        if (id === 'gal') document.getElementById('gal-body').innerHTML = ''
+        document.body.classList.toggle('modal-open', !!anyModalOpen())
+      }
+      const anyModalOpen = () => document.querySelector('.modal.open')
+      function openDepo(i) {
+        const d = DEPOS[i]
+        const v = document.getElementById('video-el')
+        v.src = ASSETS + d.v
+        v.poster = ASSETS + d.p
+        document.getElementById('video-cap').textContent = d.n
+        openModal('video')
+        v.play().catch(() => {})
+      }
+
+      // ---------- Exemplos de anúncios ----------
+      function galItemHTML(it) {
+        if (it.img) return `<img src="${it.img}" alt="" />`
+        if (it.page) return `<iframe src="${it.page}" title="" class="w-[360px] h-[70vh] rounded-[28px] border-[6px] border-zinc-700 bg-white shrink-0"></iframe>`
+        if (/\.mp4($|\?)/.test(it.video)) return `<video src="${it.video}" poster="${it.poster || ''}" controls playsinline preload="none" class="w-[300px] aspect-[9/16] rounded-[18px] border border-zinc-700 bg-black shrink-0"></video>`
+        return `<iframe src="${it.video}" title="" allow="autoplay; fullscreen" class="w-full aspect-[9/16] rounded-[14px] border border-zinc-700 bg-black"></iframe>`
+      }
+      function openGal(kind) {
+        const g = GALLERY[kind]
+        document.getElementById('gal-title').textContent = g.t
+        const pages = g.items.some(it => it.page || /\.mp4($|\?)/.test(it.video || ''))
+        document.getElementById('gal-body').className = pages ? 'flex gap-8 justify-center' : 'gal-grid'
+        document.getElementById('gal-body').innerHTML = g.items.map(galItemHTML).join('')
+        openModal('gal')
+      }
+
+      // =====================================================================
+      // MOTOR DA APRESENTAÇÃO
+      // =====================================================================
+
+      const stage = stageEl
+      const slides = [...document.querySelectorAll('.slide')]
+      let cur = 0
+      let step = 0
+      let startedAt = null
+      let pw = null
+      // ?tudo abre cada slide com todos os cliques revelados (para revisar o visual)
+      const SHOW_ALL = new URLSearchParams(location.search).has('tudo')
+
+      function fit() {
+        const s = Math.min(window.innerWidth / 1600, window.innerHeight / 900)
+        stage.style.transform = `translate(-50%, -50%) scale(${s})`
+      }
+      window.addEventListener('resize', fit)
+      fit()
+
+      const maxStep = i => Math.max(0, ...[...slides[i].querySelectorAll('[data-step]')].map(e => +e.dataset.step))
+
+      function applySteps() {
+        const s = slides[cur]
+        s.querySelectorAll('[data-step]').forEach(el => el.classList.toggle('shown', +el.dataset.step <= step))
+        for (let k = 1; k <= 12; k++) s.classList.toggle('s' + k, k <= step)
+        s.querySelectorAll('.dots100').forEach(d => d.classList.toggle('on', !!d.closest('[data-step].shown')))
+        const id = s.dataset.id
+        if (id === 'publico') renderAudience(step)
+        // O clone do sistema só carrega quando o slide abre
+        s.querySelectorAll('iframe[data-live]').forEach(f => {
+          if (!f.getAttribute('src')) f.src = CLONE[f.dataset.live]
+        })
+      }
+
+      function go(i, atEnd = false) {
+        if (i < 0 || i >= slides.length) return
+        if (i !== 0 && startedAt === null) startedAt = Date.now()
+        slides[cur].classList.remove('active')
+        cur = i
+        step = atEnd || SHOW_ALL ? maxStep(i) : 0
+        slides[cur].classList.add('active')
+        applySteps()
+        history.replaceState(null, '', location.search + '#' + slides[cur].dataset.id)
+        update()
+      }
+
+      // Slides de objeção ficam fora do roteiro: só abrem pelo mapa ou pelo modo apresentador, e V volta de onde parou
+      const isExtra = i => slides[i].hasAttribute('data-extra')
+      // Slides marcados com data-perfil só entram no roteiro do perfil escolhido (A ou B)
+      const inPerfil = i => (!slides[i].dataset.perfil || slides[i].dataset.perfil === PERFIL) && (SHOW_G || slides[i].dataset.id !== 'vale-guilherme')
+      const route = () => slides.map((_, i) => i).filter(i => !isExtra(i) && inPerfil(i))
+      let returnTo = null
+
+      // Próximo slide na mesma trilha (roteiro ou objeções), pulando o que não é do perfil
+      function neighbor(dir) {
+        for (let n = cur + dir; n >= 0 && n < slides.length; n += dir) {
+          if (isExtra(n) !== isExtra(cur)) return -1
+          if (isExtra(n) || inPerfil(n)) return n
+        }
+        return -1
+      }
+
+      function jumpTo(i) {
+        if (isExtra(i) && !isExtra(cur)) returnTo = cur
+        go(i)
+      }
+      function goBack() {
+        if (returnTo !== null && isExtra(cur)) {
+          const r = returnTo
+          returnTo = null
+          go(r, true)
+        }
+      }
+
+      function next() {
+        if (step < maxStep(cur)) {
+          step++
+          applySteps()
+          update()
+          return
+        }
+        const n = neighbor(1)
+        if (n >= 0) go(n)
+      }
+
+      function prev() {
+        if (step > 0) {
+          step--
+          applySteps()
+          update()
+          return
+        }
+        const p = neighbor(-1)
+        if (p >= 0) go(p, true)
+        else goBack()
+      }
+
+      function plannedUntil(i) {
+        let t = 0
+        for (const k of route()) if (k < i) t += +slides[k].dataset.time || 0
+        return t
+      }
+
+      function fmtTime(ms) {
+        const s = Math.max(0, Math.floor(ms / 1000))
+        return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+      }
+
+      function update() {
+        const s = slides[cur]
+        const ch = +s.dataset.chapter
+        document.getElementById('nav-label').textContent = ch === 0 ? s.dataset.title : CHAPTERS[ch]
+        const notes = s.querySelector('aside.notes')
+        document.getElementById('notes-content').innerHTML = notes ? notes.innerHTML : ''
+        const ms = maxStep(cur)
+        const r = route()
+        document.getElementById('notes-meta').innerHTML = `<b class="text-white">${isExtra(cur) ? 'Objeção' : `${r.indexOf(cur) + 1}/${r.length}`} · ${s.dataset.title}</b>${ms ? ` · clique ${step}/${ms}` : ''} · ~${s.dataset.time} min · perfil ${PERFIL.toUpperCase()} · Guilherme ${SHOW_G ? 'on' : 'off'} (G)`
+        renderMap()
+        syncPresenter()
+      }
+
+      // ---------- Mapa ----------
+      function renderMap() {
+        const el = document.getElementById('map-list')
+        if (!el) return
+        el.innerHTML = CHAPTERS.map((c, ci) => {
+          const items = slides
+            .map((s, i) => ({ s, i }))
+            .filter(({ s }) => +s.dataset.chapter === ci)
+            .map(
+              ({ s, i }) => `
+              <button onclick="jumpTo(${i});toggleOverlay('map')" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors ${i === cur ? 'bg-brand-500/15 text-white' : 'hover:bg-zinc-800/80 text-zinc-300'} ${inPerfil(i) ? '' : 'opacity-40'}">
+                <span class="text-xs text-zinc-500 w-5">${i + 1}</span>
+                <span class="flex-1">${s.dataset.title}${s.dataset.perfil ? ` <span class="text-xs text-brand-500">só ${s.dataset.perfil.toUpperCase()}</span>` : ''}</span>
+                <span class="text-xs text-zinc-600">${s.dataset.time}′</span>
+              </button>`
+            )
+            .join('')
+          return `<div class="card-plain p-4"><div class="text-xs font-bold uppercase tracking-[0.15em] text-brand-500 px-4 mb-2">${ci ? ci + ' · ' : ''}${c}</div>${items}</div>`
+        }).join('')
+      }
+
+      function toggleOverlay(id) {
+        document.getElementById(id).classList.toggle('open')
+      }
+      function toggleNotes() {
+        document.getElementById('notes-panel').classList.toggle('open')
+      }
+
+      // ---------- Modo apresentador (janela separada) ----------
+      // Sem tags de documento aqui: alguns servidores injetam código no primeiro fechamento de body que encontram
+      const PRESENTER_CSS = `
+          *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,sans-serif;background:#09090b;color:#d4d4d8;padding:22px;font-size:16px}
+          header{display:flex;gap:16px;align-items:center;justify-content:space-between;border-bottom:1px solid #27272a;padding-bottom:14px}
+          #p-timer{font-size:38px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+          #p-pace{font-size:14px;font-weight:700;padding:5px 10px;border-radius:99px}
+          .ok{background:#064e3b;color:#6ee7b7}.late{background:#7f1d1d;color:#fca5a5}.early{background:#1e3a5f;color:#93c5fd}
+          #p-chapter{color:#eab308;text-transform:uppercase;letter-spacing:.15em;font-size:12px;font-weight:800;margin-top:16px}
+          h1{margin:4px 0 6px;font-size:30px;color:#fff}
+          #p-step{display:inline-block;background:#27272a;padding:4px 10px;border-radius:8px;font-size:13px;font-weight:700;color:#fde047;margin-bottom:14px}
+          .goal{color:#facc15;font-weight:700;margin:0 0 12px} ul{margin:0 0 12px;padding-left:20px} li{margin-bottom:8px;line-height:1.5}
+          .ask{background:rgba(56,189,248,.08);border-left:3px solid #38bdf8;padding:10px 12px;border-radius:6px}
+          .obj{background:rgba(239,68,68,.08);border-left:3px solid #ef4444;padding:10px 12px;border-radius:6px}
+          .next{color:#a1a1aa;font-style:italic;border-top:1px dashed #3f3f46;padding-top:10px}
+          b{color:#fff}
+          details{border:1px solid #27272a;border-radius:12px;padding:12px 14px;margin:14px 0;background:#111113}
+          summary{cursor:pointer;font-weight:800;color:#fff}
+          .diag-form{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+          .diag-form label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#71717a;margin-bottom:4px}
+          .diag-form input,.diag-form select{width:100%;background:#09090b;border:1px solid #3f3f46;border-radius:8px;padding:8px 10px;color:#fff;font-size:15px}
+          .diag-form button{padding:6px 12px;font-size:13px} .diag-form button.on{background:#eab308;color:#09090b;border-color:#eab308}
+          .diag-form [data-diag-reset]{background:none;border:none;color:#71717a;margin-left:auto}
+          .text-sm{font-size:13px;color:#71717a}
+          footer{position:sticky;bottom:0;background:#09090b;border-top:1px solid #27272a;margin-top:18px;padding-top:14px;display:flex;gap:10px;align-items:center}
+          button{background:#18181b;color:#fff;border:1px solid #3f3f46;border-radius:10px;padding:10px 18px;font-size:16px;font-weight:700;cursor:pointer}
+          button:hover{border-color:#eab308} #p-next{background:#eab308;color:#09090b;border-color:#eab308}
+          .nx{flex:1;color:#71717a;font-size:14px;text-align:right}
+          #p-obj{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:#71717a}
+          #p-obj button{padding:6px 12px;font-size:13px;border-color:rgba(239,68,68,.45)} #p-obj button.on{background:#ef4444;border-color:#ef4444}
+          ul.topics{list-style:none;padding:0;margin:0 0 14px}
+          ul.topics li{display:flex;gap:10px;align-items:flex-start;font-size:19px;line-height:1.35;padding:7px 10px;border-radius:8px;margin-bottom:4px;color:#e4e4e7}
+          ul.topics li .ck{flex:none;min-width:24px;height:24px;border-radius:99px;background:#27272a;color:#a1a1aa;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+          ul.topics li.wait{opacity:.35} ul.topics li.now{background:rgba(234,179,8,.13);color:#fff} ul.topics li.now .ck{background:#eab308;color:#09090b}
+          .goal{font-size:14px;text-transform:uppercase;letter-spacing:.08em}
+          .ask,.obj,.next{font-size:16px;margin:0 0 10px}
+          .how{font-size:12px;color:#52525b;margin:6px 0 0}
+          h1{font-size:24px} #p-timer{font-size:28px}
+          @media (max-width:560px){
+            body{padding:12px;font-size:14px}
+            header{padding-bottom:8px} #p-timer{font-size:20px} #p-pos,#p-plan{display:none} #p-pace{font-size:11px;padding:3px 8px}
+            details{padding:8px 10px;margin:8px 0} summary{font-size:12px}
+            #p-obj{gap:5px;font-size:11px} #p-obj button{padding:3px 8px;font-size:11px}
+            #p-chapter{margin-top:8px;font-size:10px} h1{font-size:18px;margin:2px 0 4px} #p-step{font-size:11px;margin-bottom:8px}
+            .goal{font-size:12px;margin-bottom:6px} ul.topics li{font-size:15px;padding:5px 8px;gap:8px} ul.topics li .ck{min-width:20px;height:20px;font-size:11px}
+            .ask,.obj,.next{font-size:13px;padding:7px 9px} .how{font-size:11px}
+            footer{margin-top:10px;padding-top:8px;gap:6px} button{padding:7px 12px;font-size:14px} .nx{font-size:11px}
+          }
+        
+          /* versão simples: só o que ajuda a conduzir */
+          header,details,#p-step,.how,#p-chapter,#p-reset{display:none!important}
+          body{display:flex;flex-direction:column;min-height:100vh;padding:18px 20px}
+          h1{order:1;font-size:26px;margin:0 0 10px;color:#a1a1aa;font-weight:700}
+          #p-notes{order:2;flex:1}
+          #p-obj{order:3;margin-top:12px}
+          footer{order:4}
+          .goal{display:none}
+          ul.topics li{font-size:26px;line-height:1.3;padding:10px 12px;margin-bottom:6px;font-weight:600}
+          ul.topics li .ck{min-width:30px;height:30px;font-size:15px}
+          ul.topics li.wait{opacity:.25}
+          .ask,.obj,.next{font-size:20px;line-height:1.35;padding:12px 14px;margin:0 0 10px}
+          .next{border-top:none;padding-left:0}
+          @media (max-width:560px){
+            body{padding:12px 14px}
+            h1{font-size:18px;margin-bottom:6px}
+            ul.topics li{font-size:21px;padding:8px 10px;gap:10px}
+            ul.topics li .ck{min-width:26px;height:26px;font-size:13px}
+            .ask,.obj,.next{font-size:17px;padding:9px 11px}
+            #p-obj button{font-size:12px;padding:5px 9px}
+          }
+        `
+      const PRESENTER_BODY = `
+        <header><div><div style="font-size:13px;color:#71717a" id="p-pos"></div><div id="p-timer">00:00</div></div><div style="text-align:right"><div id="p-pace" class="ok">no tempo</div><div style="font-size:12px;color:#71717a;margin-top:6px" id="p-plan"></div></div></header>
+        <details><summary>Perfil e faixa de preço · <span id="p-tier"></span></summary><div class="diag-form" id="p-diag"></div></details>
+        <div id="p-obj"></div>
+        <div id="p-chapter"></div><h1 id="p-title"></h1><div id="p-step"></div>
+        <div id="p-notes"></div>
+        <footer><button id="p-prev">← Voltar</button><button id="p-next">Avançar →</button><button id="p-reset" title="Zerar cronômetro">⟲</button><div class="nx">Próximo: <b id="p-nexttitle"></b></div></footer>`
+
+      async function openPresenter() {
+        if (!pw || pw.closed) {
+          pw = null
+          // Telinha flutuante: fica por cima de tudo (inclusive do Meet) e não entra no compartilhamento da guia
+          if (window.documentPictureInPicture) {
+            try {
+              pw = await documentPictureInPicture.requestWindow({ width: 480, height: 720 })
+              pw.addEventListener('pagehide', () => { pw = null })
+            } catch (e) {
+              pw = null
+            }
+          }
+          if (!pw) pw = window.open('', 'presenter-view-vendas', 'width=780,height=860')
+          if (!pw) {
+            alert('Permita pop-ups nesta página para abrir o modo apresentador.')
+            return
+          }
+          pw.document.title = 'Apresentador · Reunião de vendas'
+          const st = pw.document.createElement('style')
+          st.textContent = PRESENTER_CSS
+          pw.document.head.replaceChildren(st)
+          pw.document.body.innerHTML = PRESENTER_BODY
+          pw.document.getElementById('p-prev').onclick = prev
+          pw.document.getElementById('p-next').onclick = next
+          pw.document.getElementById('p-reset').onclick = () => {
+            startedAt = Date.now()
+            syncPresenter()
+          }
+          bindDiagForm(pw.document.getElementById('p-diag'))
+          pw.document.getElementById('p-obj').addEventListener('click', e => {
+            const b = e.target.closest('[data-goto]')
+            if (b) jumpTo(+b.dataset.goto)
+            if (e.target.closest('[data-back]')) goBack()
+          })
+          pw.document.addEventListener('keydown', onKey)
+          syncForms()
+        }
+        pw.focus()
+        syncPresenter()
+      }
+
+      function syncPresenter() {
+        if (!pw || pw.closed) return
+        const d = pw.document
+        const s = slides[cur]
+        const ms = maxStep(cur)
+        const r = route()
+        d.getElementById('p-pos').textContent = isExtra(cur) ? 'Objeção · fora do roteiro' : `Slide ${r.indexOf(cur) + 1} de ${r.length} · ~${s.dataset.time} min neste slide`
+        d.getElementById('p-obj').innerHTML =
+          '<span>Objeção:</span>' +
+          slides.map((sl, i) => (isExtra(i) ? `<button data-goto="${i}" class="${i === cur ? 'on' : ''}">${sl.dataset.title}</button>` : '')).join('') +
+          (isExtra(cur) && returnTo !== null ? '<button data-back>↩ Voltar (V)</button>' : '')
+        d.getElementById('p-tier').textContent = `perfil ${PERFIS[PERFIL]} · faixa ${TIER} (${TIERS[TIER].label})`
+        d.getElementById('p-chapter').textContent = CHAPTERS[+s.dataset.chapter]
+        d.getElementById('p-title').textContent = s.dataset.title
+        d.getElementById('p-step').textContent = ms ? `Clique ${step} de ${ms}${step < ms ? ' · ainda há conteúdo para revelar' : ' · tudo revelado'}` : 'Sem cliques extras neste slide'
+        const notes = s.querySelector('aside.notes')
+        d.getElementById('p-notes').innerHTML = notes ? notes.innerHTML : ''
+        d.querySelectorAll('#p-notes li[data-c]').forEach(li => {
+          const c = +li.dataset.c
+          li.classList.toggle('wait', c > step)
+          li.classList.toggle('now', c > 0 && c === step)
+        })
+        const nx = neighbor(1)
+        d.getElementById('p-nexttitle').textContent = nx >= 0 ? slides[nx].dataset.title : isExtra(cur) ? 'V volta ao roteiro' : 'fim'
+        syncForms()
+        tick()
+      }
+
+      function tick() {
+        if (!pw || pw.closed) return
+        const d = pw.document
+        const elapsed = startedAt ? Date.now() - startedAt : 0
+        const plannedMs = plannedUntil(cur) * 60000
+        const total = plannedUntil(slides.length)
+        d.getElementById('p-timer').textContent = fmtTime(elapsed)
+        d.getElementById('p-plan').textContent = `planejado até aqui: ${fmtTime(plannedMs)} · total ~${Math.round(total)} min`
+        const diff = (elapsed - plannedMs) / 60000
+        const pace = d.getElementById('p-pace')
+        if (!startedAt) {
+          pace.className = 'ok'
+          pace.textContent = 'cronômetro inicia no slide 2'
+        } else if (diff > 1.5) {
+          pace.className = 'late'
+          pace.textContent = `${Math.round(diff)} min atrasado`
+        } else if (diff < -2) {
+          pace.className = 'early'
+          pace.textContent = `${Math.round(-diff)} min adiantado`
+        } else {
+          pace.className = 'ok'
+          pace.textContent = 'no tempo'
+        }
+      }
+      setInterval(tick, 1000)
+
+      // ---------- Teclado ----------
+      function onKey(e) {
+        const t = e.target
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) {
+          // Enter ou Esc numa lacuna devolve o controle às setas
+          if (e.key === 'Enter' || e.key === 'Escape') t.blur()
+          return
+        }
+        const k = e.key
+        if (k === 'Escape') {
+          document.querySelectorAll('.modal.open').forEach(m => closeModal(m.id))
+          document.getElementById('map').classList.remove('open')
+          document.getElementById('notes-panel').classList.remove('open')
+          return
+        }
+        if (anyModalOpen()) return
+        if (k === 'ArrowRight' || k === ' ' || k === 'PageDown') {
+          e.preventDefault()
+          next()
+        } else if (k === 'ArrowLeft' || k === 'PageUp') {
+          e.preventDefault()
+          prev()
+        } else if (k === 'Home') go(0)
+        else if (k === 'End') go(route().at(-1))
+        else if (k === 'v' || k === 'V') goBack()
+        else if (k === '1' || k === '2' || k === '3') setTier(+k)
+        else if (k === 'a' || k === 'A' || k === 'b' || k === 'B') setPerfil(k.toLowerCase())
+        else if (k === 'g' || k === 'G') {
+          SHOW_G = !SHOW_G
+          save()
+          if (!SHOW_G && slides[cur].dataset.id === 'vale-guilherme') {
+            const nx = neighbor(1)
+            if (nx >= 0) jumpTo(nx)
+          }
+          update()
+          const t = document.createElement('div')
+          t.textContent = SHOW_G ? 'Guilherme: aparece' : 'Guilherme: escondido'
+          t.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#18181b;color:#fff;border:1px solid #3f3f46;padding:10px 18px;border-radius:999px;font:600 15px Inter,system-ui,sans-serif;z-index:9999'
+          if (pw && !pw.closed) pw.document.body.appendChild(t)
+          setTimeout(() => t.remove(), 1600)
+        }
+        else if (k === 'm' || k === 'M') toggleOverlay('map')
+        else if (k === 'n' || k === 'N') toggleNotes()
+        else if (k === 'p' || k === 'P') {
+          if (pw && !pw.closed) {
+            pw.close()
+            pw = null
+          } else openPresenter()
+        }
+        else if (k === 'f' || k === 'F') {
+          if (!document.fullscreenElement) document.documentElement.requestFullscreen?.()
+          else document.exitFullscreen?.()
+        }
+      }
+      document.addEventListener('keydown', onKey)
+      // Setas apertadas dentro do clone do sistema voltam para a apresentação
+      window.addEventListener('message', e => {
+        if (e.data && e.data.deckKey) onKey({ key: e.data.deckKey, target: null, preventDefault() {} })
+      })
+
+      // Barra de navegação some quando o mouse fica parado
+      let idleTimer
+      function wake() {
+        const nav = document.getElementById('nav')
+        nav.classList.remove('idle')
+        clearTimeout(idleTimer)
+        idleTimer = setTimeout(() => nav.classList.add('idle'), 2500)
+      }
+      document.addEventListener('mousemove', wake)
+      wake()
+
+      // ---------- Início ----------
+      renderStatic()
+      renderLoc()
+      renderSimStatic()
+      renderDiag()
+
+      const startId = location.hash.slice(1)
+      const startIdx = Math.max(
+        0,
+        slides.findIndex(s => s.dataset.id === startId)
+      )
+      slides[startIdx].classList.add('active')
+      cur = startIdx
+      if (SHOW_ALL) step = maxStep(cur)
+      applySteps()
+      update()
+
+      // =====================================================================
+      // PARTÍCULAS
+      // =====================================================================
+      const canvas = document.getElementById('particles-bg')
+      const ctx = canvas.getContext('2d')
+      let particles = []
+      function resizeCanvas() {
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+      }
+      window.addEventListener('resize', resizeCanvas)
+      resizeCanvas()
+      for (let i = 0; i < 50; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 0.5,
+          sx: Math.random() * 0.4 - 0.2,
+          sy: Math.random() * -0.4 - 0.1,
+          o: Math.random() * 0.5 + 0.1
+        })
+      }
+      ;(function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        for (const p of particles) {
+          p.x += p.sx
+          p.y += p.sy
+          if (p.y < 0) p.y = canvas.height
+          if (p.x > canvas.width) p.x = 0
+          if (p.x < 0) p.x = canvas.width
+          ctx.fillStyle = `rgba(234, 179, 8, ${p.o})`
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+          ctx.fill()
+        }
+        requestAnimationFrame(animate)
+      })()
+    </script>
+  </body>
+</html>
