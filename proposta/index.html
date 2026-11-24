@@ -736,7 +736,7 @@
         <p class="ask">Diagnóstico: anos de advocacia · já anunciou? quanto/mês? · contratos/mês · região anunciada · quem atende (IA ou humano) · quem fecha · área/tese preferida · ticket · meta de contratos</p>
         <p class="obj">Decisor: “Além de você, mais alguém participa dessa decisão?” Se sim, chamar agora ou remarcar com os dois.</p>
         <p class="next">“Vou direto ao que você recebe.”</p>
-        <p class="how">Compartilhe só a guia (aba) no Meet. Esta janela fica só com você. A/B = perfil · 1/2/3 = faixa.</p>
+        <p class="how">Compartilhe só a guia (aba) no Meet. Esta janela fica só com você. A/B = perfil · 1/2/3/4 = faixa · G/H = Guilherme.</p>
         </aside>
       </section>
 
@@ -1041,7 +1041,64 @@
         <li data-c="0">Nenhum cliente que aplica o método saiu</li>
         </ul>
         <p class="ask">“Alguma dúvida antes de falarmos de investimento?”</p>
+        <p class="next">“Melhor do que eu falar é ouvir quem já roda.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="depoimentos" data-chapter="4" data-title="Depoimentos" data-time="2">
+        <div class="slide-inner">
+          <div class="eyebrow anim">Resultados</div>
+          <h2 class="anim d1">Quem já roda <span class="hl">a operação</span></h2>
+          <div class="grid grid-cols-4 gap-6 mt-8 flex-1 min-h-0" id="depos"></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Prova na voz do cliente</p>
+        <ul class="topics">
+        <li data-c="0">Escolha 1 vídeo da área dele</li>
+        <li data-c="0">Um bem escolhido vale mais que todos</li>
+        </ul>
+        <p class="next">“E quanto vale o que a gente implementa?”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="quanto-vale" data-chapter="4" data-title="Quanto vale?" data-time="1">
+        <div class="slide-inner items-center justify-center text-center">
+          <div class="eyebrow anim !self-center">Resultados</div>
+          <h1 class="anim d1 text-[96px] leading-[1] font-black text-white">Quanto vale<br /><span class="hl">o que a gente implementa?</span></h1>
+          <div class="anim d2 mt-12 text-4xl text-zinc-400">Não sou eu que vou dizer. <b class="text-white">Os resultados dos meus clientes falam por mim.</b></div>
+        </div>
+        <aside class="notes">
+        <p class="goal">Ancorar no resultado</p>
+        <ul class="topics">
+        <li data-c="0">Pergunta no ar, deixa ele pensar</li>
+        <li data-c="0">“Os resultados dos meus clientes falam por mim”</li>
+        </ul>
+        <p class="next">“Começando pela Andrade Ferreira.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="vale-andrade" data-chapter="4" data-value="2" data-title="Vale: Andrade Ferreira" data-time="0.5">
+        <div class="slide-inner"></div>
+        <aside class="notes">
+        <p class="goal">R$ 136 mil projetados</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Investiu → leads → contratos</li>
+        <li data-c="2"><span class="ck">2</span>Quanto vale por mês</li>
+        </ul>
+        <p class="next">G ligado: “E o Guilherme, com holding.” · G desligado: “Agora, o investimento.”</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-id="vale-guilherme" data-chapter="4" data-value="3" data-title="Vale: Guilherme" data-time="0.5">
+        <div class="slide-inner"></div>
+        <aside class="notes">
+        <p class="goal">R$ 90 mil · duas holdings</p>
+        <ul class="topics">
+        <li data-c="1"><span class="ck">1</span>Investiu → leads → contratos</li>
+        <li data-c="2"><span class="ck">2</span>Quanto vale por mês</li>
+        </ul>
         <p class="next">“Agora, o investimento.”</p>
+        <p class="how">G mostra ou esconde este slide · H sempre esconde</p>
         </aside>
       </section>
 
@@ -1239,7 +1296,7 @@
       </section>
 
       <!-- Slides tirados da versão proposta: só os contêineres que o script ainda preenche -->
-      <div hidden aria-hidden="true"><div id="crowd"></div><div id="depos"></div><div id="loc-near"></div><div id="loc-wide"></div><div id="pub-num"></div><div id="pub-ring"></div><div data-value="voce"><div class="slide-inner"></div></div></div>
+      <div hidden aria-hidden="true"><div id="crowd"></div><div id="loc-near"></div><div id="loc-wide"></div><div id="pub-num"></div><div id="pub-ring"></div><div data-value="voce"><div class="slide-inner"></div></div></div>
     </div>
 
     <!-- Navegação -->
@@ -1323,7 +1380,8 @@
       const TIERS = {
         1: { label: '2.900', semestral: { x: 6, parcela: 2900, avista: 15650 }, anual: { x: 12, parcela: 2750, avista: 29700 }, cond: { semestral: { parcela: 2610, avista: 14100 }, anual: { parcela: 2480, avista: 26800 } } },
         2: { label: '2.250', semestral: { x: 6, parcela: 2250, avista: 12150 }, anual: { x: 12, parcela: 2140, avista: 23100 }, cond: { semestral: { parcela: 2030, avista: 10950 }, anual: { parcela: 1930, avista: 20850 } } },
-        3: { label: '1.770', semestral: { x: 6, parcela: 1770, avista: 9550 }, anual: { x: 12, parcela: 1680, avista: 18150 }, cond: { semestral: { parcela: 1590, avista: 8600 }, anual: { parcela: 1510, avista: 16300 } } }
+        3: { label: '1.770', semestral: { x: 6, parcela: 1770, avista: 9550 }, anual: { x: 12, parcela: 1680, avista: 18150 }, cond: { semestral: { parcela: 1590, avista: 8600 }, anual: { parcela: 1510, avista: 16300 } } },
+        4: { label: '3.600', semestral: { x: 6, parcela: 3600, avista: 19450 }, anual: { x: 12, parcela: 3420, avista: 36950 }, cond: { semestral: { parcela: 3240, avista: 17500 }, anual: { parcela: 3080, avista: 33250 } } }
       }
 
       // Perfil do lead (teclas A e B): slides com data-perfil="a" só aparecem no A, data-perfil="b" só no B
@@ -2317,10 +2375,10 @@
         } else if (k === 'Home') go(0)
         else if (k === 'End') go(route().at(-1))
         else if (k === 'v' || k === 'V') goBack()
-        else if (k === '1' || k === '2' || k === '3') setTier(+k)
+        else if (k === '1' || k === '2' || k === '3' || k === '4') setTier(+k)
         else if (k === 'a' || k === 'A' || k === 'b' || k === 'B') setPerfil(k.toLowerCase())
-        else if (k === 'g' || k === 'G') {
-          SHOW_G = !SHOW_G
+        else if (k === 'g' || k === 'G' || k === 'h' || k === 'H') {
+          SHOW_G = k === 'h' || k === 'H' ? false : !SHOW_G
           save()
           if (!SHOW_G && slides[cur].dataset.id === 'vale-guilherme') {
             const nx = neighbor(1)
