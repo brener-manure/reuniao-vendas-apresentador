@@ -736,7 +736,7 @@
         <p class="ask">Diagnóstico: anos de advocacia · já anunciou? quanto/mês? · contratos/mês · região anunciada · quem atende (IA ou humano) · quem fecha · área/tese preferida · ticket · meta de contratos</p>
         <p class="obj">Decisor: “Além de você, mais alguém participa dessa decisão?” Se sim, chamar agora ou remarcar com os dois.</p>
         <p class="next">“Para crescer de verdade, existem três pilares.”</p>
-        <p class="how">Compartilhe só a guia (aba) no Meet. Esta janela fica só com você. A/B = perfil · 1/2/3 = faixa.</p>
+        <p class="how">Compartilhe só a guia (aba) no Meet. Esta janela fica só com você. A/B = perfil · 1/2/3 = faixa · C = calculadora e Quanto vale.</p>
         </aside>
       </section>
 
@@ -1741,6 +1741,8 @@
       let RATES = { ...SCEN.desalinhado }
       let PERFIL = 'a'
       let SHOW_G = true
+      let SHOW_C = true
+      const C_IDS = ['simulacao', 'quanto-vale', 'vale-natalia', 'vale-pinheiro', 'vale-guilherme', 'vale-andrade', 'vale-voce']
       try {
         const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null')
         if (saved) {
@@ -1749,11 +1751,12 @@
           if (saved.rates) RATES = { ...RATES, ...saved.rates }
           if (PERFIS[saved.perfil]) PERFIL = saved.perfil
           if (saved.showG === false) SHOW_G = false
+          if (saved.showC === false) SHOW_C = false
         }
       } catch {}
       function save() {
         try {
-          localStorage.setItem(STORE_KEY, JSON.stringify({ diag: DIAG, tier: TIER, rates: RATES, perfil: PERFIL, showG: SHOW_G }))
+          localStorage.setItem(STORE_KEY, JSON.stringify({ diag: DIAG, tier: TIER, rates: RATES, perfil: PERFIL, showG: SHOW_G, showC: SHOW_C }))
         } catch {}
       }
 
@@ -2292,7 +2295,7 @@
       // Slides de objeção ficam fora do roteiro: só abrem pelo mapa ou pelo modo apresentador, e V volta de onde parou
       const isExtra = i => slides[i].hasAttribute('data-extra')
       // Slides marcados com data-perfil só entram no roteiro do perfil escolhido (A ou B)
-      const inPerfil = i => (!slides[i].dataset.perfil || slides[i].dataset.perfil === PERFIL) && (SHOW_G || slides[i].dataset.id !== 'vale-guilherme')
+      const inPerfil = i => (!slides[i].dataset.perfil || slides[i].dataset.perfil === PERFIL) && (SHOW_G || slides[i].dataset.id !== 'vale-guilherme') && (SHOW_C || !C_IDS.includes(slides[i].dataset.id))
       const route = () => slides.map((_, i) => i).filter(i => !isExtra(i) && inPerfil(i))
       let returnTo = null
 
@@ -2603,6 +2606,20 @@
           update()
           const t = document.createElement('div')
           t.textContent = SHOW_G ? 'Guilherme: aparece' : 'Guilherme: escondido'
+          t.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#18181b;color:#fff;border:1px solid #3f3f46;padding:10px 18px;border-radius:999px;font:600 15px Inter,system-ui,sans-serif;z-index:9999'
+          if (pw && !pw.closed) pw.document.body.appendChild(t)
+          setTimeout(() => t.remove(), 1600)
+        }
+        else if (k === 'c' || k === 'C') {
+          SHOW_C = !SHOW_C
+          save()
+          if (!SHOW_C && C_IDS.includes(slides[cur].dataset.id)) {
+            const nx = neighbor(1)
+            if (nx >= 0) jumpTo(nx)
+          }
+          update()
+          const t = document.createElement('div')
+          t.textContent = SHOW_C ? 'Calculadora e Quanto vale: aparecem' : 'Calculadora e Quanto vale: escondidos'
           t.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#18181b;color:#fff;border:1px solid #3f3f46;padding:10px 18px;border-radius:999px;font:600 15px Inter,system-ui,sans-serif;z-index:9999'
           if (pw && !pw.closed) pw.document.body.appendChild(t)
           setTimeout(() => t.remove(), 1600)
