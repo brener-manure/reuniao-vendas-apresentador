@@ -7705,10 +7705,16 @@ if (caseLightbox && caseCarouselTrack) {
   const story = document.querySelector('.pace-story');
   if (!story) return;
   let t = null;
+  let wasPlaying = null;
+  // Só reage quando o slide entra ou sai (classe "play" muda). Sem isso, mexer em "ready"
+  // dispara o observador de novo e a página entra em laço infinito.
   new MutationObserver(() => {
+    const playing = story.classList.contains('play');
+    if (playing === wasPlaying) return;
+    wasPlaying = playing;
     clearTimeout(t);
-    if (story.classList.contains('play')) t = setTimeout(() => story.classList.add('ready'), 3800);
-    else story.classList.remove('ready');
+    if (playing) t = setTimeout(() => story.classList.add('ready'), 3800);
+    else if (story.classList.contains('ready')) story.classList.remove('ready');
   }).observe(story, { attributes: true, attributeFilter: ['class'] });
   if (!story.classList.contains('icp-anim')) story.classList.add('ready');
 })();
