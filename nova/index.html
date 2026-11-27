@@ -4434,6 +4434,174 @@ body::after {
 .testimonial-cover { background-position: center 20%; }
 .fx-story-imgs img { object-position: center 30%; }
 
+
+/* ===== Método: cards maiores, com brilho ao passar o mouse ===== */
+.pace-overview-slide .letter-layout { grid-template-columns: 0.8fr 1.2fr; gap: 48px; }
+.pace-story .pace-card { position: relative; overflow: hidden; cursor: pointer; min-height: 92px; border-radius: 16px; }
+.pace-story .pace-card .pace-row-badge { width: 80px; font-size: 36px; }
+.pace-story .pace-card .pace-row-content { padding: 18px 26px; gap: 4px; }
+.pace-overview-slide .pace-row-label { font-size: 21px; letter-spacing: 0.4px; }
+.pace-overview-slide .pace-row-desc { font-size: 15.5px; }
+.pace-story .icp-link { margin-left: 39px; height: 16px; }
+.pace-story .pace-card::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255,236,140,0.38), transparent);
+  transform: skewX(-20deg); transition: left 0.8s ease;
+}
+.pace-story.ready .pace-card { transition: transform 0.35s cubic-bezier(.2,.9,.3,1.25), box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease !important; transition-delay: 0s !important; }
+.pace-story .pace-card:hover { transform: translateX(12px) scale(1.035) !important; border-color: var(--accent) !important;
+  background: linear-gradient(135deg, rgba(238,204,17,0.24), rgba(156,122,0,0.1) 55%, rgba(24,24,26,0.5)) !important;
+  box-shadow: 0 0 0 1px rgba(238,204,17,0.55), 0 22px 60px -12px rgba(238,204,17,0.6) !important; }
+.pace-story .pace-card:hover::after { left: 130%; }
+.pace-story .pace-card:hover .pace-row-badge { box-shadow: 0 0 44px rgba(238,204,17,0.95); }
+.pace-story .pace-card:hover .pace-row-label { color: var(--accent-light); }
+
+/* ===== Tese: chips clicáveis ===== */
+.icp-chips span[data-icp] { cursor: pointer; }
+.icp-chips span[data-icp]:hover { border-color: var(--accent); color: var(--accent-light); transform: translateY(-2px); }
+.icp-chips span.active:hover { color: #0A0A0B; }
+.icp-anim.play .icp-chips span:nth-child(n+7) { transition-delay: 2.9s; }
+
+/* ===== textos de apoio ===== */
+.mx-hint { margin-top: 18px; font-size: 13px; color: var(--text-muted); }
+.mx-channels { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.mx-channels span { border: 1px solid rgba(238,204,17,0.35); background: rgba(238,204,17,0.08); border-radius: 999px; padding: 8px 16px; font-size: 13.5px; color: var(--text-muted); }
+.mx-channels b { color: var(--white); margin-right: 4px; }
+
+/* ===== Anúncios: carrossel ===== */
+.mx-ads { display: flex; align-items: center; justify-content: center; gap: 72px; }
+.mx-ads-track { position: relative; width: 290px; height: 516px; }
+.mx-ad { position: absolute; inset: 0; border-radius: 22px; overflow: hidden; border: 1px solid rgba(255,255,255,0.14); background: #000;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.6); cursor: pointer;
+  transition: transform 0.5s cubic-bezier(.2,.85,.2,1), opacity 0.45s ease, filter 0.45s ease; }
+.mx-ad video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mx-ad.active { z-index: 3; transform: none; box-shadow: 0 30px 80px rgba(0,0,0,0.65), 0 0 70px -10px rgba(238,204,17,0.55); border-color: rgba(238,204,17,0.6); }
+.mx-ad.prev { z-index: 2; transform: translateX(-92px) scale(0.8) rotate(-5deg); opacity: 0.5; filter: brightness(0.5); }
+.mx-ad.next { z-index: 2; transform: translateX(92px) scale(0.8) rotate(5deg); opacity: 0.5; filter: brightness(0.5); }
+.mx-ad.hidden { z-index: 1; transform: scale(0.6); opacity: 0; pointer-events: none; }
+.mx-ad-play { position: absolute; left: 50%; top: 50%; width: 74px; height: 74px; margin: -37px 0 0 -37px; border-radius: 50%;
+  background: var(--accent); color: #0A0A0B; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 10px rgba(238,204,17,0.2), 0 12px 30px rgba(0,0,0,0.5); transition: transform 0.25s ease, opacity 0.25s ease; }
+.mx-ad-play svg { width: 32px; height: 32px; margin-left: 4px; }
+.mx-ad:not(.active) .mx-ad-play { opacity: 0; }
+.mx-ad.active:hover .mx-ad-play { transform: scale(1.1); }
+.mx-ad.playing .mx-ad-play { opacity: 0; }
+.mx-ad-tag { position: absolute; left: 12px; top: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); border-radius: 999px; padding: 5px 12px; font-size: 11.5px; font-weight: 700; }
+.mx-nav { width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; border: none; cursor: pointer; z-index: 5;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #0A0A0B; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 5px rgba(238,204,17,0.14), 0 10px 22px -6px rgba(238,204,17,0.7); transition: transform 0.2s ease; }
+.mx-nav:hover { transform: scale(1.1); }
+.mx-nav svg { width: 22px; height: 22px; }
+.mx-ads-caption { text-align: center; margin-top: 22px; min-height: 64px; }
+.mx-ads-niche { display: inline-block; background: var(--accent); color: #0A0A0B; font-weight: 800; font-size: 12px; border-radius: 999px; padding: 4px 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+.mx-ads-hook { margin-top: 8px; font-size: 17px; font-weight: 600; line-height: 1.4; }
+.mx-ads-dots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+.mx-ads-dots button { width: 8px; height: 8px; padding: 0; border: none; border-radius: 50%; background: rgba(255,255,255,0.25); cursor: pointer; }
+.mx-ads-dots button.on { background: var(--accent); transform: scale(1.3); }
+
+/* ===== Autoridade: perfis de Instagram ===== */
+.mx-steps, .mx-flow { list-style: none; counter-reset: mx; display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.mx-steps li, .mx-flow li { counter-increment: mx; position: relative; padding: 12px 16px 12px 54px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); transition: border-color 0.35s ease, background 0.35s ease, transform 0.35s ease; }
+.mx-steps li::before, .mx-flow li::before { content: counter(mx); position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 8px; background: rgba(238,204,17,0.15); color: var(--accent); font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.mx-steps b, .mx-flow b { display: block; font-size: 15px; }
+.mx-steps span, .mx-flow span { font-size: 13px; color: var(--text-muted); }
+.mx-steps li:hover { border-color: rgba(238,204,17,0.5); background: rgba(238,204,17,0.07); transform: translateX(4px); }
+.mx-ig { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.mx-ig-picker { display: flex; gap: 14px; }
+.mx-ig-pick { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-family: inherit; font-size: 11.5px; font-weight: 600; width: 96px; text-align: center; }
+.mx-ig-pick img { width: 62px; height: 62px; border-radius: 50%; object-fit: cover; padding: 3px; background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.mx-ig-pick:hover img { transform: scale(1.08); }
+.mx-ig-pick.on { color: var(--white); }
+.mx-ig-pick.on img { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent), 0 0 26px rgba(238,204,17,0.6); }
+.mx-ig-phone { width: 340px; border-radius: 30px; background: #000; border: 2px solid rgba(255,255,255,0.16); padding: 18px 16px 0; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.6), 0 0 80px -20px rgba(238,204,17,0.45); transition: opacity 0.3s ease, transform 0.3s ease; }
+.mx-ig-phone.swap { opacity: 0; transform: translateY(8px); }
+.mx-ig-top { display: flex; align-items: center; gap: 6px; font-size: 15px; margin-bottom: 14px; }
+.mx-ig-check[hidden] { display: none; }
+.mx-ig-check { width: 16px; height: 16px; border-radius: 50%; background: #3897f0; color: #fff; font-size: 9px; display: inline-flex; align-items: center; justify-content: center; }
+.mx-ig-head { display: flex; align-items: center; gap: 18px; }
+.mx-ig-av { width: 78px; height: 78px; border-radius: 50%; object-fit: cover; padding: 3px; background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); }
+.mx-ig-stats { flex: 1; display: flex; justify-content: space-around; text-align: center; }
+.mx-ig-stats b { display: block; font-size: 16px; }
+.mx-ig-stats span { font-size: 11.5px; color: #c7c7c7; }
+.mx-ig-name { font-weight: 700; font-size: 13.5px; margin-top: 12px; }
+.mx-ig-bio { font-size: 12.5px; color: #e0e0e0; line-height: 1.45; }
+.mx-ig-btns { display: flex; gap: 6px; margin: 12px 0; }
+.mx-ig-btns span { flex: 1; text-align: center; background: #262626; border-radius: 8px; padding: 7px 0; font-size: 12.5px; font-weight: 600; }
+.mx-ig-btns span.on { background: #0095f6; }
+.mx-ig-grid { margin: 0 -16px; height: 250px; overflow: hidden; }
+.mx-ig-grid img { width: 100%; display: block; }
+
+/* ===== Engrenagem: fluxo + treinamento ===== */
+.mx-flow li.on { border-color: rgba(238,204,17,0.6); background: rgba(238,204,17,0.1); }
+.mx-flow li.on::before { background: var(--accent); color: #0A0A0B; }
+.mx-train { margin-top: 16px; padding: 16px 18px; border-radius: 14px; border: 1px solid rgba(238,204,17,0.55);
+  background: linear-gradient(135deg, rgba(238,204,17,0.2), rgba(156,122,0,0.05)); box-shadow: 0 14px 40px -16px rgba(238,204,17,0.6); }
+.mx-train b { display: block; color: var(--accent-light); font-size: 15px; margin-bottom: 4px; }
+.mx-train span { font-size: 13px; color: var(--white); line-height: 1.5; }
+.method-detail-slide#slide-12 .letter-text-col { max-width: 560px; }
+#slide-12 .section-title { margin-bottom: 14px; }
+#slide-12 .mx-flow { gap: 6px; margin-top: 16px; }
+#slide-12 .mx-flow li { padding: 7px 14px 7px 50px; }
+#slide-12 .mx-flow b { font-size: 14px; }
+#slide-12 .mx-flow span { font-size: 12px; }
+#slide-12 .mx-flow li::before { width: 24px; height: 24px; font-size: 12.5px; }
+#slide-12 .mx-train { margin-top: 10px; padding: 12px 16px; }
+
+/* ===== WhatsApp de verdade (modo escuro) ===== */
+.mx-wa { width: 360px; height: 640px; margin: 0 auto; border-radius: 34px; overflow: hidden; display: flex; flex-direction: column;
+  border: 2px solid rgba(255,255,255,0.16); background: #0b141a; box-shadow: 0 30px 70px rgba(0,0,0,0.6), 0 0 80px -20px rgba(238,204,17,0.4);
+  font-family: 'Segoe UI', Helvetica, Arial, sans-serif; color: #e9edef; }
+.mx-wa-head { display: flex; align-items: center; gap: 10px; padding: 26px 14px 10px; background: #202c33; }
+.mx-wa-back { font-size: 26px; line-height: 1; color: #aebac1; }
+.mx-wa-av { width: 36px; height: 36px; border-radius: 50%; background: #6a7175; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.mx-wa-who { flex: 1; display: flex; flex-direction: column; }
+.mx-wa-who b { font-size: 15px; font-weight: 600; }
+.mx-wa-who span { font-size: 12px; color: #8696a0; }
+.mx-wa-icons { display: flex; gap: 16px; color: #aebac1; }
+.mx-wa-icons svg { width: 20px; height: 20px; }
+.mx-wa-body { flex: 1; overflow: hidden; padding: 10px 12px; display: flex; flex-direction: column; justify-content: flex-end; gap: 5px;
+  background-color: #0b141a;
+  background-image: radial-gradient(rgba(255,255,255,0.035) 1.2px, transparent 1.3px), radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1.1px);
+  background-size: 22px 22px, 15px 15px; background-position: 0 0, 7px 9px; }
+.mx-wa-day { align-self: center; background: #182229; color: #8696a0; font-size: 11px; border-radius: 7px; padding: 4px 10px; margin-bottom: 4px; }
+.mx-wa-msg { max-width: 82%; padding: 6px 9px 6px; border-radius: 8px; font-size: 13.2px; line-height: 1.35; position: relative; }
+.mx-wa-msg small { float: right; margin: 6px 0 -4px 10px; font-size: 10.5px; color: rgba(233,237,239,0.6); display: inline-flex; align-items: center; gap: 3px; }
+.mx-wa-msg.in { align-self: flex-start; background: #202c33; border-top-left-radius: 0; }
+.mx-wa-msg.out { align-self: flex-end; background: #005c4b; border-top-right-radius: 0; }
+.mx-wa-tick { width: 15px; height: 15px; color: #53bdeb; }
+.mx-wa-ref { display: flex; gap: 8px; background: rgba(0,0,0,0.25); border-left: 3px solid #06cf9c; border-radius: 6px; padding: 5px; margin-bottom: 5px; }
+.mx-wa-ref img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; }
+.mx-wa-ref b { display: block; font-size: 12px; }
+.mx-wa-ref span { font-size: 11px; color: #8696a0; }
+.mx-wa-msg.audio { display: flex; align-items: center; gap: 8px; min-width: 220px; }
+.mx-wa-play { color: #aebac1; font-size: 15px; }
+.mx-wa-wave { flex: 1; display: flex; align-items: center; gap: 2px; height: 22px; }
+.mx-wa-wave i { flex: 1; background: #aebac1; border-radius: 2px; height: 30%; }
+.mx-wa-wave i:nth-child(3n) { height: 70%; } .mx-wa-wave i:nth-child(4n+1) { height: 100%; } .mx-wa-wave i:nth-child(5n+2) { height: 50%; }
+.mx-wa-dur { font-size: 11px; color: rgba(233,237,239,0.7); }
+.mx-wa-msg.audio small { margin: 0; }
+.mx-wa-msg.doc { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mx-wa-pdf { background: #e74c3c; color: #fff; font-weight: 800; font-size: 10px; border-radius: 4px; padding: 8px 5px; }
+.mx-wa-msg.doc b { display: block; font-size: 13px; }
+.mx-wa-msg.doc span { font-size: 11px; color: rgba(233,237,239,0.65); }
+.mx-wa-sys { align-self: center; background: #182229; color: #8696a0; font-size: 12px; border-radius: 8px; padding: 5px 12px; }
+.mx-wa-label { align-self: center; background: rgba(238,204,17,0.14); border: 1px solid rgba(238,204,17,0.45); color: var(--accent-light); font-size: 11.5px; border-radius: 8px; padding: 4px 10px; font-family: 'Poppins', sans-serif; }
+.mx-wa-label b { color: var(--accent); margin-right: 4px; }
+.mx-wa-input { display: flex; align-items: center; gap: 10px; padding: 8px 10px 16px; background: #0b141a; }
+.mx-wa-input span { flex: 1; background: #2a3942; border-radius: 22px; padding: 10px 16px; font-size: 13px; color: #8696a0; }
+.mx-wa-input i { width: 40px; height: 40px; border-radius: 50%; background: #00a884; }
+.mx-wa.anim .mx-wa-body > [data-step] { display: none; }
+.mx-wa.anim .mx-wa-body > [data-step].in-view { display: block; animation: mx-pop 0.35s ease; }
+.mx-wa.anim .mx-wa-body > .mx-wa-msg.audio.in-view, .mx-wa.anim .mx-wa-body > .mx-wa-msg.doc.in-view { display: flex; }
+@keyframes mx-pop { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+/* Conversas do "Como funciona na prática" com cara de WhatsApp */
+#slide-26 .fx-chat, #slide-26 .fx-script { background: #0b141a; }
+#slide-26 .fx-chat-head { background: #202c33; }
+#slide-26 .fx-chat-body { background-color: #0b141a; background-image: radial-gradient(rgba(255,255,255,0.035) 1.2px, transparent 1.3px); background-size: 22px 22px; }
+#slide-26 .fx-msg.fx-in { background: #202c33 !important; color: #e9edef !important; }
+#slide-26 .fx-msg.fx-out { background: #005c4b !important; color: #e9edef !important; }
+#slide-26 .fx-msg.fx-out small { color: rgba(233,237,239,0.6) !important; }
 </style>
 </head>
 <body>
@@ -4801,7 +4969,7 @@ body::after {
           <div class="icp-stage icp-stage-niches">
             <span class="icp-step">02 · Teses com potencial</span>
             <div class="icp-chips">
-              <span data-icp="prev">Previdenciário</span><span data-icp="trab">Trabalhista</span><span data-icp="banc">Bancário</span><span>Família</span><span>Holding</span><span class="more">+10</span>
+              <span data-icp="prev">Previdenciário</span><span data-icp="trab">Trabalhista</span><span data-icp="banc">Bancário</span><span data-icp="fam">Família</span><span data-icp="hold">Holding</span><span data-icp="inv">Inventário</span><span data-icp="civ">Cível</span><span data-icp="imob">Imobiliário</span><span class="more">+10</span>
             </div>
           </div>
           <span class="icp-link" aria-hidden="true"></span>
@@ -4931,48 +5099,33 @@ body::after {
         <p class="eyebrow">Método TESE</p>
         <h2 class="section-title">Anúncios <em>estratégicos</em></h2>
         <p class="icp-quote">O anúncio não fala do seu escritório. Fala da <em>dor</em> do cliente, no canal onde ele já está.</p>
+        <div class="mx-channels"><span><b>Instagram</b> Reels, Stories e Feed</span><span><b>Google</b> Pesquisa</span></div>
+        <p class="mx-hint">Clique no anúncio para assistir. Use as setas para ver os outros.</p>
       </div>
-      <div class="letter-card-col">
-        <div class="circular-badge"><svg viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="48" fill="rgba(10,10,10,0.78)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-            <g class="badge-spin">
-              <defs><path id="badgePath10" d="M 12,54 A 38,38 0 0 1 88,54"/></defs>
-              <text font-size="7.5" fill="rgba(255,255,255,0.85)" letter-spacing="1.5">
-                <textPath href="#badgePath10" startOffset="50%" text-anchor="middle">MÉTODO TESE</textPath>
-              </text>
-            </g>
-            <path d="M42,38 L64,50 L42,62 Z" fill="#EECC11"/>
-          </svg></div>
-        <div class="ad-story">
-          <div class="ad-steps">
-            <div class="ad-step ad-step-pain">
-              <span class="icp-step">01 · A dor do cliente</span>
-              <div class="ad-swap">
-                <span class="ad-niche" data-ad-field="niche">Previdenciário</span>
-                <p class="ad-pain" data-ad-field="pain">Ficou com sequela de um acidente e não sabe dos seus direitos</p>
-              </div>
-            </div>
-            <span class="icp-link" aria-hidden="true"></span>
-            <div class="ad-step ad-step-channel">
-              <span class="icp-step">02 · Onde ele já está</span>
-              <div class="ad-channels-row">
-                <span class="ad-channel-pill"><b>Instagram</b> Meta Ads</span>
-                <span class="ad-channel-pill"><b>Google</b> Pesquisa</span>
-              </div>
-            </div>
-            <span class="icp-link" aria-hidden="true"></span>
-            <div class="ad-step ad-step-hook">
-              <span class="icp-step">03 · A chamada do anúncio</span>
-              <p class="ad-hook ad-swap" data-ad-field="hook">“Você já sofreu um acidente no decorrer da sua vida?”</p>
-            </div>
+            <div class="letter-card-col">
+        <div class="mx-ads" id="mx-ads">
+          <button type="button" class="mx-nav mx-prev" aria-label="Anúncio anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="mx-ads-track">
+          <div class="mx-ad" data-niche="Previdenciário" data-hook="“Você já sofreu um acidente no decorrer da sua vida?”">
+            <video src="../vid/pinheiro.mp4" poster="../vid/pinheiro.jpg" playsinline preload="none"></video>
+            <span class="mx-ad-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+            <span class="mx-ad-tag">Vídeo · Previdenciário</span>
           </div>
-          <figure class="ad-phone">
-            <div class="ad-phone-screen">
-              <img class="ad-phone-img" src="../vid/pinheiro.jpg" alt="Anúncio real de cliente">
-            </div>
-            <figcaption>Anúncio real de cliente</figcaption>
-          </figure>
+          <div class="mx-ad" data-niche="Bancário" data-hook="“Recebeu uma notificação do banco e teme perder seu carro?”">
+            <video src="../vid/debora.mp4" poster="../vid/debora.jpg" playsinline preload="none"></video>
+            <span class="mx-ad-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+            <span class="mx-ad-tag">Vídeo · Bancário</span>
+          </div>
+          <div class="mx-ad" data-niche="Holding" data-hook="“Seu planejamento sucessório foi feito com regras que podem não valer mais?”">
+            <video src="../vid/guilherme.mp4" poster="../vid/guilherme.jpg" playsinline preload="none"></video>
+            <span class="mx-ad-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+            <span class="mx-ad-tag">Vídeo · Holding</span>
+          </div>
+          </div>
+          <button type="button" class="mx-nav mx-next" aria-label="Próximo anúncio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
         </div>
+        <div class="mx-ads-caption"><span class="mx-ads-niche"></span><p class="mx-ads-hook"></p></div>
+        <div class="mx-ads-dots"></div>
       </div>
     </div>
   </section>
@@ -5087,53 +5240,31 @@ body::after {
         <p class="eyebrow">Método TESE</p>
         <h2 class="section-title">Estruturação de <em>autoridade</em></h2>
         <p class="icp-quote">Quando a comunicação é específica, o lead para de te ver como <em>mais um advogado</em> e passa a te ver como especialista.</p>
+        <ol class="mx-steps">
+          <li><b>Atrair</b><span>O anúncio fala exatamente da causa dele</span></li>
+          <li><b>Gerar confiança</b><span>Viu o anúncio, abre o seu perfil e encontra autoridade</span></li>
+          <li><b>Percepção de especialista</b><span>Para de comparar honorário e compara quem resolve</span></li>
+        </ol>
+        <p class="mx-hint">Clique nos escritórios para ver o perfil.</p>
       </div>
-      <div class="letter-card-col">
-        <div class="circular-badge"><svg viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="48" fill="rgba(10,10,10,0.78)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-            <g class="badge-spin">
-              <defs><path id="badgePath11" d="M 12,54 A 38,38 0 0 1 88,54"/></defs>
-              <text font-size="7.5" fill="rgba(255,255,255,0.85)" letter-spacing="1.5">
-                <textPath href="#badgePath11" startOffset="50%" text-anchor="middle">MÉTODO TESE</textPath>
-              </text>
-            </g>
-            <path d="M42,38 L64,50 L42,62 Z" fill="#EECC11"/>
-          </svg></div>
-        <div class="auth-story">
-          <div class="auth-grid">
-            <div class="ad-steps">
-              <div class="ad-step auth-step-1">
-                <span class="icp-step">01 · Autoridade</span>
-                <p class="auth-text">O anúncio fala exatamente da causa dele</p>
-              </div>
-              <span class="icp-link" aria-hidden="true"></span>
-              <div class="ad-step auth-step-2">
-                <span class="icp-step">02 · Valor percebido</span>
-                <p class="auth-text">Para de comparar honorário e compara quem resolve</p>
-              </div>
-              <span class="icp-link" aria-hidden="true"></span>
-              <div class="ad-step auth-step-3">
-                <span class="icp-step">03 · Confiança</span>
-                <p class="auth-text">Chega na consulta já confiando no escritório</p>
-              </div>
-            </div>
-            <div class="auth-lineup">
-              <span class="auth-lineup-label">Como o lead te vê</span>
-              <div class="auth-office">Escritório de advocacia</div>
-              <div class="auth-office">Advogado</div>
-              <div class="auth-office auth-office-you">
-                <span class="auth-office-tag">Seu escritório</span>
-                <span class="ad-swap">Especialista em direito <b data-auth-niche>previdenciário</b></span>
-              </div>
-              <div class="auth-office">Advocacia geral</div>
-              <div class="auth-office">Escritório de advocacia</div>
-            </div>
+            <div class="letter-card-col">
+        <div class="mx-ig">
+          <div class="mx-ig-picker">
+            <button type="button" class="mx-ig-pick on" data-ig="0"><img src="../img/ig-pinheiro.jpg" alt=""><span>Pinheiro & Pinheiro</span></button>
+            <button type="button" class="mx-ig-pick" data-ig="1"><img src="../img/ig-coelho.jpg" alt=""><span>Coelho & Santana</span></button>
+            <button type="button" class="mx-ig-pick" data-ig="2"><img src="../img/ig-iully.jpg" alt=""><span>Iully Freire</span></button>
           </div>
-          <div class="auth-meter">
-            <span class="sum-meter-label">Percepção do cliente</span>
-            <div class="sum-meter-track"><div class="auth-meter-fill"></div></div>
+          <div class="mx-ig-phone">
+            <div class="mx-ig-top"><b class="mx-ig-user"></b><span class="mx-ig-check" hidden>✔</span></div>
+            <div class="mx-ig-head">
+              <img class="mx-ig-av" src="" alt="">
+              <div class="mx-ig-stats"><div><b></b><span>posts</span></div><div><b></b><span>seguidores</span></div><div><b></b><span>seguindo</span></div></div>
+            </div>
+            <div class="mx-ig-name"></div>
+            <div class="mx-ig-bio"></div>
+            <div class="mx-ig-btns"><span class="on">Seguir</span><span>Mensagem</span><span>WhatsApp</span></div>
+            <div class="mx-ig-grid"><img src="" alt=""></div>
           </div>
-          <p class="auth-result"><span>=</span>Mais contratos com honorários maiores</p>
         </div>
       </div>
     </div>
@@ -5249,68 +5380,36 @@ body::after {
         <p class="eyebrow">Método TESE</p>
         <h2 class="section-title"><span class="text-accent">E</span>ngrenagem <em>comercial</em></h2>
         <p class="icp-quote">A indicação chega vendida. O lead da internet chega cético. Um <em>processo</em> transforma a conversa em contrato.</p>
+        <ol class="mx-flow">
+          <li data-step="0"><b>Atendimento humanizado</b><span>Resposta em até 5 minutos, com voz de gente</span></li>
+          <li data-step="1"><b>Ligação</b><span>A voz cria proximidade e confiança</span></li>
+          <li data-step="2"><b>Qualificação</b><span>Entende o caso e registra no CRM</span></li>
+          <li data-step="3"><b>Consulta</b><span>Agendada com o advogado</span></li>
+          <li data-step="4"><b>Fechamento</b><span>Contrato assinado na conversa</span></li>
+        </ol>
+        <div class="mx-train"><b>Treinamento do seu atendimento</b><span>Advogado e secretária treinados ao vivo, com scripts de ligação e de WhatsApp, e acompanhamento no grupo.</span></div>
       </div>
-      <div class="letter-card-col">
-        <div class="circular-badge"><svg viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="48" fill="rgba(10,10,10,0.78)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-            <g class="badge-spin">
-              <defs><path id="badgePath12" d="M 12,54 A 38,38 0 0 1 88,54"/></defs>
-              <text font-size="7.5" fill="rgba(255,255,255,0.85)" letter-spacing="1.5">
-                <textPath href="#badgePath12" startOffset="50%" text-anchor="middle">MÉTODO TESE</textPath>
-              </text>
-            </g>
-            <path d="M42,38 L64,50 L42,62 Z" fill="#EECC11"/>
-          </svg></div>
-        <div class="chat-story">
-          <div class="chat-grid">
-            <div class="ad-steps">
-              <div class="ad-step chat-step " data-step-key="script-wpp" data-plan-track="start">
-                <span class="icp-step">01 · Script de atendimento</span>
-                <p class="auth-text">Responde rápido e conduz até a consulta</p>
-              </div>
-              <span class="icp-link" aria-hidden="true" data-plan-track="start"></span>
-              <div class="ad-step chat-step chat-step-last" data-step-key="treino-gravado" data-plan-track="start">
-                <span class="icp-step">02 · Treinamento ao vivo</span>
-                <p class="auth-text">Advogado e secretária prontos pra fechar</p>
-              </div>
-              <div class="ad-step chat-step " data-step-key="script" data-plan-track="domain">
-                <span class="icp-step">01 · Ligação em até 5 minutos</span>
-                <p class="auth-text">Voz humana, sem robô, com script validado</p>
-              </div>
-              <span class="icp-link" aria-hidden="true" data-plan-track="domain"></span>
-              <div class="ad-step chat-step " data-step-key="crm" data-plan-track="domain">
-                <span class="icp-step">02 · CRM e cadência</span>
-                <p class="auth-text">5 dias de ligação e WhatsApp: nenhum lead esquecido</p>
-              </div>
-              <span class="icp-link" aria-hidden="true" data-plan-track="domain"></span>
-              <div class="ad-step chat-step " data-step-key="proposta" data-plan-track="domain">
-                <span class="icp-step">03 · Contrato na hora</span>
-                <p class="auth-text">Contrato de honorários assinado ainda na conversa</p>
-              </div>
-              <span class="icp-link" aria-hidden="true" data-plan-track="domain"></span>
-              <div class="ad-step chat-step chat-step-last" data-step-key="treino" data-plan-track="domain">
-                <span class="icp-step">04 · Treinamento comercial</span>
-                <p class="auth-text">Advogado e secretária prontos pra converter</p>
-              </div>
-            </div>
-            <figure class="ad-phone chat-phone">
-              <div class="ad-phone-screen chat-screen">
-                <div class="chat-head"><span class="chat-avatar">A</span><div><b>Seu Antônio</b><span>online</span></div></div>
-                <div class="chat-body">
-                <div class="chat-msg chat-in">Oi! Vi o anúncio sobre acidente e queria entender</div>
-                <div class="chat-msg chat-out" data-step="script-wpp" data-plan-track="start">Oi, seu Antônio! Pra eu te ajudar: o acidente deixou alguma sequela?</div>
-                <div class="chat-msg chat-out" data-step="script" data-plan-track="domain">Oi, seu Antônio! Pra eu te ajudar: o acidente deixou alguma sequela?</div>
-                <div class="chat-msg chat-in">Deixou sim, no braço. Faz uns 2 anos</div>
-                <div class="chat-msg chat-tag" data-step="crm" data-plan-track="domain"><b>CRM</b> Lead qualificado · consulta amanhã 10h</div>
-                <div class="chat-msg chat-out chat-file" data-step="proposta" data-plan-track="domain"><span class="chat-pdf"><i>PDF</i>Contrato de honorários</span></div>
-                <div class="chat-msg chat-out" data-plan-track="start">O Dr. pode analisar seu caso amanhã às 10h. Pode ser?</div>
-                <div class="chat-msg chat-in" data-step="treino-gravado" data-plan-track="start">Fechado! Vamos seguir 🙌</div>
-                <div class="chat-msg chat-in" data-step="treino" data-plan-track="domain">Assinado! Vamos seguir 🙌</div>
-                </div>
-              </div>
-            </figure>
+            <div class="letter-card-col">
+        <div class="mx-wa" id="mx-wa">
+          <div class="mx-wa-head">
+            <span class="mx-wa-back">‹</span>
+            <span class="mx-wa-av">A</span>
+            <div class="mx-wa-who"><b>Seu Antônio</b><span>online</span></div>
+            <span class="mx-wa-icons"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></span>
           </div>
-          <p class="auth-result chat-result"><span>=</span>Lead virou cliente</p>
+          <div class="mx-wa-body">
+            <div class="mx-wa-day">HOJE</div>
+            <div class="mx-wa-msg in" data-step="0"><div class="mx-wa-ref"><img src="../vid/pinheiro.jpg" alt=""><div><b>Você já sofreu um acidente?</b><span>Anúncio · Instagram</span></div></div>Oi! Vi o anúncio sobre acidente e queria entender se tenho direito<small>09:41</small></div>
+            <div class="mx-wa-msg out" data-step="0">Oi, seu Antônio! Aqui é a Bia, do escritório 😊 Que bom que chamou!<small>09:42 <svg class="mx-wa-tick" viewBox="0 0 18 18"><path d="M1.5 9.5l3 3 6-7M6.5 12.5l1 1 8-9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></small></div>
+            <div class="mx-wa-msg out audio" data-step="0"><span class="mx-wa-play">▶</span><span class="mx-wa-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="mx-wa-dur">0:38</span><small>09:42 <svg class="mx-wa-tick" viewBox="0 0 18 18"><path d="M1.5 9.5l3 3 6-7M6.5 12.5l1 1 8-9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></small></div>
+            <div class="mx-wa-sys" data-step="1">📞 Chamada de voz · 6 min</div>
+            <div class="mx-wa-msg in" data-step="2">Deixou sequela no braço. Faz uns 2 anos que aconteceu<small>09:51</small></div>
+            <div class="mx-wa-label" data-step="2"><b>CRM</b> Lead qualificado · auxílio-acidente</div>
+            <div class="mx-wa-msg out" data-step="3">O Dr. Rafael vai analisar seu caso amanhã às 10h, por vídeo. Pode ser?<small>09:53 <svg class="mx-wa-tick" viewBox="0 0 18 18"><path d="M1.5 9.5l3 3 6-7M6.5 12.5l1 1 8-9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></small></div>
+            <div class="mx-wa-msg out doc" data-step="4"><span class="mx-wa-pdf">PDF</span><div><b>Contrato de honorários.pdf</b><span>2 páginas · 148 kB</span></div><small>10:31 <svg class="mx-wa-tick" viewBox="0 0 18 18"><path d="M1.5 9.5l3 3 6-7M6.5 12.5l1 1 8-9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></small></div>
+            <div class="mx-wa-msg in" data-step="4">Assinado! Muito obrigado pela atenção ✅<small>10:40</small></div>
+          </div>
+          <div class="mx-wa-input"><span>Mensagem</span><i></i></div>
         </div>
       </div>
     </div>
@@ -6934,6 +7033,41 @@ const ICP_PERSONAS = [
     pain: 'medo de perder o carro na busca e apreensão',
     wants: 'proteger o bem e negociar a dívida',
   },
+  {
+    key: 'fam',
+    name: 'Mãe ou pai em separação',
+    today: 'precisa resolver pensão, guarda ou divórcio',
+    pain: 'insegurança e medo de perder direitos dos filhos',
+    wants: 'um advogado de confiança que resolva rápido',
+  },
+  {
+    key: 'hold',
+    name: 'Família com patrimônio',
+    today: 'imóveis e empresa no nome dos pais',
+    pain: 'medo de briga e de imposto alto na sucessão',
+    wants: 'proteger o patrimônio e planejar a sucessão',
+  },
+  {
+    key: 'inv',
+    name: 'Herdeiro com inventário parado',
+    today: 'perdeu um familiar e os bens estão travados',
+    pain: 'multa do ITCMD e burocracia sem fim',
+    wants: 'regularizar a herança de forma rápida',
+  },
+  {
+    key: 'civ',
+    name: 'Consumidor lesado',
+    today: 'teve voo cancelado, cobrança indevida ou nome negativado',
+    pain: 'não sabe se vale a pena entrar na justiça',
+    wants: 'ser indenizado sem dor de cabeça',
+  },
+  {
+    key: 'imob',
+    name: 'Comprador de imóvel',
+    today: 'comprou na planta e a obra atrasou, ou tem imóvel sem escritura',
+    pain: 'medo de perder o dinheiro investido',
+    wants: 'regularizar o imóvel ou receber o que pagou',
+  },
 ];
 if (icpFunnel) {
   const body = icpFunnel.querySelector('.icp-persona-body');
@@ -6976,6 +7110,15 @@ if (icpFunnel) {
       icpTimer = setInterval(() => showPersona((icpIndex + 1) % ICP_PERSONAS.length, true), 3800);
     }, 3600);
   }).observe(icpFunnel, { attributes: true, attributeFilter: ['class'] });
+
+  // Clique numa tese: mostra o cliente ideal dela e para a troca automática.
+  chips.forEach((chip) => chip.addEventListener('click', () => {
+    const i = ICP_PERSONAS.findIndex((p) => p.key === chip.dataset.icp);
+    if (i < 0) return;
+    stopRotation();
+    icpFunnel.classList.add('settled');
+    showPersona(i, true);
+  }));
 }
 
 // A · Da dor ao anúncio: mesma sequência do funil do P, depois alterna entre nichos com anúncio real.
@@ -7538,6 +7681,106 @@ if (caseLightbox && caseCarouselTrack) {
   });
 }
 
+
+// ===== Método: brilho no hover só depois da animação de entrada =====
+(function () {
+  const story = document.querySelector('.pace-story');
+  if (!story) return;
+  let t = null;
+  new MutationObserver(() => {
+    clearTimeout(t);
+    if (story.classList.contains('play')) t = setTimeout(() => story.classList.add('ready'), 3800);
+    else story.classList.remove('ready');
+  }).observe(story, { attributes: true, attributeFilter: ['class'] });
+  if (!story.classList.contains('icp-anim')) story.classList.add('ready');
+})();
+
+// ===== Anúncios: carrossel com vídeo =====
+(function () {
+  const root = document.getElementById('mx-ads');
+  if (!root) return;
+  const cards = Array.from(root.querySelectorAll('.mx-ad'));
+  const col = root.closest('.letter-card-col');
+  const nicheEl = col.querySelector('.mx-ads-niche');
+  const hookEl = col.querySelector('.mx-ads-hook');
+  const dots = col.querySelector('.mx-ads-dots');
+  let cur = 0;
+  cards.forEach((_, i) => { const b = document.createElement('button'); b.type = 'button'; b.addEventListener('click', () => go(i)); dots.appendChild(b); });
+  const stopAll = () => cards.forEach((c) => { const v = c.querySelector('video'); if (v) { v.pause(); v.controls = false; } c.classList.remove('playing'); });
+  function go(i) {
+    stopAll();
+    cur = (i + cards.length) % cards.length;
+    const n = cards.length;
+    cards.forEach((c, k) => {
+      const d = (k - cur + n) % n;
+      c.className = 'mx-ad ' + (d === 0 ? 'active' : d === 1 ? 'next' : d === n - 1 ? 'prev' : 'hidden');
+    });
+    nicheEl.textContent = cards[cur].dataset.niche;
+    hookEl.textContent = cards[cur].dataset.hook;
+    Array.from(dots.children).forEach((b, k) => b.classList.toggle('on', k === cur));
+  }
+  cards.forEach((c, i) => c.addEventListener('click', () => {
+    if (i !== cur) { go(i); return; }
+    const v = c.querySelector('video');
+    if (!v) return;
+    if (v.paused) { v.controls = true; v.muted = false; v.play().catch(() => {}); c.classList.add('playing'); }
+    else { v.pause(); c.classList.remove('playing'); }
+  }));
+  root.querySelector('.mx-prev').addEventListener('click', () => go(cur - 1));
+  root.querySelector('.mx-next').addEventListener('click', () => go(cur + 1));
+  go(0);
+  // Saiu do slide: pausa o vídeo.
+  new IntersectionObserver(([e]) => { if (!e.isIntersecting) stopAll(); }, { threshold: 0.2 }).observe(root.closest('.slide'));
+})();
+
+// ===== Autoridade: perfis de Instagram dos clientes =====
+(function () {
+  const IG = [{"user": "pinheiro_e_pinheiro_advogados", "nome": "Pinheiro & Pinheiro Advogados", "av": "../img/ig-pinheiro.jpg", "grid": "../img/ig-pinheiro-grid.jpg", "check": false, "stats": ["231", "1.043", "62"], "bio": ["Previdenciário, Cível, Médico e do Trabalho", "26 anos na defesa dos seus direitos"]}, {"user": "coelhoesantana", "nome": "Coelho & Santana Advogados", "av": "../img/ig-coelho.jpg", "grid": "../img/ig-coelho-grid.jpg", "check": false, "stats": ["61", "288", "59"], "bio": ["Escritório especializado em ações e defesas trabalhistas", "Osasco, Alphaville e Itapevi · SP"]}, {"user": "iullyfreireadvogados", "nome": "Iully Freire Adv. Associados", "av": "../img/ig-iully.jpg", "grid": "../img/ig-iully-grid.jpg", "check": true, "stats": ["826", "25,9 mil", "992"], "bio": ["Direito do Trabalho no setor financeiro", "+25 anos · +10 mil bancários atendidos"]}];
+  const root = document.querySelector('.mx-ig');
+  if (!root) return;
+  const phone = root.querySelector('.mx-ig-phone');
+  const $ = (q) => phone.querySelector(q);
+  const fill = (p) => {
+    $('.mx-ig-user').textContent = p.user;
+    $('.mx-ig-check').hidden = !p.check;
+    $('.mx-ig-av').src = p.av;
+    phone.querySelectorAll('.mx-ig-stats b').forEach((b, i) => { b.textContent = p.stats[i]; });
+    $('.mx-ig-name').textContent = p.nome;
+    $('.mx-ig-bio').innerHTML = p.bio.join('<br>');
+    $('.mx-ig-grid img').src = p.grid;
+  };
+  const picks = Array.from(root.querySelectorAll('.mx-ig-pick'));
+  picks.forEach((b) => b.addEventListener('click', () => {
+    picks.forEach((x) => x.classList.toggle('on', x === b));
+    phone.classList.add('swap');
+    setTimeout(() => { fill(IG[+b.dataset.ig]); phone.classList.remove('swap'); }, 220);
+  }));
+  fill(IG[0]);
+})();
+
+// ===== Engrenagem: conversa de WhatsApp entrando mensagem por mensagem =====
+(function () {
+  const wa = document.getElementById('mx-wa');
+  if (!wa) return;
+  const items = Array.from(wa.querySelectorAll('.mx-wa-body > [data-step]'));
+  const steps = Array.from(wa.closest('.slide').querySelectorAll('.mx-flow li'));
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let timers = [];
+  const showAll = () => { items.forEach((m) => m.classList.add('in-view')); steps.forEach((s) => s.classList.add('on')); };
+  if (reduced) { showAll(); return; }
+  wa.classList.add('anim');
+  new IntersectionObserver(([e]) => {
+    timers.forEach(clearTimeout); timers = [];
+    items.forEach((m) => m.classList.remove('in-view'));
+    steps.forEach((s) => s.classList.remove('on'));
+    if (!e.isIntersecting) return;
+    items.forEach((m, i) => timers.push(setTimeout(() => {
+      m.classList.add('in-view');
+      const st = +m.dataset.step;
+      steps.forEach((s) => s.classList.toggle('on', +s.dataset.step <= st));
+    }, 600 + i * 1100)));
+  }, { threshold: 0.5 }).observe(wa.closest('.slide'));
+})();
 </script>
 </body>
 </html>
