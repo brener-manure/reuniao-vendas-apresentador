@@ -4474,7 +4474,7 @@ body::after {
 .mx-ad { position: absolute; inset: 0; border-radius: 22px; overflow: hidden; border: 1px solid rgba(255,255,255,0.14); background: #000;
   box-shadow: 0 30px 70px rgba(0,0,0,0.6); cursor: pointer;
   transition: transform 0.5s cubic-bezier(.2,.85,.2,1), opacity 0.45s ease, filter 0.45s ease; }
-.mx-ad video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mx-ad video, .mx-ad img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mx-ad.active { z-index: 3; transform: none; box-shadow: 0 30px 80px rgba(0,0,0,0.65), 0 0 70px -10px rgba(238,204,17,0.55); border-color: rgba(238,204,17,0.6); }
 .mx-ad.prev { z-index: 2; transform: translateX(-92px) scale(0.8) rotate(-5deg); opacity: 0.5; filter: brightness(0.5); }
 .mx-ad.next { z-index: 2; transform: translateX(92px) scale(0.8) rotate(5deg); opacity: 0.5; filter: brightness(0.5); }
@@ -4507,9 +4507,9 @@ body::after {
 .mx-steps span, .mx-flow span { font-size: 13px; color: var(--text-muted); }
 .mx-steps li:hover { border-color: rgba(238,204,17,0.5); background: rgba(238,204,17,0.07); transform: translateX(4px); }
 .mx-ig { display: flex; flex-direction: column; align-items: center; gap: 18px; }
-.mx-ig-picker { display: flex; gap: 14px; }
-.mx-ig-pick { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-family: inherit; font-size: 11.5px; font-weight: 600; width: 96px; text-align: center; }
-.mx-ig-pick img { width: 62px; height: 62px; border-radius: 50%; object-fit: cover; padding: 3px; background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.mx-ig-picker { display: flex; gap: 6px; }
+.mx-ig-pick { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-family: inherit; font-size: 11px; font-weight: 600; width: 82px; text-align: center; line-height: 1.25; }
+.mx-ig-pick img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; padding: 3px; background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); transition: transform 0.25s ease, box-shadow 0.25s ease; }
 .mx-ig-pick:hover img { transform: scale(1.08); }
 .mx-ig-pick.on { color: var(--white); }
 .mx-ig-pick.on img { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent), 0 0 26px rgba(238,204,17,0.6); }
@@ -5111,15 +5111,31 @@ body::after {
             <span class="mx-ad-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
             <span class="mx-ad-tag">Vídeo · Previdenciário</span>
           </div>
+          <div class="mx-ad mx-ad-static" data-niche="Trabalhista" data-hook="O INSS deu alta, mas o médico da empresa recusou o seu retorno ao trabalho?">
+            <img src="../img/criativos/criativo-1.jpg" alt="Criativo estático · Trabalhista" loading="lazy">
+            <span class="mx-ad-tag">Estático · Trabalhista</span>
+          </div>
           <div class="mx-ad" data-niche="Bancário" data-hook="“Recebeu uma notificação do banco e teme perder seu carro?”">
             <video src="../vid/debora.mp4" poster="../vid/debora.jpg" playsinline preload="none"></video>
             <span class="mx-ad-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
             <span class="mx-ad-tag">Vídeo · Bancário</span>
           </div>
+          <div class="mx-ad mx-ad-static" data-niche="Direito agrário" data-hook="“O banco está me pressionando para renegociar o financiamento rural. Devo aceitar?”">
+            <img src="../img/criativos/criativo-3.jpg" alt="Criativo estático · Direito agrário" loading="lazy">
+            <span class="mx-ad-tag">Estático · Direito agrário</span>
+          </div>
           <div class="mx-ad" data-niche="Holding" data-hook="“Seu planejamento sucessório foi feito com regras que podem não valer mais?”">
             <video src="../vid/guilherme.mp4" poster="../vid/guilherme.jpg" playsinline preload="none"></video>
             <span class="mx-ad-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
             <span class="mx-ad-tag">Vídeo · Holding</span>
+          </div>
+          <div class="mx-ad mx-ad-static" data-niche="Trabalhista" data-hook="Formato ChatGPT: “O INSS liberou meu retorno, mas o médico da empresa não aceitou”">
+            <img src="../img/criativos/criativo-2.jpg" alt="Criativo estático · Trabalhista" loading="lazy">
+            <span class="mx-ad-tag">Estático · Trabalhista</span>
+          </div>
+          <div class="mx-ad mx-ad-static" data-niche="Direito agrário" data-hook="Formato Google: prorrogação de crédito rural por seca">
+            <img src="../img/criativos/criativo-4.jpg" alt="Criativo estático · Direito agrário" loading="lazy">
+            <span class="mx-ad-tag">Estático · Direito agrário</span>
           </div>
           </div>
           <button type="button" class="mx-nav mx-next" aria-label="Próximo anúncio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
@@ -5253,6 +5269,8 @@ body::after {
             <button type="button" class="mx-ig-pick on" data-ig="0"><img src="../img/ig-pinheiro.jpg" alt=""><span>Pinheiro & Pinheiro</span></button>
             <button type="button" class="mx-ig-pick" data-ig="1"><img src="../img/ig-coelho.jpg" alt=""><span>Coelho & Santana</span></button>
             <button type="button" class="mx-ig-pick" data-ig="2"><img src="../img/ig-iully.jpg" alt=""><span>Iully Freire</span></button>
+            <button type="button" class="mx-ig-pick" data-ig="3"><img src="../img/ig-guilherme.jpg" alt=""><span>Guilherme Nunes</span></button>
+            <button type="button" class="mx-ig-pick" data-ig="4"><img src="../img/ig-henrique.jpg" alt=""><span>Henrique Pedrosa</span></button>
           </div>
           <div class="mx-ig-phone">
             <div class="mx-ig-top"><b class="mx-ig-user"></b><span class="mx-ig-check" hidden>✔</span></div>
@@ -7735,7 +7753,7 @@ if (caseLightbox && caseCarouselTrack) {
 
 // ===== Autoridade: perfis de Instagram dos clientes =====
 (function () {
-  const IG = [{"user": "pinheiro_e_pinheiro_advogados", "nome": "Pinheiro & Pinheiro Advogados", "av": "../img/ig-pinheiro.jpg", "grid": "../img/ig-pinheiro-grid.jpg", "check": false, "stats": ["231", "1.043", "62"], "bio": ["Previdenciário, Cível, Médico e do Trabalho", "26 anos na defesa dos seus direitos"]}, {"user": "coelhoesantana", "nome": "Coelho & Santana Advogados", "av": "../img/ig-coelho.jpg", "grid": "../img/ig-coelho-grid.jpg", "check": false, "stats": ["61", "288", "59"], "bio": ["Escritório especializado em ações e defesas trabalhistas", "Osasco, Alphaville e Itapevi · SP"]}, {"user": "iullyfreireadvogados", "nome": "Iully Freire Adv. Associados", "av": "../img/ig-iully.jpg", "grid": "../img/ig-iully-grid.jpg", "check": true, "stats": ["826", "25,9 mil", "992"], "bio": ["Direito do Trabalho no setor financeiro", "+25 anos · +10 mil bancários atendidos"]}];
+  const IG = [{"user": "pinheiro_e_pinheiro_advogados", "nome": "Pinheiro & Pinheiro Advogados", "av": "../img/ig-pinheiro.jpg", "grid": "../img/ig-pinheiro-grid.jpg", "check": false, "stats": ["231", "1.043", "62"], "bio": ["Previdenciário, Cível, Médico e do Trabalho", "26 anos na defesa dos seus direitos"]}, {"user": "coelhoesantana", "nome": "Coelho & Santana Advogados", "av": "../img/ig-coelho.jpg", "grid": "../img/ig-coelho-grid.jpg", "check": false, "stats": ["61", "288", "59"], "bio": ["Escritório especializado em ações e defesas trabalhistas", "Osasco, Alphaville e Itapevi · SP"]}, {"user": "iullyfreireadvogados", "nome": "Iully Freire Adv. Associados", "av": "../img/ig-iully.jpg", "grid": "../img/ig-iully-grid.jpg", "check": true, "stats": ["826", "25,9 mil", "992"], "bio": ["Direito do Trabalho no setor financeiro", "+25 anos · +10 mil bancários atendidos"]}, {"user": "guilhermenunes.adv", "nome": "Guilherme Nunes (GN) · Advogado de Negócios", "av": "../img/ig-guilherme.jpg", "grid": "../img/ig-guilherme-grid.jpg", "check": true, "stats": ["87", "30,9 mil", "4.562"], "bio": ["🌟 Advocacia de Alto Valor", "🔥 Expert em Holding"]}, {"user": "henriquepedrosaadvocacia", "nome": "Henrique Pedrosa Advocacia", "av": "../img/ig-henrique.jpg", "grid": "../img/ig-henrique-grid.jpg", "check": false, "stats": ["9", "360", "202"], "bio": ["Advogado trabalhista em Maceió/AL", "Conteúdo informativo sobre direitos trabalhistas"]}];
   const root = document.querySelector('.mx-ig');
   if (!root) return;
   const phone = root.querySelector('.mx-ig-phone');
